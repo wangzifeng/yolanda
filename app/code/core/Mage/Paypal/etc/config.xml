@@ -1,0 +1,160 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Magento
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Academic Free License (AFL 3.0)
+ * that is bundled with this package in the file LICENSE_AFL.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/afl-3.0.php
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@magentocommerce.com so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade Magento to newer
+ * versions in the future. If you wish to customize Magento for your
+ * needs please refer to http://www.magentocommerce.com for more information.
+ *
+ * @category    Mage
+ * @package     Mage_Paypal
+ * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
+ * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+ */
+-->
+<config>
+    <modules>
+        <Mage_Paypal>
+            <version>0.7.4</version>
+        </Mage_Paypal>
+    </modules>
+    <global>
+        <models>
+            <paypal>
+                <class>Mage_Paypal_Model</class>
+                <resourceModel>paypal_mysql4</resourceModel>
+            </paypal>
+            <paypal_mysql4>
+                <class>Mage_Paypal_Model_Mysql4</class>
+                <entities>
+                    <api_debug><table>paypal_api_debug</table></api_debug>
+                </entities>
+            </paypal_mysql4>
+        </models>
+        <resources>
+            <paypal_setup>
+                <setup>
+                    <module>Mage_Paypal</module>
+                    <class>Mage_Paypal_Model_Mysql4_Setup</class>
+                </setup>
+            </paypal_setup>
+        </resources>
+        <blocks>
+            <paypal><class>Mage_Paypal_Block</class></paypal>
+        </blocks>
+        <sales>
+            <order>
+                <statuses>
+                    <!-- retained for backwards compatibility, not used anymore -->
+                    <pending_paypal translate="label"><label>Pending PayPal</label></pending_paypal>
+                </statuses>
+            </order>
+        </sales>
+        <payment>
+            <cc>
+                <types>
+                    <SS translate="name">
+                        <code>SS</code>
+                        <name>Maestro/Solo</name>
+                        <order>40</order>
+                    </SS>
+                </types>
+            </cc>
+        </payment>
+    </global>
+    <frontend>
+        <secure_url>
+            <paypal_express>/paypal/express</paypal_express>
+            <paypal_standard>/paypal/standard</paypal_standard>
+        </secure_url>
+        <routers>
+            <paypal>
+                <use>standard</use>
+                <args>
+                    <module>Mage_Paypal</module>
+                    <frontName>paypal</frontName>
+                </args>
+            </paypal>
+        </routers>
+        <translate>
+            <modules>
+                <Mage_Paypal>
+                    <files>
+                        <default>Mage_Paypal.csv</default>
+                    </files>
+                </Mage_Paypal>
+            </modules>
+        </translate>
+        <layout>
+            <updates>
+                <paypal>
+                    <file>paypal.xml</file>
+                </paypal>
+            </updates>
+        </layout>
+    </frontend>
+    <adminhtml>
+        <translate>
+            <modules>
+                <Mage_Paypal>
+                    <files>
+                        <default>Mage_Paypal.csv</default>
+                    </files>
+                </Mage_Paypal>
+            </modules>
+        </translate>
+    </adminhtml>
+    <default>
+        <paypal>
+            <wpp>
+                <business_account backend_model="adminhtml/system_config_backend_encrypted"/>
+                <api_password backend_model="adminhtml/system_config_backend_encrypted"/>
+                <api_signature backend_model="adminhtml/system_config_backend_encrypted"/>
+                <api_username backend_model="adminhtml/system_config_backend_encrypted"/>
+                <button_flavor>dynamic</button_flavor>
+                <button_type>ec-shortcut</button_type>
+            </wpp>
+            <wps>
+                <business_account backend_model="adminhtml/system_config_backend_encrypted"/>
+            </wps>
+        </paypal>
+        <payment>
+            <paypal_express translate="title">
+                <model>paypal/express</model>
+                <title>PayPal</title>
+                <payment_action>Sale</payment_action>
+                <allowspecific>0</allowspecific>
+                <solution_type>Sole</solution_type>
+                <line_items_enabled>1</line_items_enabled>
+            </paypal_express>
+            <paypal_direct translate="title">
+                <payment_action>Sale</payment_action>
+                <model>paypal/direct</model>
+                <title>Debit or Credit Card</title>
+                <cctypes>AE,VI,MC,DI</cctypes>
+                <allowspecific>0</allowspecific>
+                <line_items_enabled>1</line_items_enabled>
+            </paypal_direct>
+            <paypal_standard translate="title">
+                <model>paypal/standard</model>
+                <title>PayPal</title>
+                <allowspecific>0</allowspecific>
+                <payment_action>Sale</payment_action>
+                <line_items_enabled>1</line_items_enabled>
+            </paypal_standard>
+        </payment>
+    </default>
+</config>
