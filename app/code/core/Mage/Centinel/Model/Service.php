@@ -62,7 +62,7 @@ class Mage_Centinel_Model_Service extends Varien_Object
     /**
      * Validation state model
      *
-     * @var unknown_type
+     * @var Mage_Centinel_Model_StateAbstract
      */
     protected $_validationState;
 
@@ -158,18 +158,23 @@ class Mage_Centinel_Model_Service extends Varien_Object
         if ($modelClass = $this->_getConfig()->getStateModelClass($cardType)) {
             return Mage::getModel($modelClass);
         }
-        throw new Exception('Not fount state model for card type: ' . $cardType);
+        return false;
     }
 
     /**
      * Return validation state model
      *
+     * @param string $cardType
      * @return Mage_Centinel_Model_StateAbstract
      */
-    protected function _getValidationState()
+    protected function _getValidationState($cardType = null)
     {
-        if (!$this->_validationState && $this->_getSession()->getData('card_type')) {
-            $model = $this->_getValidationStateModel($this->_getSession()->getData('card_type'));
+        $type = $cardType ? $cardType : $this->_getSession()->getData('card_type');
+        if (!$this->_validationState && $type) {
+            $model = $this->_getValidationStateModel($type);
+            if (!$model) {
+                return false;
+            }
             $model->setDataStorage($this->_getSession());
             $this->_validationState = $model;
         }
@@ -182,10 +187,8 @@ class Mage_Centinel_Model_Service extends Varien_Object
      */
     protected function _resetValidationState()
     {
-        if ($state = $this->_getValidationState()) {
-            $state->setData(array());
-            $this->_validationState = false;
-        }
+        $this->_getSession()->setData(array());
+        $this->_validationState = false;
     }
 
     /**
@@ -239,7 +242,7 @@ class Mage_Centinel_Model_Service extends Varien_Object
     {
         $validationState = $this->_getValidationState();
         if (!$validationState || $data->getTransactionId() != $validationState->getLookupTransactionId()) {
-            throw new Exception('Authentication can not be running. Transaction id or validation state is wrong.');
+            throw new Exception('Authentication impossible: transaction id or validation state is wrong.');
         }
 
         $api = $this->_getApi();
@@ -268,11 +271,15 @@ class Mage_Centinel_Model_Service extends Varien_Object
             $data->getCurrencyCode()
         );
 
-        $validationState = $this->_getValidationState();
+        $validationState = $this->_getValidationState($data->getCardType());
+        if (!$validationState) {
+            $this->_resetValidationState();
+            return;
+        }
 
         // check whether is authenticated before placing order
         if ($this->getIsPlaceOrder()) {
-            if (!$validationState || $validationState->getChecksum() != $newChecksum) {
+            if ($validationState->getChecksum() != $newChecksum) {
                 Mage::throwException(Mage::helper('centinel')->__('Payment information error. Please start over.'));
             }
             if ($validationState->isAuthenticateSuccessful()) {
@@ -280,7 +287,7 @@ class Mage_Centinel_Model_Service extends Varien_Object
             }
             Mage::throwException(Mage::helper('centinel')->__('Please verify the card with the issuer bank before placing the order.'));
         } else {
-            if (!$validationState || $validationState->getChecksum() != $newChecksum) {
+            if ($validationState->getChecksum() != $newChecksum) {
                 $this->lookup($data);
                 $validationState = $this->_getValidationState();
             }
@@ -331,7 +338,7 @@ class Mage_Centinel_Model_Service extends Varien_Object
     {
         $validationState = $this->_getValidationState();
         if (!$validationState && $this->shouldAuthenticate()) {
-            throw new Exception('Authentication can not be running. Validation state is wrong.');
+            throw new Exception('Authentication impossible: validation state is wrong.');
         }
         $data = array(
             'acs_url' => $validationState->getLookupAcsUrl(),
