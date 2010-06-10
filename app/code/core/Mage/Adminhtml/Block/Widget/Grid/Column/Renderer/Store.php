@@ -20,7 +20,7 @@
  *
  * @category    Mage
  * @package     Mage_Adminhtml
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
+ * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -35,7 +35,6 @@
 class Mage_Adminhtml_Block_Widget_Grid_Column_Renderer_Store extends Mage_Adminhtml_Block_Widget_Grid_Column_Renderer_Abstract
 {
     protected $_skipAllStoresLabel = false;
-    protected $_skipEmptyStoresLabel = false;
 
     /**
      * Retrieve System Store model
@@ -60,18 +59,6 @@ class Mage_Adminhtml_Block_Widget_Grid_Column_Renderer_Store extends Mage_Adminh
     }
 
     /**
-     * Retrieve 'show empty stores label' flag
-     *
-     * @return bool
-     */
-    protected function _getShowEmptyStoresLabelFlag()
-    {
-        return $this->getColumn()->getData('skipEmptyStoresLabel')
-            ? $this->getColumn()->getData('skipEmptyStoresLabel')
-            : $this->_skipEmptyStoresLabel;
-    }
-
-    /**
      * Render row store views
      *
      * @param Varien_Object $row
@@ -81,7 +68,6 @@ class Mage_Adminhtml_Block_Widget_Grid_Column_Renderer_Store extends Mage_Adminh
     {
         $out = '';
         $skipAllStoresLabel = $this->_getShowAllStoresLabelFlag();
-        $skipEmptyStoresLabel = $this->_getShowEmptyStoresLabelFlag();
         $origStores = $row->getData($this->getColumn()->getIndex());
 
         if (is_null($origStores) && $row->getStoreName()) {
@@ -93,17 +79,11 @@ class Mage_Adminhtml_Block_Widget_Grid_Column_Renderer_Store extends Mage_Adminh
             return $out;
         }
 
-        if (empty($origStores)&& !$skipEmptyStoresLabel) {
-            return '';
-        }
         if (!is_array($origStores)) {
             $origStores = array($origStores);
         }
 
-        if (empty($origStores)) {
-            return '';
-        }
-        elseif (in_array(0, $origStores) && count($origStores) == 1 && !$skipAllStoresLabel) {
+        if (in_array(0, $origStores) && !$skipAllStoresLabel) {
             return Mage::helper('adminhtml')->__('All Store Views');
         }
 

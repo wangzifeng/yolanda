@@ -20,7 +20,7 @@
  *
  * @category    Mage
  * @package     Mage_CatalogSearch
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
+ * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -39,8 +39,7 @@ class Mage_CatalogSearch_Model_Layer extends Mage_Catalog_Model_Layer
             $collection = $this->_productCollections[$this->getCurrentCategory()->getId()];
         }
         else {
-            $engine = Mage::helper('catalogsearch')->getEngine();
-            $collection = $engine->getResultCollection();
+            $collection = Mage::getResourceModel('catalogsearch/fulltext_collection');
             $this->prepareProductCollection($collection);
             $this->_productCollections[$this->getCurrentCategory()->getId()] = $collection;
         }

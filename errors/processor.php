@@ -20,7 +20,7 @@
  *
  * @category    Mage
  * @package     Errors
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
+ * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -139,13 +139,11 @@ class Error_Processor
         $this->_errorDir  = dirname(__FILE__) . '/';
         $this->_reportDir = dirname($this->_errorDir) . '/var/report/';
 
-        if (!empty($_SERVER['SCRIPT_NAME'])) {
-            if (in_array(basename($_SERVER['SCRIPT_NAME'],'.php'), array('404','503','report'))) {
-                $this->_scriptName = dirname($_SERVER['SCRIPT_NAME']);
-            }
-            else {
-                $this->_scriptName = $_SERVER['SCRIPT_NAME'];
-            }
+        if (in_array(basename($_SERVER['SCRIPT_NAME'],'.php'), array('404','503','report'))) {
+            $this->_scriptName = dirname($_SERVER['SCRIPT_NAME']);
+        }
+        else {
+            $this->_scriptName = $_SERVER['SCRIPT_NAME'];
         }
 
         $reportId = (isset($_GET['id'])) ? (int)$_GET['id'] : null;
@@ -220,19 +218,8 @@ class Error_Processor
      */
     public function getHostUrl()
     {
-        /**
-         * Define server http host
-         */
-        if (!empty($_SERVER['HTTP_HOST'])) {
-            $host = $_SERVER['HTTP_HOST'];
-        } elseif (!empty($_SERVER['SERVER_NAME'])) {
-            $host = $_SERVER['SERVER_NAME'];
-        } else {
-            $host = 'localhost';
-        }
-
-        $isSecure = (!empty($_SERVER['HTTPS'])) && ($_SERVER['HTTPS'] != 'off');
-        $url = ($isSecure ? 'https://' : 'http://') . $host;
+        $isSecure = isset($_SERVER['SERVER_PORT']) && (443 == $_SERVER['SERVER_PORT']);
+        $url = ($isSecure ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'];
 
         if (!empty($_SERVER['SERVER_PORT']) && !in_array($_SERVER['SERVER_PORT'], array(80, 433))) {
             $url .= ':' . $_SERVER['SERVER_PORT'];
@@ -274,11 +261,7 @@ class Error_Processor
      */
     protected function _getIndexDir()
     {
-        $documentRoot = '';
-        if (!empty($_SERVER['DOCUMENT_ROOT'])) {
-            $documentRoot = rtrim($_SERVER['DOCUMENT_ROOT'],'/');
-        }
-        return dirname($documentRoot . $this->_scriptName) . '/';
+        return dirname(rtrim($_SERVER['DOCUMENT_ROOT'],'/').$this->_scriptName) . '/';
     }
 
     /**
@@ -504,11 +487,11 @@ class Error_Processor
     {
         $this->pageTitle = 'Error Submission Form';
 
-        $this->postData['firstName'] = (isset($_POST['firstname'])) ? trim(htmlspecialchars($_POST['firstname'])) : '';
-        $this->postData['lastName']  = (isset($_POST['lastname'])) ? trim(htmlspecialchars($_POST['lastname'])) : '';
-        $this->postData['email']     = (isset($_POST['email'])) ? trim(htmlspecialchars($_POST['email'])) : '';
-        $this->postData['telephone'] = (isset($_POST['telephone'])) ? trim(htmlspecialchars($_POST['telephone'])) : '';
-        $this->postData['comment']   = (isset($_POST['comment'])) ? trim(htmlspecialchars($_POST['comment'])) : '';
+        $this->postData['firstName'] = (isset($_POST['firstname'])) ? trim($_POST['firstname']) : '';
+        $this->postData['lastName']  = (isset($_POST['lastname'])) ? trim($_POST['lastname']) : '';
+        $this->postData['email']     = (isset($_POST['email'])) ? trim($_POST['email']) : '';
+        $this->postData['telephone'] = (isset($_POST['telephone'])) ? trim($_POST['telephone']) : '';
+        $this->postData['comment']   = (isset($_POST['comment'])) ? trim(strip_tags($_POST['comment'])) : '';
 
         if (isset($_POST['submit'])) {
             if ($this->_validate()) {
@@ -528,8 +511,8 @@ class Error_Processor
                 $subject = sprintf('%s [%s]', (string)$this->_config->subject, $this->reportId);
                 @mail((string)$this->_config->email_address, $subject, $msg);
 
-                $this->showSendForm = false;
-                $this->showSentMsg  = true;
+                $this->showSendForm   = false;
+                $this->showSentMsg    = true;
             } else {
                 $this->showErrorMsg = true;
             }

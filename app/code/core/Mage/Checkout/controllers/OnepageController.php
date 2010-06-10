@@ -20,7 +20,7 @@
  *
  * @category    Mage
  * @package     Mage_Checkout
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
+ * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -144,7 +144,7 @@ class Mage_Checkout_OnepageController extends Mage_Checkout_Controller_Action
     public function indexAction()
     {
         if (!Mage::helper('checkout')->canOnepageCheckout()) {
-            Mage::getSingleton('checkout/session')->addError($this->__('The onepage checkout is disabled.'));
+            Mage::getSingleton('checkout/session')->addError($this->__('Sorry, Onepage Checkout is disabled.'));
             $this->_redirect('checkout/cart');
             return;
         }
@@ -203,21 +203,20 @@ class Mage_Checkout_OnepageController extends Mage_Checkout_Controller_Action
      */
     public function successAction()
     {
-        $session = $this->getOnepage()->getCheckout();
-        if (!$session->getLastSuccessQuoteId()) {
+        if (!$this->getOnepage()->getCheckout()->getLastSuccessQuoteId()) {
             $this->_redirect('checkout/cart');
             return;
         }
 
-        $lastQuoteId = $session->getLastQuoteId();
-        $lastOrderId = $session->getLastOrderId();
-        $lastRecurringProfiles = $session->getLastRecurringProfileIds();
-        if (!$lastQuoteId || (!$lastOrderId && empty($lastRecurringProfiles))) {
+        $lastQuoteId = $this->getOnepage()->getCheckout()->getLastQuoteId();
+        $lastOrderId = $this->getOnepage()->getCheckout()->getLastOrderId();
+
+        if (!$lastQuoteId || !$lastOrderId) {
             $this->_redirect('checkout/cart');
             return;
         }
 
-        $session->clear();
+        Mage::getSingleton('checkout/session')->clear();
         $this->loadLayout();
         $this->_initLayoutMessages('checkout/session');
         Mage::dispatchEvent('checkout_onepage_controller_success_action');
@@ -440,7 +439,7 @@ class Mage_Checkout_OnepageController extends Mage_Checkout_Controller_Action
                 if ($diff = array_diff($requiredAgreements, $postedAgreements)) {
                     $result['success'] = false;
                     $result['error'] = true;
-                    $result['error_messages'] = $this->__('Please agree to all the terms and conditions before placing the order.');
+                    $result['error_messages'] = $this->__('Please agree to all Terms and Conditions before placing the order.');
                     $this->getResponse()->setBody(Mage::helper('core')->jsonEncode($result));
                     return;
                 }

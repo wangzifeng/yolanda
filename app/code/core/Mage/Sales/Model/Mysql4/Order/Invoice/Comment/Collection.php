@@ -20,45 +20,34 @@
  *
  * @category    Mage
  * @package     Mage_Sales
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
+ * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-/**
- * Flat sales order invoice comment collection
- *
- */
-class Mage_Sales_Model_Mysql4_Order_Invoice_Comment_Collection extends Mage_Sales_Model_Mysql4_Collection_Abstract
-{
-    protected $_eventPrefix = 'sales_order_invoice_comment_collection';
-    protected $_eventObject = 'order_invoice_comment_collection';
 
+/**
+ * Invoice comments collection
+ *
+ * @category   Mage
+ * @package    Mage_Sales
+ * @author      Magento Core Team <core@magentocommerce.com>
+ */
+class Mage_Sales_Model_Mysql4_Order_Invoice_Comment_Collection extends Mage_Eav_Model_Entity_Collection_Abstract
+{
     protected function _construct()
     {
         $this->_init('sales/order_invoice_comment');
     }
 
-    /**
-     * Set invoice filter
-     *
-     * @param int $invoiceId
-     * @return Mage_Sales_Model_Mysql4_Order_Invoice_Comment_Collection
-     */
     public function setInvoiceFilter($invoiceId)
     {
-        $this->addFieldToFilter('parent_id', $invoiceId);
+        $this->addAttributeToFilter('parent_id', $invoiceId);
         return $this;
     }
 
-    /**
-     * Set created_at sort order
-     *
-     * @param string $direction
-     * @return Mage_Sales_Model_Mysql4_Order_Invoice_Comment_Collection
-     */
-    public function setCreatedAtOrder($direction='desc')
+    public function setCreatedAtOrder($order='desc')
     {
-        $this->setOrder('created_at', $direction);
+        $this->setOrder('created_at', $order);
         return $this;
     }
 }

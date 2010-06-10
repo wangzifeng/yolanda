@@ -296,19 +296,10 @@ class Varien_Db_Select extends Zend_Db_Select
      * @param bool $onDuplicate
      * @return string
      */
-    public function insertFromSelect($tableName, $fields = array(), $onDuplicate = true)
-    {
+    public function insertFromSelect($tableName, $fields = array(), $onDuplicate = true) {
         $sql = "INSERT INTO `{$tableName}` ";
-        $inserFields = array();
-        foreach ($fields as $key => $field) {
-            if (is_string($field)) {
-                $inserFields[] = $field;
-            } else {
-                $inserFields[] = $key;
-            }
-        }
-        if ($inserFields) {
-            $sql .= "(`".join('`,`', $inserFields) . "`) ";
+        if ($fields) {
+            $sql .= "(`".join('`,`', $fields) . "`) ";
         }
 
         $sql .= $this->assemble();
@@ -316,11 +307,9 @@ class Varien_Db_Select extends Zend_Db_Select
         if ($onDuplicate && $fields) {
             $sql .= " ON DUPLICATE KEY UPDATE";
             $updateFields = array();
-            foreach ($fields as $key => $field) {
-                if (is_string($field)) {
-                    $field = $this->_adapter->quoteIdentifier($field);
-                    $updateFields[] = "{$field}=VALUES({$field})";
-                }
+            foreach ($fields as $field) {
+                $field = $this->_adapter->quoteIdentifier($field);
+                $updateFields[] = "{$field}=VALUES({$field})";
             }
             $sql .= " " . join(', ', $updateFields);
         }

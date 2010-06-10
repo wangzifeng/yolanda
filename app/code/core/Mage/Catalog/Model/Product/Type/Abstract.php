@@ -20,7 +20,7 @@
  *
  * @category    Mage
  * @package     Mage_Catalog
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
+ * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -327,7 +327,6 @@ abstract class Mage_Catalog_Model_Product_Type_Abstract
                 $product->addCustomOption('option_'.$optionId, $optionValue);
             }
         }
-
         // set quantity in cart
         $product->setCartQty($buyRequest->getQty());
 
@@ -341,7 +340,7 @@ abstract class Mage_Catalog_Model_Product_Type_Abstract
      */
     public function getSpecifyOptionMessage()
     {
-        return Mage::helper('catalog')->__('Please specify the product\'s required option(s).');
+        return Mage::helper('catalog')->__('Please specify the product required option(s)');
     }
 
     /**
@@ -353,8 +352,7 @@ abstract class Mage_Catalog_Model_Product_Type_Abstract
      */
     protected function _prepareOptionsForCart(Varien_Object $buyRequest, $product = null)
     {
-        $transport = new StdClass;
-        $transport->options = array();
+        $newOptions = array();
         foreach ($this->getProduct($product)->getOptions() as $_option) {
             /* @var $_option Mage_Catalog_Model_Product_Option */
             $group = $_option->groupFactory($_option->getType())
@@ -365,13 +363,10 @@ abstract class Mage_Catalog_Model_Product_Type_Abstract
 
             $preparedValue = $group->prepareForCart();
             if ($preparedValue !== null) {
-                $transport->options[$_option->getId()] = $preparedValue;
+                $newOptions[$_option->getId()] = $preparedValue;
             }
         }
-        Mage::dispatchEvent('catalog_product_type_prepare_cart_options', array(
-            'transport' => $transport, 'buy_request' => $buyRequest, 'product' => $product
-        ));
-        return $transport->options;
+        return $newOptions;
     }
 
     /**
@@ -388,7 +383,7 @@ abstract class Mage_Catalog_Model_Product_Type_Abstract
                 if ($option->getIsRequire() && (!$this->getProduct($product)->getCustomOption('option_'.$option->getId())
                 || strlen($this->getProduct($product)->getCustomOption('option_'.$option->getId())->getValue()) == 0)) {
                     Mage::throwException(
-                        Mage::helper('catalog')->__('The product has required options')
+                        Mage::helper('catalog')->__('Product has required options')
                     );
                     break;
                 }
@@ -551,9 +546,6 @@ abstract class Mage_Catalog_Model_Product_Type_Abstract
         if ($this->getProduct($product)->getHasOptions()) {
             return true;
         }
-        if ($this->getProduct($product)->isRecurring()) {
-            return true;
-        }
         return false;
     }
 
@@ -682,29 +674,11 @@ abstract class Mage_Catalog_Model_Product_Type_Abstract
      */
     public function getSearchableData($product = null)
     {
-        $product    = $this->getProduct($product);
-        $searchData = array();
-        if ($product->getHasOptions()){
-            $searchData = Mage::getSingleton('catalog/product_option')
-                ->getSearchableData($product->getId(), $product->getStoreId());
-        }
+        $product = $this->getProduct($product);
+
+        $searchData = Mage::getSingleton('catalog/product_option')
+            ->getSearchableData($product->getId(), $product->getStoreId());
 
         return $searchData;
-    }
-
-    /**
-     * Retrieve products divided into groups required to purchase
-     * At least one product in each group has to be purchased
-     *
-     * @param Mage_Catalog_Model_Product $product
-     * @return array
-     */
-    public function getProductsToPurchaseByReqGroups($product = null)
-    {
-        $product = $this->getProduct($product);
-        if ($this->isComposite($product)) {
-            return array();
-        }
-        return array(array($product));
     }
 }

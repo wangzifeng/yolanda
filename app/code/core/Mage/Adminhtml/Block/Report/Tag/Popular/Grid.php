@@ -20,7 +20,7 @@
  *
  * @category    Mage
  * @package     Mage_Adminhtml
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
+ * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -54,8 +54,12 @@ class Mage_Adminhtml_Block_Report_Tag_Popular_Grid extends Mage_Adminhtml_Block_
         }
 
         $collection = Mage::getResourceModel('reports/tag_collection')
-            ->addPopularity($storeId)
-            ->addStatusFilter(Mage_Tag_Model_Tag::STATUS_APPROVED);
+            ->addSummary($storeId)
+            ->addStatusFilter(Mage::getModel('tag/tag')->getApprovedStatus());
+
+        if($storeId != '') {
+            $collection->addStoreFilter($storeId);
+        }
 
         $this->setCollection($collection);
         return parent::_prepareCollection();
@@ -75,6 +79,22 @@ class Mage_Adminhtml_Block_Report_Tag_Popular_Grid extends Mage_Adminhtml_Block_
             'align'     =>'right',
             'sortable'  =>false,
             'index'     =>'popularity'
+        ));
+
+        $this->addColumn('uses', array(
+            'header'    =>Mage::helper('reports')->__('Number Of Uses'),
+            'width'     =>'50px',
+            'align'     =>'right',
+            'sortable'  =>false,
+            'index'     =>'uses'
+        ));
+
+        $this->addColumn('historical_uses', array(
+            'header'    =>Mage::helper('reports')->__('Number Of Historical Uses'),
+            'width'     =>'50px',
+            'align'     =>'right',
+            'sortable'  =>false,
+            'index'     =>'historical_uses'
         ));
 
         $this->addColumn('action',

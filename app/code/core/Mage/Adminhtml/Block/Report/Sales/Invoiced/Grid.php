@@ -20,7 +20,7 @@
  *
  * @category    Mage
  * @package     Mage_Adminhtml
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
+ * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -57,12 +57,11 @@ class Mage_Adminhtml_Block_Report_Sales_Invoiced_Grid extends Mage_Adminhtml_Blo
             'sortable'      => false,
             'period_type'   => $this->getPeriodType(),
             'renderer'      => 'adminhtml/report_sales_grid_column_renderer_date',
-            'totals_label'  => Mage::helper('sales')->__('Total'),
-            'html_decorators' => array('nobr'),
+            'totals_label'  => Mage::helper('adminhtml')->__('Total')
         ));
 
         $this->addColumn('orders_count', array(
-            'header'    => Mage::helper('sales')->__('Number of Orders'),
+            'header'    => Mage::helper('reports')->__('Number of Orders'),
             'index'     => 'orders_count',
             'type'      => 'number',
             'total'     => 'sum',
@@ -70,7 +69,7 @@ class Mage_Adminhtml_Block_Report_Sales_Invoiced_Grid extends Mage_Adminhtml_Blo
         ));
 
         $this->addColumn('orders_invoiced', array(
-            'header'    => Mage::helper('sales')->__('Number of Invoiced Orders'),
+            'header'    => Mage::helper('reports')->__('Number of Invoiced Orders'),
             'index'     => 'orders_invoiced',
             'type'      => 'number',
             'total'     => 'sum',
@@ -80,37 +79,37 @@ class Mage_Adminhtml_Block_Report_Sales_Invoiced_Grid extends Mage_Adminhtml_Blo
         if ($this->getFilterData()->getStoreIds()) {
             $this->setStoreIds(explode(',', $this->getFilterData()->getStoreIds()));
         }
-        $currencyCode = $this->getCurrentCurrencyCode();
+        $currency_code = $this->getCurrentCurrencyCode();
 
         $this->addColumn('invoiced', array(
-            'header'        => Mage::helper('sales')->__('Total Invoiced'),
+            'header'        => Mage::helper('reports')->__('Total Invoiced'),
             'type'          => 'currency',
-            'currency_code' => $currencyCode,
+            'currency_code' => $currency_code,
             'index'         => 'invoiced',
             'total'         => 'sum',
             'sortable'      => false
         ));
 
         $this->addColumn('invoiced_captured', array(
-            'header'        => Mage::helper('sales')->__('Total Invoiced Paid'),
+            'header'        => Mage::helper('reports')->__('Total Invoiced Captured'),
             'type'          => 'currency',
-            'currency_code' => $currencyCode,
+            'currency_code' => $currency_code,
             'index'         => 'invoiced_captured',
             'total'         => 'sum',
             'sortable'      => false
         ));
 
         $this->addColumn('invoiced_not_captured', array(
-            'header'        => Mage::helper('sales')->__('Total Invoiced not Paid'),
+            'header'        => Mage::helper('reports')->__('Total Invoiced not Captured'),
             'type'          => 'currency',
-            'currency_code' => $currencyCode,
+            'currency_code' => $currency_code,
             'index'         => 'invoiced_not_captured',
             'total'         => 'sum',
             'sortable'      => false
         ));
 
-        $this->addExportType('*/*/exportInvoicedCsv', Mage::helper('adminhtml')->__('CSV'));
-        $this->addExportType('*/*/exportInvoicedExcel', Mage::helper('adminhtml')->__('Excel'));
+        $this->addExportType('*/*/exportInvoicedCsv', Mage::helper('reports')->__('CSV'));
+        $this->addExportType('*/*/exportInvoicedExcel', Mage::helper('reports')->__('Excel'));
 
         return parent::_prepareColumns();
     }

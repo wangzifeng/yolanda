@@ -21,7 +21,7 @@
  *
  * @category    Mage
  * @package     Mage_Usa
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
+ * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
  * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 -->
@@ -38,7 +38,7 @@
                     <show_in_store>1</show_in_store>
                     <fields>
                         <account translate="label">
-                            <label>Account Number</label>
+                            <label>Account number</label>
                             <frontend_type>text</frontend_type>
                             <sort_order>7</sort_order>
                             <show_in_default>1</show_in_default>
@@ -55,7 +55,7 @@
                             <show_in_store>0</show_in_store>
                         </active>
                         <allowed_methods translate="label">
-                            <label>Allowed Methods</label>
+                            <label>Allowed methods</label>
                             <frontend_type>multiselect</frontend_type>
                             <source_model>usa/shipping_carrier_dhl_source_method</source_model>
                             <sort_order>17</sort_order>
@@ -77,7 +77,7 @@
                         otherwise will use shopping cart price rule behaviour
                         -->
                         <free_shipping_enable translate="label">
-                            <label>Free Shipping with Minimum Order Amount</label>
+                            <label>Free shipping with minimum order amount</label>
                             <frontend_type>select</frontend_type>
                             <source_model>adminhtml/system_config_source_enabledisable</source_model>
                             <sort_order>121</sort_order>
@@ -86,7 +86,7 @@
                             <show_in_store>0</show_in_store>
                         </free_shipping_enable>
                         <free_shipping_subtotal translate="label">
-                            <label>Minimum Order Amount for Free Shipping</label>
+                            <label>Minimum order amount for free shipping</label>
                             <frontend_type>text</frontend_type>
                             <sort_order>122</sort_order>
                             <show_in_default>1</show_in_default>
@@ -112,7 +112,7 @@
                             <show_in_store>0</show_in_store>
                         </dutypaymenttype>
                         <free_method translate="label">
-                            <label>Free Method</label>
+                            <label>Free method</label>
                             <frontend_type>select</frontend_type>
                             <frontend_class>free-method</frontend_class>
                             <source_model>usa/shipping_carrier_dhl_source_freemethod</source_model>
@@ -148,7 +148,7 @@
                             <show_in_store>0</show_in_store>
                         </handling_action>
                         <handling_fee translate="label">
-                            <label>Handling Fee</label>
+                            <label>Handling fee</label>
                             <frontend_type>text</frontend_type>
                             <sort_order>12</sort_order>
                             <show_in_default>1</show_in_default>
@@ -182,7 +182,7 @@
                             <show_in_store>0</show_in_store>
                         </password>
                         <shipment_type translate="label">
-                            <label>Shipment Type</label>
+                            <label>Shipment type</label>
                             <frontend_type>select</frontend_type>
                             <source_model>usa/shipping_carrier_dhl_source_shipmenttype</source_model>
                             <sort_order>9</sort_order>
@@ -191,7 +191,7 @@
                             <show_in_store>0</show_in_store>
                         </shipment_type>
                         <shipping_intlkey translate="label">
-                            <label>Shipping Key (International)</label>
+                            <label>Shipping key (International)</label>
                             <frontend_type>obscure</frontend_type>
                             <backend_model>adminhtml/system_config_backend_encrypted</backend_model>
                             <sort_order>8</sort_order>
@@ -200,7 +200,7 @@
                             <show_in_store>0</show_in_store>
                         </shipping_intlkey>
                         <shipping_key translate="label">
-                            <label>Shipping Key</label>
+                            <label>Shipping key</label>
                             <frontend_type>obscure</frontend_type>
                             <backend_model>adminhtml/system_config_backend_encrypted</backend_model>
                             <sort_order>8</sort_order>
@@ -209,7 +209,7 @@
                             <show_in_store>0</show_in_store>
                         </shipping_key>
                         <sort_order translate="label">
-                            <label>Sort Order</label>
+                            <label>Sort order</label>
                             <frontend_type>text</frontend_type>
                             <sort_order>200</sort_order>
                             <show_in_default>1</show_in_default>
@@ -225,7 +225,7 @@
                             <show_in_store>1</show_in_store>
                         </title>
                         <sallowspecific translate="label">
-                            <label>Ship to Applicable Countries</label>
+                            <label>Ship to applicable countries</label>
                             <frontend_type>select</frontend_type>
                             <sort_order>190</sort_order>
                             <frontend_class>shipping-applicable-country</frontend_class>
@@ -235,7 +235,7 @@
                             <show_in_store>0</show_in_store>
                         </sallowspecific>
                         <specificcountry translate="label">
-                            <label>Ship to Specific Countries</label>
+                            <label>Ship to Specific countries</label>
                             <frontend_type>multiselect</frontend_type>
                             <sort_order>191</sort_order>
                             <source_model>adminhtml/system_config_source_country</source_model>
@@ -245,9 +245,9 @@
                             <can_be_empty>1</can_be_empty>
                         </specificcountry>
                         <showmethod translate="label">
-                            <label>Show Method if Not Applicable</label>
+                            <label>Show method if not applicable</label>
                             <frontend_type>select</frontend_type>
-                            <sort_order>194</sort_order>
+                            <sort_order>92</sort_order>
                             <frontend_class>shipping-skip-hide</frontend_class>
                             <source_model>adminhtml/system_config_source_yesno</source_model>
                             <show_in_default>1</show_in_default>
@@ -291,7 +291,7 @@
                         </additional_protection_use_subtotal>
                         <additional_protection_value translate="label comment">
                             <label>Additional Protection Configuration Value</label>
-                            <comment>Used only when "Additional Protection Value" is set to "Configuration". Can contain only numeric amount.</comment>
+                            <comment>Used only when 'Additional Protection Value' is set to 'Configuration'. Can contain only numeric amount.</comment>
                             <frontend_type>text</frontend_type>
                             <sort_order>133</sort_order>
                             <show_in_default>1</show_in_default>
@@ -365,15 +365,7 @@
                             <show_in_store>0</show_in_store>
                             <can_be_empty>1</can_be_empty>
                         </intl_shipment_days>
-                        <debug translate="label">
-                            <label>Debug</label>
-                            <frontend_type>select</frontend_type>
-                            <source_model>adminhtml/system_config_source_yesno</source_model>
-                            <sort_order>195</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>0</show_in_store>
-                        </debug>
+
                     </fields>
                 </dhl>
                 <fedex translate="label" module="usa">
@@ -404,7 +396,7 @@
                             <show_in_store>0</show_in_store>
                         </active>
                         <allowed_methods translate="label">
-                            <label>Allowed Methods</label>
+                            <label>Allowed methods</label>
                             <frontend_type>multiselect</frontend_type>
                             <source_model>usa/shipping_carrier_fedex_source_method</source_model>
                             <sort_order>17</sort_order>
@@ -414,7 +406,7 @@
                             <can_be_empty>1</can_be_empty>
                         </allowed_methods>
                         <free_shipping_enable translate="label">
-                            <label>Free Shipping with Minimum Order Amount</label>
+                            <label>Free shipping with minimum order amount</label>
                             <frontend_type>select</frontend_type>
                             <source_model>adminhtml/system_config_source_enabledisable</source_model>
                             <sort_order>21</sort_order>
@@ -423,7 +415,7 @@
                             <show_in_store>0</show_in_store>
                         </free_shipping_enable>
                         <free_shipping_subtotal translate="label">
-                            <label>Minimum Order Amount for Free Shipping</label>
+                            <label>Minimum order amount for free shipping</label>
                             <frontend_type>text</frontend_type>
                             <sort_order>22</sort_order>
                             <show_in_default>1</show_in_default>
@@ -440,7 +432,7 @@
                             <show_in_store>0</show_in_store>
                         </dropoff>
                         <free_method translate="label">
-                            <label>Free Method</label>
+                            <label>Free method</label>
                             <frontend_type>select</frontend_type>
                             <frontend_class>free-method</frontend_class>
                             <source_model>usa/shipping_carrier_fedex_source_freemethod</source_model>
@@ -476,7 +468,7 @@
                             <show_in_store>0</show_in_store>
                         </handling_action>
                         <handling_fee translate="label">
-                            <label>Handling Fee</label>
+                            <label>Handling fee</label>
                             <frontend_type>text</frontend_type>
                             <sort_order>8</sort_order>
                             <show_in_default>1</show_in_default>
@@ -501,7 +493,7 @@
                             <show_in_store>0</show_in_store>
                         </packaging>
                         <sort_order translate="label">
-                            <label>Sort Order</label>
+                            <label>Sort order</label>
                             <frontend_type>text</frontend_type>
                             <sort_order>100</sort_order>
                             <show_in_default>1</show_in_default>
@@ -526,7 +518,7 @@
                             <show_in_store>0</show_in_store>
                         </residence_delivery>
                         <sallowspecific translate="label">
-                            <label>Ship to Applicable Countries</label>
+                            <label>Ship to applicable countries</label>
                             <frontend_type>select</frontend_type>
                             <sort_order>90</sort_order>
                             <frontend_class>shipping-applicable-country</frontend_class>
@@ -536,7 +528,7 @@
                             <show_in_store>0</show_in_store>
                         </sallowspecific>
                         <specificcountry translate="label">
-                            <label>Ship to Specific Countries</label>
+                            <label>Ship to Specific countries</label>
                             <frontend_type>multiselect</frontend_type>
                             <sort_order>91</sort_order>
                             <source_model>adminhtml/system_config_source_country</source_model>
@@ -546,7 +538,7 @@
                             <can_be_empty>1</can_be_empty>
                         </specificcountry>
                         <showmethod translate="label">
-                            <label>Show Method if Not Applicable</label>
+                            <label>Show method if not applicable</label>
                             <frontend_type>select</frontend_type>
                             <sort_order>92</sort_order>
                             <frontend_class>shipping-skip-hide</frontend_class>
@@ -563,15 +555,6 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                         </specificerrmsg>
-                        <debug translate="label">
-                            <label>Debug</label>
-                            <frontend_type>select</frontend_type>
-                            <source_model>adminhtml/system_config_source_yesno</source_model>
-                            <sort_order>92</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>0</show_in_store>
-                        </debug>
                     </fields>
                 </fedex>
                 <ups translate="label" module="usa">
@@ -583,7 +566,7 @@
                     <show_in_store>1</show_in_store>
                     <fields>
                         <access_license_number translate="label">
-                            <label>Access License Number</label>
+                            <label>Access license number</label>
                             <frontend_type>obscure</frontend_type>
                             <backend_model>adminhtml/system_config_backend_encrypted</backend_model>
                             <sort_order>3</sort_order>
@@ -601,7 +584,7 @@
                             <show_in_store>0</show_in_store>
                         </active>
                         <allowed_methods translate="label">
-                            <label>Allowed Methods</label>
+                            <label>Allowed methods</label>
                             <frontend_type>multiselect</frontend_type>
                             <source_model>usa/shipping_carrier_ups_source_method</source_model>
                             <sort_order>17</sort_order>
@@ -620,7 +603,7 @@
                             <show_in_store>0</show_in_store>
                         </container>
                         <free_shipping_enable translate="label">
-                            <label>Free Shipping with Minimum Order Amount</label>
+                            <label>Free shipping with minimum order amount</label>
                             <frontend_type>select</frontend_type>
                             <source_model>adminhtml/system_config_source_enabledisable</source_model>
                             <sort_order>21</sort_order>
@@ -629,7 +612,7 @@
                             <show_in_store>0</show_in_store>
                         </free_shipping_enable>
                         <free_shipping_subtotal translate="label">
-                            <label>Minimum Order Amount for Free Shipping</label>
+                            <label>Minimum order amount for free shipping</label>
                             <frontend_type>text</frontend_type>
                             <sort_order>22</sort_order>
                             <show_in_default>1</show_in_default>
@@ -637,7 +620,7 @@
                             <show_in_store>0</show_in_store>
                         </free_shipping_subtotal>
                         <dest_type translate="label">
-                            <label>Destination Type</label>
+                            <label>Destination type</label>
                             <frontend_type>select</frontend_type>
                             <source_model>usa/shipping_carrier_ups_source_destType</source_model>
                             <sort_order>6</sort_order>
@@ -646,7 +629,7 @@
                             <show_in_store>0</show_in_store>
                         </dest_type>
                         <free_method translate="label">
-                            <label>Free Method</label>
+                            <label>Free method</label>
                             <frontend_type>select</frontend_type>
                             <frontend_class>free-method</frontend_class>
                             <source_model>usa/shipping_carrier_ups_source_freemethod</source_model>
@@ -690,7 +673,7 @@
                             <show_in_store>0</show_in_store>
                         </handling_action>
                         <handling_fee translate="label">
-                            <label>Handling Fee</label>
+                            <label>Handling fee</label>
                             <frontend_type>text</frontend_type>
                             <sort_order>13</sort_order>
                             <show_in_default>1</show_in_default>
@@ -705,16 +688,8 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
                         </max_package_weight>
-                        <min_package_weight translate="label">
-                            <label>Minimum Package Weight (Please consult your shipping carrier for minimum supported shipping weight)</label>
-                            <frontend_type>text</frontend_type>
-                            <sort_order>9</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>0</show_in_store>
-                        </min_package_weight>
                         <origin_shipment translate="label">
-                            <label>Origin of the Shipment</label>
+                            <label>Origin of the shipment</label>
                             <frontend_type>select</frontend_type>
                             <source_model>usa/shipping_carrier_ups_source_originShipment</source_model>
                             <sort_order>3</sort_order>
@@ -732,7 +707,7 @@
                             <show_in_store>0</show_in_store>
                         </password>
                         <pickup translate="label">
-                            <label>Pickup Method</label>
+                            <label>Pickup method</label>
                             <frontend_type>select</frontend_type>
                             <source_model>usa/shipping_carrier_ups_source_pickup</source_model>
                             <sort_order>8</sort_order>
@@ -741,7 +716,7 @@
                             <show_in_store>0</show_in_store>
                         </pickup>
                         <sort_order translate="label">
-                            <label>Sort Order</label>
+                            <label>Sort order</label>
                             <frontend_type>text</frontend_type>
                             <sort_order>100</sort_order>
                             <show_in_default>1</show_in_default>
@@ -765,7 +740,7 @@
                             <show_in_store>0</show_in_store>
                         </tracking_xml_url>
                         <type translate="label">
-                            <label>UPS Type</label>
+                            <label>UPS type</label>
                             <frontend_type>select</frontend_type>
                             <source_model>usa/shipping_carrier_ups_source_type</source_model>
                             <sort_order>2</sort_order>
@@ -807,10 +782,10 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
-                            <comment>Required for negotiated rates; 6-character UPS.</comment>
+                            <comment>Required for negotiated rates; 6-character UPS</comment>
                         </shipper_number>
                         <sallowspecific translate="label">
-                            <label>Ship to Applicable Countries</label>
+                            <label>Ship to applicable countries</label>
                             <frontend_type>select</frontend_type>
                             <sort_order>90</sort_order>
                             <frontend_class>shipping-applicable-country</frontend_class>
@@ -820,7 +795,7 @@
                             <show_in_store>0</show_in_store>
                         </sallowspecific>
                         <specificcountry translate="label">
-                            <label>Ship to Specific Countries</label>
+                            <label>Ship to Specific countries</label>
                             <frontend_type>multiselect</frontend_type>
                             <sort_order>91</sort_order>
                             <source_model>adminhtml/system_config_source_country</source_model>
@@ -830,7 +805,7 @@
                             <can_be_empty>1</can_be_empty>
                         </specificcountry>
                         <showmethod translate="label">
-                            <label>Show Method if Not Applicable</label>
+                            <label>Show method if not applicable</label>
                             <frontend_type>select</frontend_type>
                             <sort_order>92</sort_order>
                             <frontend_class>shipping-skip-hide</frontend_class>
@@ -849,7 +824,7 @@
                         </specificerrmsg>
                         <mode_xml translate="label comment">
                             <label>Mode</label>
-                            <comment>Enables/Disables SSL verification of Magento server by UPS.</comment>
+                            <comment>Enables/Disables SSL verification of Magento server by UPS</comment>
                             <frontend_type>select</frontend_type>
                             <source_model>usa/shipping_carrier_ups_source_mode</source_model>
                             <sort_order>3</sort_order>
@@ -857,15 +832,6 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
                         </mode_xml>
-                        <debug translate="label">
-                            <label>Debug</label>
-                            <frontend_type>select</frontend_type>
-                            <source_model>adminhtml/system_config_source_yesno</source_model>
-                            <sort_order>92</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>0</show_in_store>
-                        </debug>
                     </fields>
                 </ups>
                 <usps translate="label" module="usa">
@@ -886,7 +852,7 @@
                             <show_in_store>0</show_in_store>
                         </active>
                         <allowed_methods translate="label">
-                            <label>Allowed Methods</label>
+                            <label>Allowed methods</label>
                             <frontend_type>multiselect</frontend_type>
                             <source_model>usa/shipping_carrier_usps_source_method</source_model>
                             <sort_order>17</sort_order>
@@ -905,7 +871,7 @@
                             <show_in_store>0</show_in_store>
                         </container>
                         <free_shipping_enable translate="label">
-                            <label>Free Shipping with Minimum Order Amount</label>
+                            <label>Free shipping with minimum order amount</label>
                             <frontend_type>select</frontend_type>
                             <source_model>adminhtml/system_config_source_enabledisable</source_model>
                             <sort_order>21</sort_order>
@@ -914,7 +880,7 @@
                             <show_in_store>0</show_in_store>
                         </free_shipping_enable>
                         <free_shipping_subtotal translate="label">
-                            <label>Minimum Order Amount for Free Shipping</label>
+                            <label>Minimum order amount for free shipping</label>
                             <frontend_type>text</frontend_type>
                             <sort_order>22</sort_order>
                             <show_in_default>1</show_in_default>
@@ -922,7 +888,7 @@
                             <show_in_store>0</show_in_store>
                         </free_shipping_subtotal>
                         <free_method translate="label">
-                            <label>Free Method</label>
+                            <label>Free method</label>
                             <frontend_type>select</frontend_type>
                             <frontend_class>free-method</frontend_class>
                             <source_model>usa/shipping_carrier_usps_source_freemethod</source_model>
@@ -958,7 +924,7 @@
                             <show_in_store>0</show_in_store>
                         </handling_action>
                         <handling_fee translate="label">
-                            <label>Handling Fee</label>
+                            <label>Handling fee</label>
                             <frontend_type>text</frontend_type>
                             <sort_order>13</sort_order>
                             <show_in_default>1</show_in_default>
@@ -992,7 +958,7 @@
                             <show_in_store>0</show_in_store>
                         </size>
                         <sort_order translate="label">
-                            <label>Sort Order</label>
+                            <label>Sort order</label>
                             <frontend_type>text</frontend_type>
                             <sort_order>100</sort_order>
                             <show_in_default>1</show_in_default>
@@ -1017,7 +983,7 @@
                             <show_in_store>0</show_in_store>
                         </userid>
                         <sallowspecific translate="label">
-                            <label>Ship to Applicable Countries</label>
+                            <label>Ship to applicable countries</label>
                             <frontend_type>select</frontend_type>
                             <sort_order>90</sort_order>
                             <frontend_class>shipping-applicable-country</frontend_class>
@@ -1027,7 +993,7 @@
                             <show_in_store>0</show_in_store>
                         </sallowspecific>
                         <specificcountry translate="label">
-                            <label>Ship to Specific Countries</label>
+                            <label>Ship to Specific countries</label>
                             <frontend_type>multiselect</frontend_type>
                             <sort_order>91</sort_order>
                             <source_model>adminhtml/system_config_source_country</source_model>
@@ -1037,7 +1003,7 @@
                             <can_be_empty>1</can_be_empty>
                         </specificcountry>
                         <showmethod translate="label">
-                            <label>Show Method if Not Applicable</label>
+                            <label>Show method if not applicable</label>
                             <frontend_type>select</frontend_type>
                             <sort_order>92</sort_order>
                             <frontend_class>shipping-skip-hide</frontend_class>
@@ -1054,15 +1020,6 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                         </specificerrmsg>
-                        <debug translate="label">
-                            <label>Debug</label>
-                            <frontend_type>select</frontend_type>
-                            <source_model>adminhtml/system_config_source_yesno</source_model>
-                            <sort_order>92</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>0</show_in_store>
-                        </debug>
                     </fields>
                 </usps>
             </groups>

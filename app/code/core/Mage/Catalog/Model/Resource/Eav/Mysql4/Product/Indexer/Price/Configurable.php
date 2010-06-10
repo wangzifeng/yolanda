@@ -20,7 +20,7 @@
  *
  * @category    Mage
  * @package     Mage_Catalog
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
+ * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -42,7 +42,6 @@ class Mage_Catalog_Model_Resource_Eav_Mysql4_Product_Indexer_Price_Configurable
      */
     public function reindexAll()
     {
-        $this->useIdxTable(true);
         $this->_prepareFinalPriceData();
         $this->_applyCustomOption();
         $this->_applyConfigurableOption();
@@ -74,10 +73,7 @@ class Mage_Catalog_Model_Resource_Eav_Mysql4_Product_Indexer_Price_Configurable
      */
     protected function _getConfigurableOptionAggregateTable()
     {
-        if ($this->useIdxTable()) {
-            return $this->getTable('catalog/product_price_indexer_cfg_option_aggregate_idx');
-        }
-        return $this->getTable('catalog/product_price_indexer_cfg_option_aggregate_tmp');
+        return $this->getIdxTable() . '_cfg_opt_aggregate';
     }
 
     /**
@@ -87,10 +83,7 @@ class Mage_Catalog_Model_Resource_Eav_Mysql4_Product_Indexer_Price_Configurable
      */
     protected function _getConfigurableOptionPriceTable()
     {
-        if ($this->useIdxTable()) {
-            return $this->getTable('catalog/product_price_indexer_cfg_option_idx');
-        }
-        return $this->getTable('catalog/product_price_indexer_cfg_option_tmp');
+        return $this->getIdxTable() . '_cfg_option';
     }
 
     /**
@@ -100,7 +93,24 @@ class Mage_Catalog_Model_Resource_Eav_Mysql4_Product_Indexer_Price_Configurable
      */
     protected function _prepareConfigurableOptionAggregateTable()
     {
-        $this->_getWriteAdapter()->delete($this->_getConfigurableOptionAggregateTable());
+        $write = $this->_getWriteAdapter();
+        $table = $this->_getConfigurableOptionAggregateTable();
+
+        $query = sprintf('DROP TABLE IF EXISTS %s', $write->quoteIdentifier($table));
+        $write->query($query);
+
+        $query = sprintf('CREATE TABLE %s ('
+            . ' `parent_id` INT(10) UNSIGNED NOT NULL,'
+            . ' `child_id` INT(10) UNSIGNED NOT NULL,'
+            . ' `customer_group_id` SMALLINT(5) UNSIGNED NOT NULL,'
+            . ' `website_id` SMALLINT(5) UNSIGNED NOT NULL,'
+            . ' `price` DECIMAL(12,4) DEFAULT NULL,'
+            . ' `tier_price` DECIMAL(12,4) DEFAULT NULL,'
+            . ' PRIMARY KEY (`parent_id`, `child_id`, `customer_group_id`, `website_id`)'
+            . ') ENGINE=MYISAM DEFAULT CHARSET=utf8',
+            $write->quoteIdentifier($table));
+        $write->query($query);
+
         return $this;
     }
 
@@ -111,7 +121,24 @@ class Mage_Catalog_Model_Resource_Eav_Mysql4_Product_Indexer_Price_Configurable
      */
     protected function _prepareConfigurableOptionPriceTable()
     {
-        $this->_getWriteAdapter()->delete($this->_getConfigurableOptionPriceTable());
+        $write = $this->_getWriteAdapter();
+        $table = $this->_getConfigurableOptionPriceTable();
+
+        $query = sprintf('DROP TABLE IF EXISTS %s', $write->quoteIdentifier($table));
+        $write->query($query);
+
+        $query = sprintf('CREATE TABLE %s ('
+            . ' `entity_id` INT(10) UNSIGNED NOT NULL,'
+            . ' `customer_group_id` SMALLINT(5) UNSIGNED NOT NULL,'
+            . ' `website_id` SMALLINT(5) UNSIGNED NOT NULL,'
+            . ' `min_price` DECIMAL(12,4) DEFAULT NULL,'
+            . ' `max_price` DECIMAL(12,4) DEFAULT NULL,'
+            . ' `tier_price` DECIMAL(12,4) DEFAULT NULL,'
+            . ' PRIMARY KEY (`entity_id`,`customer_group_id`,`website_id`)'
+            . ') ENGINE=MYISAM DEFAULT CHARSET=utf8',
+            $write->quoteIdentifier($table));
+        $write->query($query);
+
         return $this;
     }
 
@@ -196,14 +223,8 @@ class Mage_Catalog_Model_Resource_Eav_Mysql4_Product_Indexer_Price_Configurable
         $query = $select->crossUpdateFromSelect($table);
         $write->query($query);
 
-        if ($this->useIdxTable()) {
-            $write->truncate($coaTable);
-            $write->truncate($copTable);
-        }
-        else {
-            $write->delete($coaTable);
-            $write->delete($copTable);
-        }
+        $write->truncate($coaTable);
+        $write->truncate($copTable);
 
         return $this;
     }

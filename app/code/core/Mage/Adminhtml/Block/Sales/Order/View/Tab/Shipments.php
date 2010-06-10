@@ -20,7 +20,7 @@
  *
  * @category    Mage
  * @package     Mage_Adminhtml
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
+ * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -42,24 +42,18 @@ class Mage_Adminhtml_Block_Sales_Order_View_Tab_Shipments
         $this->setUseAjax(true);
     }
 
-    /**
-     * Retrieve collection class
-     *
-     * @return string
-     */
-    protected function _getCollectionClass()
-    {
-        return 'sales/order_shipment_grid_collection';
-    }
-
     protected function _prepareCollection()
     {
-        $collection = Mage::getResourceModel($this->_getCollectionClass())
-            ->addFieldToSelect('entity_id')
-            ->addFieldToSelect('created_at')
-            ->addFieldToSelect('increment_id')
-            ->addFieldToSelect('total_qty')
-            ->addFieldToSelect('shipping_name')
+        //TODO: add full name logic
+        $collection = Mage::getResourceModel('sales/order_shipment_collection')
+            ->addAttributeToSelect('increment_id')
+            ->addAttributeToSelect('created_at')
+            ->addAttributeToSelect('total_qty')
+            ->joinAttribute('shipping_firstname', 'order_address/firstname', 'shipping_address_id', null, 'left')
+            ->joinAttribute('shipping_lastname', 'order_address/lastname', 'shipping_address_id', null, 'left')
+            ->addExpressionAttributeToSelect('shipping_name',
+                'CONCAT({{shipping_firstname}}, " ", {{shipping_lastname}})',
+                array('shipping_firstname', 'shipping_lastname'))
             ->setOrderFilter($this->getOrder())
         ;
         $this->setCollection($collection);

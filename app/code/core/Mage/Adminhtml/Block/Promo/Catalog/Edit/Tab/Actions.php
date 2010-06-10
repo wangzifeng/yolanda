@@ -20,7 +20,7 @@
  *
  * @category    Mage
  * @package     Mage_Adminhtml
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
+ * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -85,15 +85,15 @@ class Mage_Adminhtml_Block_Promo_Catalog_Edit_Tab_Actions
 
         $form->setHtmlIdPrefix('rule_');
 
-        $fieldset = $form->addFieldset('action_fieldset', array('legend'=>Mage::helper('salesrule')->__('Update Prices Using the Following Information')));
+        $fieldset = $form->addFieldset('action_fieldset', array('legend'=>Mage::helper('salesrule')->__('Update prices using the following information')));
 
         $fieldset->addField('simple_action', 'select', array(
             'label'     => Mage::helper('salesrule')->__('Apply'),
             'name'      => 'simple_action',
             'options'    => array(
-                'by_percent' => Mage::helper('salesrule')->__('By Percentage of the Original Price'),
+                'by_percent' => Mage::helper('salesrule')->__('By Percentage of the original price'),
                 'by_fixed' => Mage::helper('salesrule')->__('By Fixed Amount'),
-                'to_percent' => Mage::helper('salesrule')->__('To Percentage of the Original Price'),
+                'to_percent' => Mage::helper('salesrule')->__('To Percentage of the original price'),
                 'to_fixed' => Mage::helper('salesrule')->__('To Fixed Amount'),
             ),
         ));
@@ -102,12 +102,12 @@ class Mage_Adminhtml_Block_Promo_Catalog_Edit_Tab_Actions
             'name' => 'discount_amount',
             'required' => true,
             'class' => 'validate-not-negative-number',
-            'label' => Mage::helper('salesrule')->__('Discount Amount'),
+            'label' => Mage::helper('salesrule')->__('Discount amount'),
         ));
 
         $fieldset->addField('stop_rules_processing', 'select', array(
-            'label'     => Mage::helper('salesrule')->__('Stop Further Rules Processing'),
-            'title'     => Mage::helper('salesrule')->__('Stop Further Rules Processing'),
+            'label'     => Mage::helper('salesrule')->__('Stop further rules processing'),
+            'title'     => Mage::helper('salesrule')->__('Stop further rules processing'),
             'name'      => 'stop_rules_processing',
             'options'    => array(
                 '1' => Mage::helper('salesrule')->__('Yes'),

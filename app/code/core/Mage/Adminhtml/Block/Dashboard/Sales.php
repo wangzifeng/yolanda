@@ -20,7 +20,7 @@
  *
  * @category    Mage
  * @package     Mage_Adminhtml
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
+ * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -50,19 +50,20 @@ class Mage_Adminhtml_Block_Dashboard_Sales extends Mage_Adminhtml_Block_Dashboar
             ->calculateSales($isFilter);
 
         if ($this->getRequest()->getParam('store')) {
-            $collection->addFieldToFilter('store_id', $this->getRequest()->getParam('store'));
+            $collection->addAttributeToFilter('store_id', $this->getRequest()->getParam('store'));
         } else if ($this->getRequest()->getParam('website')){
             $storeIds = Mage::app()->getWebsite($this->getRequest()->getParam('website'))->getStoreIds();
-            $collection->addFieldToFilter('store_id', array('in' => $storeIds));
+            $collection->addAttributeToFilter('store_id', array('in' => $storeIds));
         } else if ($this->getRequest()->getParam('group')){
             $storeIds = Mage::app()->getGroup($this->getRequest()->getParam('group'))->getStoreIds();
-            $collection->addFieldToFilter('store_id', array('in' => $storeIds));
+            $collection->addAttributeToFilter('store_id', array('in' => $storeIds));
         }
 
         $collection->load();
-        $sales = $collection->getFirstItem();
+        $collectionArray = $collection->toArray();
+        $sales = array_pop($collectionArray);
 
-        $this->addTotal($this->__('Lifetime Sales'), $sales->getLifetime());
-        $this->addTotal($this->__('Average Orders'), $sales->getAverage());
+        $this->addTotal($this->__('Lifetime Sales'), $sales['lifetime']);
+        $this->addTotal($this->__('Average Orders'), $sales['average']);
     }
 }

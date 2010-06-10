@@ -20,7 +20,7 @@
  *
  * @category    Mage
  * @package     Mage_Tax
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
+ * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -106,11 +106,6 @@ class Mage_Tax_Model_Config
      * @var bool
      */
     protected $_needUseShippingExcludeTax = false;
-
-    /**
-     * @var $_shippingPriceIncludeTax bool
-     */
-    protected $_shippingPriceIncludeTax = null;
 
     /**
      * Check if product prices inputed include tax
@@ -273,21 +268,9 @@ class Mage_Tax_Model_Config
      */
     public function shippingPriceIncludesTax($store = null)
     {
-        if ($this->_shippingPriceIncludeTax === null) {
-            $this->_shippingPriceIncludeTax = (bool) Mage::getStoreConfig(self::CONFIG_XML_PATH_SHIPPING_INCLUDES_TAX, $store);
-        }
-        return $this->_shippingPriceIncludeTax;
+        return (bool) Mage::getStoreConfig(self::CONFIG_XML_PATH_SHIPPING_INCLUDES_TAX, $store);
     }
 
-    /**
-     * Declare shipping prices type
-     * @param bool $flag
-     */
-    public function setShippingPriceIncludeTax($flag)
-    {
-        $this->_shippingPriceIncludeTax = $flag;
-        return $this;
-    }
 
 
     /**

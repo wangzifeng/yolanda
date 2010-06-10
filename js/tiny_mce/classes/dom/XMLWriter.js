@@ -1,18 +1,15 @@
 /**
- * XMLWriter.js
+ * $Id: XMLWriter.js 1137 2009-05-22 15:13:40Z spocke $
  *
- * Copyright 2009, Moxiecode Systems AB
- * Released under LGPL License.
- *
- * License: http://tinymce.moxiecode.com/license
- * Contributing: http://tinymce.moxiecode.com/contributing
+ * @author Moxiecode
+ * @copyright Copyright © 2004-2008, Moxiecode Systems AB, All rights reserved.
  */
 
 (function(tinymce) {
-	/**
-	 * This class writes nodes into a XML document structure. This structure can then be
+	/**#@+
+	 * @class This class writes nodes into a XML document structure. This structure can then be
 	 * serialized down to a HTML string later on.
-	 * @class tinymce.dom.XMLWriter
+	 * @member tinymce.dom.XMLWriter
 	 */
 	tinymce.create('tinymce.dom.XMLWriter', {
 		node : null,
@@ -21,7 +18,6 @@
 		 * Constructs a new XMLWriter.
 		 *
 		 * @constructor
-		 * @method XMLWriter
 		 * @param {Object} s Optional settings object.
 		 */
 		XMLWriter : function(s) {
@@ -45,10 +41,12 @@
 			this.reset();
 		},
 
+		/**#@+
+		 * @method
+		 */
+
 		/**
 		 * Resets the writer so it can be reused the contents of the writer is cleared.
-		 *
-		 * @method reset
 		 */
 		reset : function() {
 			var t = this, d = t.doc;
@@ -62,7 +60,6 @@
 		/**
 		 * Writes the start of an element like for example: <tag.
 		 *
-		 * @method writeStartElement
 		 * @param {String} n Name of element to write.
 		 */
 		writeStartElement : function(n) {
@@ -74,7 +71,6 @@
 		/**
 		 * Writes an attrubute like for example: myattr="valie"
 		 *
-		 * @method writeAttribute
 		 * @param {String} n Attribute name to write.
 		 * @param {String} v Attribute value to write.
 		 */
@@ -87,8 +83,6 @@
 
 		/**
 		 * Write the end of a element. This will add a short end for elements with out children like for example a img element.
-		 *
-		 * @method writeEndElement
 		 */
 		writeEndElement : function() {
 			this.node = this.node.parentNode;
@@ -96,8 +90,6 @@
 
 		/**
 		 * Writes the end of a element. This will add a full end to the element even if it didn't have any children.
-		 *
-		 * @method writeFullEndElement
 		 */
 		writeFullEndElement : function() {
 			var t = this, n = t.node;
@@ -109,7 +101,6 @@
 		/**
 		 * Writes a text node value.
 		 *
-		 * @method writeText
 		 * @param {String} v Value to append as a text node.
 		 */
 		writeText : function(v) {
@@ -122,7 +113,6 @@
 		/**
 		 * Writes a CDATA section.
 		 *
-		 * @method writeCDATA
 		 * @param {String} v Value to write in CDATA.
 		 */
 		writeCDATA : function(v) {
@@ -132,7 +122,6 @@
 		/**
 		 * Writes a comment.
 		 *
-		 * @method writeComment
 		 * @param {String} v Value of the comment.
 		 */
 		writeComment : function(v) {
@@ -146,7 +135,6 @@
 		/**
 		 * Returns a string representation of the elements/nodes written.
 		 *
-		 * @method getContent
 		 * @return {String} String representation of the written elements/nodes.
 		 */
 		getContent : function() {
@@ -161,5 +149,7 @@
 
 			return h;
 		}
+
+		/**#@-*/
 	});
 })(tinymce);

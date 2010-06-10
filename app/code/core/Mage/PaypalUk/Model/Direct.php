@@ -20,7 +20,7 @@
  *
  * @category    Mage
  * @package     Mage_PaypalUk
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
+ * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -29,7 +29,7 @@
  */
 class Mage_PaypalUk_Model_Direct extends Mage_Paypal_Model_Direct
 {
-    protected $_code  = Mage_Paypal_Model_Config::METHOD_WPP_PE_DIRECT;
+    protected $_code  = 'paypaluk_direct';
 
     /**
      * Website Payments Pro instance type
@@ -39,31 +39,11 @@ class Mage_PaypalUk_Model_Direct extends Mage_Paypal_Model_Direct
     protected $_proType = 'paypaluk/pro';
 
     /**
-     * Return available CC types for gateway based on merchant country
+     * Ipn notify action
      *
-     * @return string
+     * @var string
      */
-    public function getAllowedCcTypes()
-    {
-        return $this->_pro->getConfig()->cctypes;
-    }
-
-    /**
-     * Merchant country limitation for 3d secure feature, rewrite for parent implementation
-     *
-     * @return bool
-     */
-    public function getIsCentinelValidationEnabled()
-    {
-        if (!parent::getIsCentinelValidationEnabled()) {
-            return false;
-        }
-        // available only for US and UK merchants
-        if (in_array($this->_pro->getConfig()->getMerchantCountry(), array('US', 'GB'))) {
-            return true;
-        }
-        return false;
-    }
+    protected $_notifyAction = 'paypaluk/ipn/direct';
 
     /**
      * Import direct payment results to payment
@@ -77,20 +57,7 @@ class Mage_PaypalUk_Model_Direct extends Mage_Paypal_Model_Direct
             ->setIsTransactionPending($api->getIsPaymentPending())
             ->setTransactionAdditionalInfo(Mage_PaypalUk_Model_Pro::TRANSPORT_PAYFLOW_TXN_ID, $api->getTransactionId())
             ;
-        $payment->setPreparedMessage(Mage::helper('paypaluk')->__('Payflow PPREF: #%s.', $api->getTransactionId()));
-        $this->_pro->importPaymentInfo($api, $payment);
-    }
-
-    /**
-     * Format credit card expiration date based on month and year values
-     * Format: mmyy
-     *
-     * @param string|int $month
-     * @param string|int $year
-     * @return string
-     */
-    protected function _getFormattedCcExpirationDate($month, $year)
-    {
-        return sprintf('%02d', $month) . sprintf('%02d', substr($year, -2, 2));
+        $payment->setPreparedMessage(Mage::helper('paypaluk')->__('Payflow PNREF: #%s.', $api->getTransactionId()));
+        Mage::getModel($this->_infoType)->importToPayment($api, $payment);
     }
 }

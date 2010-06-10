@@ -20,7 +20,7 @@
  *
  * @category    Mage
  * @package     Mage_Usa
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
+ * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -149,9 +149,7 @@ class Mage_Usa_Model_Shipping_Carrier_Ups
         }
 
         $weight = $this->getTotalNumOfBoxes($request->getPackageWeight());
-
-        $weight = $this->_getCorrectWeight($weight);
-
+        $weight = ceil($weight*10) / 10;
         $r->setWeight($weight);
         if ($request->getFreeMethodWeight()!=$request->getPackageWeight()) {
             $r->setFreeMethodWeight($request->getFreeMethodWeight());
@@ -170,30 +168,6 @@ class Mage_Usa_Model_Shipping_Carrier_Ups
         $this->_rawRequest = $r;
 
         return $this;
-    }
-
-    /**
-     * Get correct weigt.
-     *
-     * Namely:
-     * Checks the current weight to comply with the minimum weight standards set by the carrier.
-     * Then strictly rounds the weight up until the first significant digit after the decimal point.
-     *
-     * @param float|integer|double $weight
-     * @return float
-     */
-    protected function _getCorrectWeight($weight)
-    {
-        $minWeight = $this->getConfigData('min_package_weight');
-
-        if($weight < $minWeight){
-            $weight = $minWeight;
-        }
-
-        //rounds a number to one significant figure
-        $weight = ceil($weight*10) / 10;
-
-        return $weight;
     }
 
     public function getResult()
@@ -218,7 +192,7 @@ class Mage_Usa_Model_Shipping_Carrier_Ups
         $r = $this->_rawRequest;
 
         $weight = $this->getTotalNumOfBoxes($r->getFreeMethodWeight());
-        $weight = $this->_getCorrectWeight($weight);
+        $weight = ceil($weight*10) / 10;
         $r->setWeight($weight);
         $r->setAction($this->getCode('action', 'single'));
         $r->setProduct($freeMethod);
@@ -244,7 +218,7 @@ class Mage_Usa_Model_Shipping_Carrier_Ups
             'weight_std'     => strtolower($r->getUnitMeasure()),
         );
         $params['47_rate_chart'] = $params['47_rate_chart']['label'];
-        $debugData = array('request' => $params);
+
         try {
             $url = $this->getConfigData('gateway_url');
             if (!$url) {
@@ -256,13 +230,10 @@ class Mage_Usa_Model_Shipping_Carrier_Ups
             $client->setParameterGet($params);
             $response = $client->request();
             $responseBody = $response->getBody();
-            $debugData['result'] = $responseBody;
-        }
-        catch (Exception $e) {
-            $debugData['result'] = array('error' => $e->getMessage(), 'code' => $e->getCode());
+        } catch (Exception $e) {
             $responseBody = '';
         }
-        $this->_debug($debugData);
+
         return $this->_parseCgiResponse($responseBody);
     }
 
@@ -631,7 +602,6 @@ $xmlRequest .= <<< XMLRequest
 XMLRequest;
 
 
-        $debugData = array('request' => $xmlRequest);
         try {
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, $url);
@@ -642,14 +612,9 @@ XMLRequest;
             curl_setopt($ch, CURLOPT_TIMEOUT, 30);
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, (boolean)$this->getConfigFlag('mode_xml'));
             $xmlResponse = curl_exec ($ch);
-            $debugData['result'] = $xmlResponse;
-        }
-        catch (Exception $e) {
-            $debugData['result'] = array('error' => $e->getMessage(), 'code' => $e->getCode());
+        } catch (Exception $e) {
             $xmlResponse = '';
         }
-
-        $this->_debug($debugData);
         return $this->_parseXmlResponse($xmlResponse);
     }
 
@@ -801,8 +766,6 @@ $xmlRequest .=  <<<XMLAuth
     <IncludeFreight>01</IncludeFreight>
 </TrackRequest>
 XMLAuth;
-            $debugData = array('request' => $xmlRequest);
-
             try {
                 $ch = curl_init();
                    curl_setopt($ch, CURLOPT_URL, $url);
@@ -812,15 +775,11 @@ XMLAuth;
                 curl_setopt($ch, CURLOPT_POSTFIELDS, $xmlRequest);
                 curl_setopt($ch, CURLOPT_TIMEOUT, 30);
                 $xmlResponse = curl_exec ($ch);
-                $debugData['result'] = $xmlResponse;
                 curl_close ($ch);
-            }
-            catch (Exception $e) {
-                $debugData['result'] = array('error' => $e->getMessage(), 'code' => $e->getCode());
+            }catch (Exception $e) {
                 $xmlResponse = '';
             }
 
-            $this->_debug($debugData);
             $this->_parseXmlTrackingResponse($tracking, $xmlResponse);
         }
 

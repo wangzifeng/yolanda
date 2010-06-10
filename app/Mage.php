@@ -138,7 +138,7 @@ final class Mage
     public static function getVersion()
     {
         $i = self::getVersionInfo();
-        return trim("{$i['major']}.{$i['minor']}.{$i['revision']}" . ($i['patch'] != '' ? ".{$i['patch']}" : "") . "-{$i['stability']}{$i['number']}", '.-');
+        return trim("{$i['major']}.{$i['minor']}.{$i['revision']}.{$i['patch']}-{$i['stability']}{$i['number']}", '.-');
     }
 
     /**
@@ -152,8 +152,8 @@ final class Mage
         return array(
             'major'     => '1',
             'minor'     => '4',
-            'revision'  => '1',
-            'patch'     => '0',
+            'revision'  => '0',
+            'patch'     => '1',
             'stability' => '',
             'number'    => '',
         );
@@ -658,9 +658,8 @@ final class Mage
      * @param string $message
      * @param integer $level
      * @param string $file
-     * @param bool $forceLog
      */
-    public static function log($message, $level = null, $file = '', $forceLog = false)
+    public static function log($message, $level = null, $file = '')
     {
         if (!self::getConfig()) {
             return;
@@ -676,7 +675,7 @@ final class Mage
             $logActive = true;
         }
 
-        if (!self::$_isDeveloperMode && !$logActive && !$forceLog) {
+        if (!self::$_isDeveloperMode && !$logActive) {
             return;
         }
 
@@ -700,13 +699,7 @@ final class Mage
 
                 $format = '%timestamp% %priorityName% (%priority%): %message%' . PHP_EOL;
                 $formatter = new Zend_Log_Formatter_Simple($format);
-                $writerModel = (string)self::getConfig()->getNode('global/log/core/writer_model');
-                if (!self::$_app || !$writerModel) {
-                    $writer = new Zend_Log_Writer_Stream($logFile);
-                }
-                else {
-                    $writer = new $writerModel($logFile);
-                }
+                $writer = new Zend_Log_Writer_Stream($logFile);
                 $writer->setFormatter($formatter);
                 $loggers[$file] = new Zend_Log($writer);
             }

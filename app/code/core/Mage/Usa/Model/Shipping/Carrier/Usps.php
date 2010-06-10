@@ -20,7 +20,7 @@
  *
  * @category    Mage
  * @package     Mage_Usa
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
+ * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -225,8 +225,6 @@ class Mage_Usa_Model_Shipping_Carrier_Usps
             $request = $xml->asXML();
         }
 
-        $debugData = array('request' => $request);
-
         try {
             $url = $this->getConfigData('gateway_url');
             if (!$url) {
@@ -239,14 +237,10 @@ class Mage_Usa_Model_Shipping_Carrier_Usps
             $client->setParameterGet('XML', $request);
             $response = $client->request();
             $responseBody = $response->getBody();
-            $debugData['result'] = $responseBody;
-        }
-        catch (Exception $e) {
-            $debugData['result'] = array('error' => $e->getMessage(), 'code' => $e->getCode());
+        } catch (Exception $e) {
             $responseBody = '';
         }
 
-        $this->_debug($debugData);
         return $this->_parseXmlResponse($responseBody);;
     }
 
@@ -506,7 +500,6 @@ class Mage_Usa_Model_Shipping_Carrier_Usps
 
              $api = 'TrackV2';
              $request = $xml->asXML();
-             $debugData = array('request' => $request);
 
              try {
                 $url = $this->getConfigData('gateway_url');
@@ -520,14 +513,10 @@ class Mage_Usa_Model_Shipping_Carrier_Usps
                 $client->setParameterGet('XML', $request);
                 $response = $client->request();
                 $responseBody = $response->getBody();
-                $debugData['result'] = $responseBody;
-            }
-            catch (Exception $e) {
-                $debugData['result'] = array('error' => $e->getMessage(), 'code' => $e->getCode());
+            } catch (Exception $e) {
                 $responseBody = '';
             }
 
-            $this->_debug($debugData);
             $this->_parseXmlTrackingResponse($tracking, $responseBody);
          }
     }

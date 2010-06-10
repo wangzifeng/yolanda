@@ -20,7 +20,7 @@
  *
  * @category    Mage
  * @package     Mage_Rss
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
+ * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -108,9 +108,7 @@ class Mage_Rss_Block_Wishlist extends Mage_Wishlist_Block_Abstract
                 $description = '<table><tr><td><a href="' . $this->getProductUrl($product)
                     . '"><img src="' . $this->helper('catalog/image')->init($product, 'thumbnail')->resize(75, 75)
                     . '" border="0" align="left" height="75" width="75"></a></td>'
-                    . '<td style="text-decoration:none;">'
-                    . $this->helper('catalog/output')->productAttribute($product, $product->getShortDescription(), 'short_description') 
-                    . '<p>';
+                    . '<td style="text-decoration:none;">' . $this->htmlEscape($product->getShortDescription()) . '<p>';
                 if ($product->getPrice() != $product->getFinalPrice()) {
                     $description .= Mage::helper('catalog')->__('Regular Price:') . ' <strike>'
                         . Mage::helper('core')->currency($product->getPrice()) . '</strike> '
@@ -124,13 +122,13 @@ class Mage_Rss_Block_Wishlist extends Mage_Wishlist_Block_Abstract
                 $description .= '</p>';
                 if ($this->hasDescription($product)) {
                     $description .= '<p>' . Mage::helper('wishlist')->__('Comment:')
-                        . ' ' . $this->helper('catalog/output')->productAttribute($product, $product->getDescription(), 'description') . '<p>';
+                        . ' ' . $this->getEscapedDescription($product) . '<p>';
                 }
 
                 $description .= '</td></tr></table>';
 
                 $rssObj->_addEntry(array(
-                    'title'         => $this->helper('catalog/output')->productAttribute($product, $product->getName(), 'name'),
+                    'title'         => $product->getName(),
                     'link'          => $this->getProductUrl($product),
                     'description'   => $description,
                 ));

@@ -20,7 +20,7 @@
  *
  * @category    Mage
  * @package     Mage_Catalog
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
+ * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -50,21 +50,18 @@ class Mage_Catalog_Block_Product_New extends Mage_Catalog_Block_Product_Abstract
     }
 
     /**
-     * Get Key pieces for caching block content
+     * Retrieve Key for caching block content
      *
-     * @return array
+     * @return string
      */
-    public function getCacheKeyInfo()
+    public function getCacheKey()
     {
-        return array(
-           'CATALOG_PRODUCT_NEW',
-           Mage::app()->getStore()->getId(),
-           Mage::getDesign()->getPackageName(),
-           Mage::getDesign()->getTheme('template'),
-           Mage::getSingleton('customer/session')->getCustomerGroupId(),
-           'template' => $this->getTemplate(),
-           $this->getProductsCount()
-        );
+        return 'CATALOG_PRODUCT_NEW_' . Mage::app()->getStore()->getId()
+            . '_' . Mage::getDesign()->getPackageName()
+            . '_' . Mage::getDesign()->getTheme('template')
+            . '_' . Mage::getSingleton('customer/session')->getCustomerGroupId()
+            . '_' . md5($this->getTemplate())
+            . '_' . $this->getProductsCount();
     }
 
     /**

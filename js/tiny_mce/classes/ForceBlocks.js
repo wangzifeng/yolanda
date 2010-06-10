@@ -1,34 +1,20 @@
 /**
- * ForceBlocks.js
+ * $Id: ForceBlocks.js 1137 2009-05-22 15:13:40Z spocke $
  *
- * Copyright 2009, Moxiecode Systems AB
- * Released under LGPL License.
- *
- * License: http://tinymce.moxiecode.com/license
- * Contributing: http://tinymce.moxiecode.com/contributing
+ * @author Moxiecode
+ * @copyright Copyright © 2004-2008, Moxiecode Systems AB, All rights reserved.
  */
 
 (function(tinymce) {
 	// Shorten names
-	var Event = tinymce.dom.Event,
-		isIE = tinymce.isIE,
-		isGecko = tinymce.isGecko,
-		isOpera = tinymce.isOpera,
-		each = tinymce.each,
-		extend = tinymce.extend,
-		TRUE = true,
-		FALSE = false;
+	var Event, isIE, isGecko, isOpera, each, extend;
 
-	// Checks if the selection/caret is at the end of the specified block element
-	function isAtEnd(rng, par) {
-		var rng2 = par.ownerDocument.createRange();
-
-		rng2.setStart(rng.endContainer, rng.endOffset);
-		rng2.setEndAfter(par);
-
-		// Get number of characters to the right of the cursor if it's zero then we are at the end and need to merge the next block element
-		return rng2.cloneContents().textContent.length == 0;
-	};
+	Event = tinymce.dom.Event;
+	isIE = tinymce.isIE;
+	isGecko = tinymce.isGecko;
+	isOpera = tinymce.isOpera;
+	each = tinymce.each;
+	extend = tinymce.extend;
 
 	function isEmpty(n) {
 		n = n.innerHTML;
@@ -36,26 +22,7 @@
 		n = n.replace(/<(img|hr|table|input|select|textarea)[ \>]/gi, '-'); // Keep these convert them to - chars
 		n = n.replace(/<[^>]+>/g, ''); // Remove all tags
 
-		return n.replace(/[ \u00a0\t\r\n]+/g, '') == '';
-	};
-
-	function splitList(selection, dom, li) {
-		var listBlock, block;
-
-		if (isEmpty(li)) {
-			listBlock = dom.getParent(li, 'ul,ol');
-
-			if (!dom.getParent(listBlock.parentNode, 'ul,ol')) {
-				dom.split(listBlock, li);
-				block = dom.create('p', 0, '<br _mce_bogus="1" />');
-				dom.replace(block, li);
-				selection.select(block, 1);
-			}
-
-			return FALSE;
-		}
-
-		return TRUE;
+		return n.replace(/[ \t\r\n]+/g, '') == '';
 	};
 
 	/**
@@ -103,11 +70,10 @@
 		},
 
 		setup : function() {
-			var t = this, ed = t.editor, s = ed.settings, dom = ed.dom, selection = ed.selection;
+			var t = this, ed = t.editor, s = ed.settings;
 
 			// Force root blocks when typing and when getting output
 			if (s.forced_root_block) {
-				ed.onBeforeExecCommand.add(t.forceRoots, t);
 				ed.onKeyUp.add(t.forceRoots, t);
 				ed.onPreProcess.add(t.forceRoots, t);
 			}
@@ -116,24 +82,39 @@
 				// Force IE to produce BRs on enter
 				if (isIE) {
 					ed.onKeyPress.add(function(ed, e) {
-						var n;
+						var n, s = ed.selection;
 
-						if (e.keyCode == 13 && selection.getNode().nodeName != 'LI') {
-							selection.setContent('<br id="__" /> ', {format : 'raw'});
-							n = dom.get('__');
+						if (e.keyCode == 13 && s.getNode().nodeName != 'LI') {
+							s.setContent('<br id="__" /> ', {format : 'raw'});
+							n = ed.dom.get('__');
 							n.removeAttribute('id');
-							selection.select(n);
-							selection.collapse();
+							s.select(n);
+							s.collapse();
 							return Event.cancel(e);
 						}
 					});
 				}
+
+				return;
 			}
 
 			if (!isIE && s.force_p_newlines) {
+/*				ed.onPreProcess.add(function(ed, o) {
+					each(ed.dom.select('br', o.node), function(n) {
+						var p = n.parentNode;
+
+						// Replace <p><br /></p> with <p>&nbsp;</p>
+						if (p && p.nodeName == 'p' && (p.childNodes.length == 1 || p.lastChild == n)) {
+							p.replaceChild(ed.getDoc().createTextNode('\u00a0'), n);
+						}
+					});
+				});*/
+
 				ed.onKeyPress.add(function(ed, e) {
-					if (e.keyCode == 13 && !e.shiftKey && !t.insertPara(e))
-						Event.cancel(e);
+					if (e.keyCode == 13 && !e.shiftKey) {
+						if (!t.insertPara(e))
+							Event.cancel(e);
+					}
 				});
 
 				if (isGecko) {
@@ -144,53 +125,32 @@
 				}
 			}
 
-			// Workaround for missing shift+enter support, http://bugs.webkit.org/show_bug.cgi?id=16973
-			if (tinymce.isWebKit) {
-				function insertBr(ed) {
-					var rng = selection.getRng(), br, div = dom.create('div', null, ' '), divYPos, vpHeight = dom.getViewPort(ed.getWin()).h;
+			function ren(rn, na) {
+				var ne = ed.dom.create(na);
 
-					// Insert BR element
-					rng.insertNode(br = dom.create('br'));
-
-					// Place caret after BR
-					rng.setStartAfter(br);
-					rng.setEndAfter(br);
-					selection.setRng(rng);
-
-					// Could not place caret after BR then insert an nbsp entity and move the caret
-					if (selection.getSel().focusNode == br.previousSibling) {
-						selection.select(dom.insertAfter(dom.doc.createTextNode('\u00a0'), br));
-						selection.collapse(TRUE);
-					}
-
-					// Create a temporary DIV after the BR and get the position as it
-					// seems like getPos() returns 0 for text nodes and BR elements.
-					dom.insertAfter(div, br);
-					divYPos = dom.getPos(div).y;
-					dom.remove(div);
-
-					// Scroll to new position, scrollIntoView can't be used due to bug: http://bugs.webkit.org/show_bug.cgi?id=16117
-					if (divYPos > vpHeight) // It is not necessary to scroll if the DIV is inside the view port.
-						ed.getWin().scrollTo(0, divYPos);
-				};
-
-				ed.onKeyPress.add(function(ed, e) {
-					if (e.keyCode == 13 && (e.shiftKey || s.force_br_newlines)) {
-						insertBr(ed);
-						Event.cancel(e);
-					}
+				each(rn.attributes, function(a) {
+					if (a.specified && a.nodeValue)
+						ne.setAttribute(a.nodeName.toLowerCase(), a.nodeValue);
 				});
-			}
+
+				each(rn.childNodes, function(n) {
+					ne.appendChild(n.cloneNode(true));
+				});
+
+				rn.parentNode.replaceChild(ne, rn);
+
+				return ne;
+			};
 
 			// Padd empty inline elements within block elements
 			// For example: <p><strong><em></em></strong></p> becomes <p><strong><em>&nbsp;</em></strong></p>
 			ed.onPreProcess.add(function(ed, o) {
-				each(dom.select('p,h1,h2,h3,h4,h5,h6,div', o.node), function(p) {
+				each(ed.dom.select('p,h1,h2,h3,h4,h5,h6,div', o.node), function(p) {
 					if (isEmpty(p)) {
-						each(dom.select('span,em,strong,b,i', o.node), function(n) {
+						each(ed.dom.select('span,em,strong,b,i', o.node), function(n) {
 							if (!n.hasChildNodes()) {
 								n.appendChild(ed.getDoc().createTextNode('\u00a0'));
-								return FALSE; // Break the loop one padding is enough
+								return false; // Break the loop one padding is enough
 							}
 						});
 					}
@@ -202,22 +162,22 @@
 				// Replaces IE:s auto generated paragraphs with the specified element name
 				if (s.element != 'P') {
 					ed.onKeyPress.add(function(ed, e) {
-						t.lastElm = selection.getNode().nodeName;
+						t.lastElm = ed.selection.getNode().nodeName;
 					});
 
 					ed.onKeyUp.add(function(ed, e) {
-						var bl, n = selection.getNode(), b = ed.getBody();
+						var bl, sel = ed.selection, n = sel.getNode(), b = ed.getBody();
 
 						if (b.childNodes.length === 1 && n.nodeName == 'P') {
-							n = dom.rename(n, s.element);
-							selection.select(n);
-							selection.collapse();
+							n = ren(n, s.element);
+							sel.select(n);
+							sel.collapse();
 							ed.nodeChanged();
 						} else if (e.keyCode == 13 && !e.shiftKey && t.lastElm != 'P') {
-							bl = dom.getParent(n, 'p');
+							bl = ed.dom.getParent(n, 'p');
 
 							if (bl) {
-								dom.rename(bl, s.element);
+								ren(bl, s.element);
 								ed.nodeChanged();
 							}
 						}
@@ -227,7 +187,7 @@
 		},
 
 		find : function(n, t, s) {
-			var ed = this.editor, w = ed.getDoc().createTreeWalker(n, 4, null, FALSE), c = -1;
+			var ed = this.editor, w = ed.getDoc().createTreeWalker(n, 4, null, false), c = -1;
 
 			while (n = w.nextNode()) {
 				c++;
@@ -250,20 +210,14 @@
 
 			// Fix for bug #1863847
 			//if (e && e.keyCode == 13)
-			//	return TRUE;
+			//	return true;
 
 			// Wrap non blocks into blocks
 			for (i = nl.length - 1; i >= 0; i--) {
 				nx = nl[i];
 
-				// Ignore internal elements
-				if (nx.nodeType === 1 && nx.getAttribute('_mce_type')) {
-					bl = null;
-					continue;
-				}
-
 				// Is text or non block element
-				if (nx.nodeType === 3 || (!t.dom.isBlock(nx) && nx.nodeType !== 8 && !/^(script|mce:script|style|mce:style)$/i.test(nx.nodeName))) {
+				if (nx.nodeType == 3 || (!t.dom.isBlock(nx) && nx.nodeType != 8)) {
 					if (!bl) {
 						// Create new block but ignore whitespace
 						if (nx.nodeType != 3 || /[^\s]/g.test(nx.nodeValue)) {
@@ -303,11 +257,9 @@
 								}
 							}
 
-							// Uses replaceChild instead of cloneNode since it removes selected attribute from option elements on IE
-							// See: http://support.microsoft.com/kb/829907
 							bl = ed.dom.create(ed.settings.forced_root_block);
+							bl.appendChild(nx.cloneNode(1));
 							nx.parentNode.replaceChild(bl, nx);
-							bl.appendChild(nx);
 						}
 					} else {
 						if (bl.hasChildNodes())
@@ -381,21 +333,21 @@
 			// If root blocks are forced then use Operas default behavior since it's really good
 // Removed due to bug: #1853816
 //			if (se.forced_root_block && isOpera)
-//				return TRUE;
+//				return true;
 
 			// Setup before range
 			rb = d.createRange();
 
 			// If is before the first block element and in body, then move it into first block element
 			rb.setStart(s.anchorNode, s.anchorOffset);
-			rb.collapse(TRUE);
+			rb.collapse(true);
 
 			// Setup after range
 			ra = d.createRange();
 
 			// If is before the first block element and in body, then move it into first block element
 			ra.setStart(s.focusNode, s.focusOffset);
-			ra.collapse(TRUE);
+			ra.collapse(true);
 
 			// Setup start/end points
 			dir = rb.compareBoundaryPoints(rb.START_TO_END, ra) < 0;
@@ -426,7 +378,7 @@
 				r.collapse(1);
 				ed.selection.setRng(r);
 
-				return FALSE;
+				return false;
 			}
 
 			// If the caret is in an invalid location in FF we need to move it into the first block
@@ -451,12 +403,8 @@
 			bn = sb ? sb.nodeName : se.element; // Get block name to create
 
 			// Return inside list use default browser behavior
-			if (n = t.dom.getParent(sb, 'li,pre')) {
-				if (n.nodeName == 'LI')
-					return splitList(ed.selection, t.dom, n);
-
-				return TRUE;
-			}
+			if (t.dom.getParent(sb, 'ol,ul,pre'))
+				return true;
 
 			// If caption or absolute layers then always generate new blocks within
 			if (sb && (sb.nodeName == 'CAPTION' || /absolute|relative|fixed/gi.test(dom.getStyle(sb, 'position', 1)))) {
@@ -484,7 +432,7 @@
 			aft.removeAttribute('id');
 
 			// Is header and cursor is at the end, then force paragraph under
-			if (/^(H[1-6])$/.test(bn) && isAtEnd(r, sb))
+			if (/^(H[1-6])$/.test(bn) && sn.nodeValue && so == sn.nodeValue.length)
 				aft = ed.dom.create(se.element);
 
 			// Find start chop node
@@ -568,7 +516,7 @@
 					do {
 						// We only want style specific elements
 						if (/^(SPAN|STRONG|B|EM|I|FONT|STRIKE|U)$/.test(n.nodeName)) {
-							nn = n.cloneNode(FALSE);
+							nn = n.cloneNode(false);
 							dom.setAttrib(nn, 'id', ''); // Remove ID since it needs to be unique
 							nl.push(nn);
 						}
@@ -605,7 +553,7 @@
 			bef.normalize();
 
 			function first(n) {
-				return d.createTreeWalker(n, NodeFilter.SHOW_TEXT, null, FALSE).nextNode() || n;
+				return d.createTreeWalker(n, NodeFilter.SHOW_TEXT, null, false).nextNode() || n;
 			};
 
 			// Move cursor and scroll into view
@@ -625,11 +573,11 @@
 				//console.debug('SCROLL!', 'vp.y: ' + vp.y, 'y' + y, 'vp.h' + vp.h, 'clientHeight' + aft.clientHeight, 'yyy: ' + (y < vp.y ? y : y - vp.h + aft.clientHeight));
 			}
 
-			return FALSE;
+			return false;
 		},
 
 		backspaceDelete : function(e, bs) {
-			var t = this, ed = t.editor, b = ed.getBody(), dom = ed.dom, n, se = ed.selection, r = se.getRng(), sc = r.startContainer, n, w, tn;
+			var t = this, ed = t.editor, b = ed.getBody(), n, se = ed.selection, r = se.getRng(), sc = r.startContainer, n, w, tn;
 
 			// The caret sometimes gets stuck in Gecko if you delete empty paragraphs
 			// This workaround removes the element by hand and moves the caret to the previous element
@@ -642,7 +590,7 @@
 					if (n) {
 						if (sc != b.firstChild) {
 							// Find last text node
-							w = ed.dom.doc.createTreeWalker(n, NodeFilter.SHOW_TEXT, null, FALSE);
+							w = ed.dom.doc.createTreeWalker(n, NodeFilter.SHOW_TEXT, null, false);
 							while (tn = w.nextNode())
 								n = tn;
 

@@ -20,7 +20,7 @@
  *
  * @category    Mage
  * @package     Mage_Catalog
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
+ * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -52,21 +52,17 @@ class Mage_Catalog_Block_Navigation extends Mage_Core_Block_Template
     }
 
     /**
-     * Get Key pieces for caching block content
+     * Retrieve Key for caching block content
      *
-     * @return array
+     * @return string
      */
-    public function getCacheKeyInfo()
+    public function getCacheKey()
     {
-        return array(
-            'CATALOG_NAVIGATION',
-            Mage::app()->getStore()->getId(),
-            Mage::getDesign()->getPackageName(),
-            Mage::getDesign()->getTheme('template'),
-            Mage::getSingleton('customer/session')->getCustomerGroupId(),
-            'template' => $this->getTemplate(),
-            $this->getCurrenCategoryKey()
-        );
+        return 'CATALOG_NAVIGATION_' . Mage::app()->getStore()->getId()
+            . '_' . Mage::getDesign()->getPackageName()
+            . '_' . Mage::getDesign()->getTheme('template')
+            . '_' . Mage::getSingleton('customer/session')->getCustomerGroupId()
+            . '_' . md5($this->getTemplate() . $this->getCurrenCategoryKey());
     }
 
     public function getCurrenCategoryKey()
@@ -175,136 +171,74 @@ class Mage_Catalog_Block_Navigation extends Mage_Core_Block_Template
     }
 
     /**
-     * Render category to html
+     * Enter description here...
      *
      * @param Mage_Catalog_Model_Category $category
-     * @param int Nesting level number
-     * @param boolean Whether ot not this item is last, affects list item class
-     * @param boolean Whether ot not this item is first, affects list item class
-     * @param boolean Whether ot not this item is outermost, affects list item class
-     * @param string Extra class of outermost list items
-     * @param string If specified wraps children list in div with this class
-     * @param boolean Whether ot not to add on* attributes to list item
+     * @param int $level
+     * @param boolean $last
      * @return string
      */
-    protected function _renderCategoryMenuItemHtml($category, $level = 0, $isLast = false, $isFirst = false,
-        $isOutermost = false, $outermostItemClass = '', $childrenWrapClass = '', $noEventAttributes = false)
+    public function drawItem($category, $level=0, $last=false)
     {
+        $html = '';
         if (!$category->getIsActive()) {
-            return '';
+            return $html;
         }
-        $html = array();
-
-        // get all children
         if (Mage::helper('catalog/category_flat')->isEnabled()) {
-            $children = (array)$category->getChildrenNodes();
+            $children = $category->getChildrenNodes();
             $childrenCount = count($children);
         } else {
             $children = $category->getChildren();
             $childrenCount = $children->count();
         }
-        $hasChildren = ($children && $childrenCount);
-
-        // select active children
-        $activeChildren = array();
-        foreach ($children as $child) {
-            if ($child->getIsActive()) {
-                $activeChildren[] = $child;
-            }
+        $hasChildren = $children && $childrenCount;
+        $html.= '<li';
+        if ($hasChildren) {
+             $html.= ' onmouseover="toggleMenu(this,1)" onmouseout="toggleMenu(this,0)"';
         }
-        $activeChildrenCount = count($activeChildren);
-        $hasActiveChildren = ($activeChildrenCount > 0);
 
-        // prepare list item html classes
-        $classes = array();
-        $classes[] = 'level' . $level;
-        $classes[] = 'nav-' . $this->_getItemPosition($level);
-        $linkClass = '';
-        if ($isOutermost && $outermostItemClass) {
-            $classes[] = $outermostItemClass;
-            $linkClass = ' class="'.$outermostItemClass.'"';
-        }
+        $html.= ' class="level'.$level;
+        //$html.= ' nav-'.str_replace('/', '-', Mage::helper('catalog/category')->getCategoryUrlPath($category->getRequestPath()));
+        $html.= ' nav-' . $this->_getItemPosition($level);
         if ($this->isCategoryActive($category)) {
-            $classes[] = 'active';
+            $html.= ' active';
         }
-        if ($isFirst) {
-            $classes[] = 'first';
+        if ($last) {
+            $html .= ' last';
         }
-        if ($isLast) {
-            $classes[] = 'last';
-        }
-        if ($hasActiveChildren) {
-            $classes[] = 'parent';
-        }
-
-        // prepare list item attributes
-        $attributes = array();
-        if (count($classes) > 0) {
-            $attributes['class'] = implode(' ', $classes);
-        }
-        if ($hasActiveChildren && !$noEventAttributes) {
-             $attributes['onmouseover'] = 'toggleMenu(this,1)';
-             $attributes['onmouseout'] = 'toggleMenu(this,0)';
-        }
-
-        // assemble list item with attributes
-        $htmlLi = '<li';
-        foreach ($attributes as $attrName => $attrValue) {
-            $htmlLi .= ' ' . $attrName . '="' . str_replace('"', '\"', $attrValue) . '"';
-        }
-        $htmlLi .= '>';
-        $html[] = $htmlLi;
-
-        $html[] = '<a href="'.$this->getCategoryUrl($category).'"'.$linkClass.'>';
-        $html[] = '<span>' . $this->escapeHtml($category->getName()) . '</span>';
-        $html[] = '</a>';
-
-        // render children
-        $htmlChildren = '';
-        $j = 0;
-        foreach ($activeChildren as $child) {
-            $htmlChildren .= $this->_renderCategoryMenuItemHtml(
-                $child,
-                ($level + 1),
-                ($j == $activeChildrenCount - 1),
-                ($j == 0),
-                false,
-                $outermostItemClass,
-                $childrenWrapClass,
-                $noEventAttributes
-            );
-            $j++;
-        }
-        if (!empty($htmlChildren)) {
-            if ($childrenWrapClass) {
-                $html[] = '<div class="' . $childrenWrapClass . '">';
+        if ($hasChildren) {
+            $cnt = 0;
+            foreach ($children as $child) {
+                if ($child->getIsActive()) {
+                    $cnt++;
+                }
             }
-            $html[] = '<ul class="level' . $level . '">';
-            $html[] = $htmlChildren;
-            $html[] = '</ul>';
-            if ($childrenWrapClass) {
-                $html[] = '</div>';
+            if ($cnt > 0) {
+                $html .= ' parent';
             }
         }
+        $html.= '">'."\n";
+        $html.= '<a href="'.$this->getCategoryUrl($category).'"><span>'.$this->htmlEscape($category->getName()).'</span></a>'."\n";
 
-        $html[] = '</li>';
+        if ($hasChildren){
 
-        $html = implode("\n", $html);
+            $j = 0;
+            $htmlChildren = '';
+            foreach ($children as $child) {
+                if ($child->getIsActive()) {
+                    $htmlChildren.= $this->drawItem($child, $level+1, ++$j >= $cnt);
+                }
+            }
+
+            if (!empty($htmlChildren)) {
+                $html.= '<ul class="level' . $level . '">'."\n"
+                        .$htmlChildren
+                        .'</ul>';
+            }
+
+        }
+        $html.= '</li>'."\n";
         return $html;
-    }
-
-    /**
-     * Render category to html
-     *
-     * @deprecated deprecated after 1.4
-     * @param Mage_Catalog_Model_Category $category
-     * @param int Nesting level number
-     * @param boolean Whether ot not this item is last, affects list item class
-     * @return string
-     */
-    public function drawItem($category, $level = 0, $last = false)
-    {
-        return $this->_renderCategoryMenuItemHtml($category, $level, $last);
     }
 
     /**
@@ -372,48 +306,6 @@ class Mage_Catalog_Block_Navigation extends Mage_Core_Block_Template
             }
         }
         $html.= '</li>'."\n";
-        return $html;
-    }
-
-    /**
-     * Render categories menu in HTML
-     *
-     * @param int Level number for list item class to start from
-     * @param string Extra class of outermost list items
-     * @param string If specified wraps children list in div with this class
-     * @return string
-     */
-    public function renderCategoriesMenuHtml($level = 0, $outermostItemClass = '', $childrenWrapClass = '')
-    {
-        $activeCategories = array();
-        foreach ($this->getStoreCategories() as $child) {
-            if ($child->getIsActive()) {
-                $activeCategories[] = $child;
-            }
-        }
-        $activeCategoriesCount = count($activeCategories);
-        $hasActiveCategoriesCount = ($activeCategoriesCount > 0);
-
-        if (!$hasActiveCategoriesCount) {
-            return '';
-        }
-
-        $html = '';
-        $j = 0;
-        foreach ($activeCategories as $category) {
-            $html .= $this->_renderCategoryMenuItemHtml(
-                $category,
-                $level,
-                ($j == $activeCategoriesCount - 1),
-                ($j == 0),
-                true,
-                $outermostItemClass,
-                $childrenWrapClass,
-                true
-            );
-            $j++;
-        }
-
         return $html;
     }
 

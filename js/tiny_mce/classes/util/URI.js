@@ -1,26 +1,22 @@
 /**
- * URI.js
+ * $Id: URI.js 1164 2009-06-25 13:40:16Z spocke $
  *
- * Copyright 2009, Moxiecode Systems AB
- * Released under LGPL License.
- *
- * License: http://tinymce.moxiecode.com/license
- * Contributing: http://tinymce.moxiecode.com/contributing
+ * @author Moxiecode
+ * @copyright Copyright © 2004-2008, Moxiecode Systems AB, All rights reserved.
  */
 
 (function() {
 	var each = tinymce.each;
 
-	/**
-	 * This class handles parsing, modification and serialization of URI/URL strings.
-	 * @class tinymce.util.URI
+	/**#@+
+	 * @class This class handles parsing, modification and serialization of URI/URL strings.
+	 * @member tinymce.util.URI
 	 */
 	tinymce.create('tinymce.util.URI', {
 		/**
 		 * Constucts a new URI instance.
 		 *
 		 * @constructor
-		 * @method URI
 		 * @param {String} u URI string to parse.
 		 * @param {Object} s Optional settings object.
 		 */
@@ -34,7 +30,7 @@
 			s = t.settings = s || {};
 
 			// Strange app protocol or local anchor
-			if (/^(mailto|tel|news|javascript|about|data):/i.test(u) || /^\s*#/.test(u)) {
+			if (/^(mailto|tel|news|javascript|about):/i.test(u) || /^\s*#/.test(u)) {
 				t.source = u;
 				return;
 			}
@@ -79,10 +75,13 @@
 			//t.path = t.path || '/';
 		},
 
+		/**#@+
+		 * @method
+		 */
+
 		/**
 		 * Sets the internal path part of the URI.
 		 *
-		 * @method setPath
 		 * @param {string} p Path string to set.
 		 */
 		setPath : function(p) {
@@ -103,7 +102,6 @@
 		/**
 		 * Converts the specified URI into a relative URI based on the current URI instance location.
 		 *
-		 * @method toRelative
 		 * @param {String} u URI to convert into a relative path/URI.
 		 * @return {String} Relative URI from the point specified in the current URI instance.
 		 */
@@ -135,21 +133,19 @@
 		/**
 		 * Converts the specified URI into a absolute URI based on the current URI instance location.
 		 *
-		 * @method toAbsolute
 		 * @param {String} u URI to convert into a relative path/URI.
-		 * @param {Boolean} nh No host and protocol prefix.
+		 * @param {bool} nh No host and protocol prefix.
 		 * @return {String} Absolute URI from the point specified in the current URI instance.
 		 */
 		toAbsolute : function(u, nh) {
 			var u = new tinymce.util.URI(u, {base_uri : this});
 
-			return u.getURI(this.host == u.host && this.protocol == u.protocol ? nh : 0);
+			return u.getURI(this.host == u.host ? nh : 0);
 		},
 
 		/**
 		 * Converts a absolute path into a relative path.
 		 *
-		 * @method toRelPath
 		 * @param {String} base Base point to convert the path from.
 		 * @param {String} path Absolute path to convert into a relative path.
 		 */
@@ -198,12 +194,11 @@
 		/**
 		 * Converts a relative path into a absolute path.
 		 *
-		 * @method toAbsPath
 		 * @param {String} base Base point to convert the path from.
 		 * @param {String} path Relative path to convert into an absolute path.
 		 */
 		toAbsPath : function(base, path) {
-			var i, nb = 0, o = [], tr, outPath;
+			var i, nb = 0, o = [], tr;
 
 			// Split paths
 			tr = /\/$/.test(path) ? '/' : '';
@@ -243,26 +238,15 @@
 
 			// If /a/b/c or /
 			if (i <= 0)
-				outPath = o.reverse().join('/');
-			else
-				outPath = base.slice(0, i).join('/') + '/' + o.reverse().join('/');
+				return '/' + o.reverse().join('/') + tr;
 
-			// Add front / if it's needed
-			if (outPath.indexOf('/') !== 0)
-				outPath = '/' + outPath;
-
-			// Add traling / if it's needed
-			if (tr && outPath.lastIndexOf('/') !== outPath.length - 1)
-				outPath += tr;
-
-			return outPath;
+			return '/' + base.slice(0, i).join('/') + '/' + o.reverse().join('/') + tr;
 		},
 
 		/**
 		 * Returns the full URI of the internal structure.
 		 *
-		 * @method getURI
-		 * @param {Boolean} nh Optional no host and protocol part. Defaults to false.
+		 * @param {bool} nh Optional no host and protocol part. Defaults to false.
 		 */
 		getURI : function(nh) {
 			var s, t = this;
@@ -299,5 +283,7 @@
 
 			return t.source;
 		}
+
+		/**#@-*/
 	});
 })();

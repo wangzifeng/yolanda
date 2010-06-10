@@ -20,7 +20,7 @@
  *
  * @category    Mage
  * @package     Mage_Customer
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
+ * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -47,24 +47,18 @@ class Mage_Customer_Model_Address_Abstract extends Mage_Core_Model_Abstract
      */
     static protected $_regionModels = array();
 
-    /**
-     * Get full customer name
-     *
-     * @return string
-     */
     public function getName()
     {
         $name = '';
-        $helper = Mage::helper('customer/address');
-        if ($helper->canShowConfig('prefix_show') && $this->getPrefix()) {
+        if ($this->getPrefix()) {
             $name .= $this->getPrefix() . ' ';
         }
         $name .= $this->getFirstname();
-        if ($helper->canShowConfig('middlename_show') && $this->getMiddlename()) {
+        if ($this->getMiddlename()) {
             $name .= ' ' . $this->getMiddlename();
         }
         $name .=  ' ' . $this->getLastname();
-        if ($helper->canShowConfig('suffix_show')&& $this->getSuffix()) {
+        if ($this->getSuffix()) {
             $name .= ' ' . $this->getSuffix();
         }
         return $name;
@@ -302,6 +296,7 @@ class Mage_Customer_Model_Address_Abstract extends Mage_Core_Model_Abstract
             || !$formatType->getRenderer()) {
             return null;
         }
+
         return $formatType->getRenderer()->render($this);
     }
 
@@ -333,37 +328,37 @@ class Mage_Customer_Model_Address_Abstract extends Mage_Core_Model_Abstract
         $helper = Mage::helper('customer');
         $this->implodeStreetAddress();
         if (!Zend_Validate::is($this->getFirstname(), 'NotEmpty')) {
-            $errors[] = $helper->__('Please enter the first name.');
+            $errors[] = $helper->__('Please enter first name.');
         }
 
         if (!Zend_Validate::is($this->getLastname(), 'NotEmpty')) {
-            $errors[] = $helper->__('Please enter the last name.');
+            $errors[] = $helper->__('Please enter last name.');
         }
 
         if (!Zend_Validate::is($this->getStreet(1), 'NotEmpty')) {
-            $errors[] = $helper->__('Please enter the street.');
+            $errors[] = $helper->__('Please enter street.');
         }
 
         if (!Zend_Validate::is($this->getCity(), 'NotEmpty')) {
-            $errors[] = $helper->__('Please enter the city.');
+            $errors[] = $helper->__('Please enter city.');
         }
 
         if (!Zend_Validate::is($this->getTelephone(), 'NotEmpty')) {
-            $errors[] = $helper->__('Please enter the telephone number.');
+            $errors[] = $helper->__('Please enter telephone.');
         }
 
         $_havingOptionalZip = Mage::helper('directory')->getCountriesWithOptionalZip();
         if (!in_array($this->getCountryId(), $_havingOptionalZip) && !Zend_Validate::is($this->getPostcode(), 'NotEmpty')) {
-            $errors[] = $helper->__('Please enter the zip/postal code.');
+            $errors[] = $helper->__('Please enter zip/postal code.');
         }
 
         if (!Zend_Validate::is($this->getCountryId(), 'NotEmpty')) {
-            $errors[] = $helper->__('Please enter the country.');
+            $errors[] = $helper->__('Please enter country.');
         }
 
         if ($this->getCountryModel()->getRegionCollection()->getSize()
                && !Zend_Validate::is($this->getRegionId(), 'NotEmpty')) {
-            $errors[] = $helper->__('Please enter the state/province.');
+            $errors[] = $helper->__('Please enter state/province.');
         }
 
         if (empty($errors) || $this->getShouldIgnoreValidation()) {

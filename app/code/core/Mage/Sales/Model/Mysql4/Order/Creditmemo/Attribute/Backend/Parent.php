@@ -20,13 +20,11 @@
  *
  * @category    Mage
  * @package     Mage_Sales
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
+ * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-/**
- * @deprecated after 1.4, no more EAV for sales
- */
+
 class Mage_Sales_Model_Mysql4_Order_Creditmemo_Attribute_Backend_Parent
     extends Mage_Eav_Model_Entity_Attribute_Backend_Abstract
 {
@@ -40,7 +38,7 @@ class Mage_Sales_Model_Mysql4_Order_Creditmemo_Attribute_Backend_Parent
         foreach ($object->getAllItems() as $item) {
             $item->save();
         }
-
+        
         foreach($object->getCommentsCollection() as $comment) {
             $comment->save();
         }

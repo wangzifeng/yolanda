@@ -524,7 +524,7 @@ class Zend_Locale_Format
     private static function _getRegexForType($type, $options)
     {
         $decimal  = Zend_Locale_Data::getContent($options['locale'], $type);
-        $decimal  = preg_replace('/[^#0,;\.\-Ee]/u', '',$decimal);
+        $decimal  = preg_replace('/[^#0,;\.\-Ee]/', '',$decimal);
         $patterns = explode(';', $decimal);
 
         if (count($patterns) == 1) {
@@ -610,7 +610,7 @@ class Zend_Locale_Format
                 }
             }
 
-            $regex[$pkey] .= '$/u';
+            $regex[$pkey] .= '$/';
         }
 
         return $regex;

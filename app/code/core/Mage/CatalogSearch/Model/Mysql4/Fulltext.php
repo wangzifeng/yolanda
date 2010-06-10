@@ -20,7 +20,7 @@
  *
  * @category    Mage
  * @package     Mage_CatalogSearch
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
+ * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -62,18 +62,11 @@ class Mage_CatalogSearch_Model_Mysql4_Fulltext extends Mage_Core_Model_Mysql4_Ab
     protected $_productTypes = array();
 
     /**
-     * Store search engine instance
-     * @var object
-     */
-    protected $_engine = null;
-
-    /**
      * Init resource model
      */
     protected function _construct()
     {
         $this->_init('catalogsearch/fulltext', 'product_id');
-        $this->_engine = Mage::helper('catalogsearch')->getEngine();
     }
 
     /**
@@ -205,11 +198,6 @@ class Mage_CatalogSearch_Model_Mysql4_Fulltext extends Mage_Core_Model_Mysql4_Ab
                 array('website' => $this->getTable('catalog/product_website')),
                 $this->_getWriteAdapter()->quoteInto('website.product_id=e.entity_id AND website.website_id=?', $store->getWebsiteId()),
                 array()
-            )
-            ->join(
-                array('stock_status' => $this->getTable('cataloginventory/stock_status')),
-                $this->_getWriteAdapter()->quoteInto('stock_status.product_id=e.entity_id AND stock_status.website_id=?', $store->getWebsiteId()),
-                array('in_stock' => 'stock_status')
             );
 
         if (!is_null($productIds)) {
@@ -255,9 +243,16 @@ class Mage_CatalogSearch_Model_Mysql4_Fulltext extends Mage_Core_Model_Mysql4_Ab
      */
     public function cleanIndex($storeId = null, $productId = null)
     {
-        if ($this->_engine) {
-            $this->_engine->cleanIndex($storeId, $productId);
+        $where = array();
+
+        if (!is_null($storeId)) {
+            $where[] = $this->_getWriteAdapter()->quoteInto('store_id=?', $storeId);
         }
+        if (!is_null($productId)) {
+            $where[] = $this->_getWriteAdapter()->quoteInto('product_id IN(?)', $productId);
+        }
+
+        $this->_getWriteAdapter()->delete($this->getMainTable(), join(' AND ', $where));
         return $this;
     }
 
@@ -521,37 +516,14 @@ class Mage_CatalogSearch_Model_Mysql4_Fulltext extends Mage_Core_Model_Mysql4_Ab
         foreach ($this->_getSearchableAttributes('static') as $attribute) {
             if (isset($productData[$attribute->getAttributeCode()])) {
                 if ($value = $this->_getAttributeValue($attribute->getId(), $productData[$attribute->getAttributeCode()], $storeId)) {
-
-                    //For grouped products
-                    if (isset($index[$attribute->getAttributeCode()])) {
-                        if (!is_array($index[$attribute->getAttributeCode()])) {
-                            $index[$attribute->getAttributeCode()] = array($index[$attribute->getAttributeCode()]);
-                        }
-                        $index[$attribute->getAttributeCode()][] = $value;
-                    }
-                    //For other types of products
-                    else {
-                        $index[$attribute->getAttributeCode()] = $value;
-                    }
+                    $index[] = $value;
                 }
             }
         }
         foreach ($indexData as $attributeData) {
             foreach ($attributeData as $attributeId => $attributeValue) {
                 if ($value = $this->_getAttributeValue($attributeId, $attributeValue, $storeId)) {
-                    $code = $this->_getSearchableAttribute($attributeId)->getAttributeCode();
-
-                    //For grouped products
-                    if (isset($index[$code])) {
-                        if (!is_array($index[$code])) {
-                            $index[$code] = array($index[$code]);
-                        }
-                        $index[$code][] = $value;
-                    }
-                    //For other types of products
-                    else {
-                        $index[$code] = $value;
-                    }
+                    $index[] = $value;
                 }
             }
         }
@@ -562,17 +534,10 @@ class Mage_CatalogSearch_Model_Mysql4_Fulltext extends Mage_Core_Model_Mysql4_Ab
             ->setStoreId($storeId);
         $typeInstance = $this->_getProductTypeInstance($productData['type_id']);
         if ($data = $typeInstance->getSearchableData($product)) {
-            $index['options'] = $data;
+            $index = array_merge($index, $data);
         }
 
-        if (isset($productData['in_stock'])) {
-            $index['in_stock'] = $productData['in_stock'];
-        }
-
-        if ($this->_engine) {
-            return $this->_engine->prepareEntityIndex($index, $this->_separator);
-        }
-        return Mage::helper('catalogsearch')->prepareIndexdata($index, $this->_separator);
+        return join($this->_separator, $index);
     }
 
     /**
@@ -616,9 +581,11 @@ class Mage_CatalogSearch_Model_Mysql4_Fulltext extends Mage_Core_Model_Mysql4_Ab
      */
     protected function _saveProductIndex($productId, $storeId, $index)
     {
-        if ($this->_engine) {
-            $this->_engine->saveEntityIndex($productId, $storeId, $index);
-        }
+        $this->_getWriteAdapter()->insert($this->getMainTable(), array(
+            'product_id'    => $productId,
+            'store_id'      => $storeId,
+            'data_index'    => $index
+        ));
         return $this;
     }
 
@@ -631,9 +598,21 @@ class Mage_CatalogSearch_Model_Mysql4_Fulltext extends Mage_Core_Model_Mysql4_Ab
      */
     protected function _saveProductIndexes($storeId, $productIndexes)
     {
-        if ($this->_engine) {
-            $this->_engine->saveEntityIndexes($storeId, $productIndexes);
+        $adapter = $this->_getWriteAdapter();
+        $data    = array();
+        $storeId = (int)$storeId;
+        foreach ($productIndexes as $productId => &$index) {
+            $data[] = array(
+                'product_id'    => (int)$productId,
+                'store_id'      => $storeId,
+                'data_index'    => $index
+            );
         }
+
+        if ($data) {
+            $adapter->insertOnDuplicate($this->getMainTable(), $data, array('data_index'));
+        }
+
         return $this;
     }
 

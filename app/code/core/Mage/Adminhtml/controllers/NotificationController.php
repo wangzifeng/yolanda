@@ -20,7 +20,7 @@
  *
  * @category    Mage
  * @package     Mage_Adminhtml
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
+ * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -53,7 +53,7 @@ class Mage_Adminhtml_NotificationController extends Mage_Adminhtml_Controller_Ac
                 ->load($id);
 
             if (!$model->getId()) {
-                $session->addError(Mage::helper('adminnotification')->__('Unable to proceed. Please, try again.'));
+                $session->addError(Mage::helper('adminnotification')->__('Unable to proceed. Please, try again'));
                 $this->_redirect('*/*/');
                 return ;
             }
@@ -61,13 +61,13 @@ class Mage_Adminhtml_NotificationController extends Mage_Adminhtml_Controller_Ac
             try {
                 $model->setIsRead(1)
                     ->save();
-                $session->addSuccess(Mage::helper('adminnotification')->__('The message has been marked as read.'));
+                $session->addSuccess(Mage::helper('adminnotification')->__('Message was successfully marked as read'));
             }
             catch (Mage_Core_Exception $e) {
                 $session->addError($e->getMessage());
             }
             catch (Exception $e) {
-                $session->addException($e, Mage::helper('adminnotification')->__('An error occurred while marking notification as read.'));
+                $session->addException($e, Mage::helper('adminnotification')->__('Error while marking as read. Please try again later.'));
             }
 
             $this->_redirectReferer();
@@ -81,7 +81,7 @@ class Mage_Adminhtml_NotificationController extends Mage_Adminhtml_Controller_Ac
         $session = Mage::getSingleton('adminhtml/session');
         $ids = $this->getRequest()->getParam('notification');
         if (!is_array($ids)) {
-            $session->addError(Mage::helper('adminnotification')->__('Please select messages.'));
+            $session->addError(Mage::helper('adminnotification')->__('Please select messages'));
         }
         else {
             try {
@@ -94,13 +94,13 @@ class Mage_Adminhtml_NotificationController extends Mage_Adminhtml_Controller_Ac
                     }
                 }
                 $this->_getSession()->addSuccess(
-                    Mage::helper('adminnotification')->__('Total of %d record(s) have been marked as read.', count($ids))
+                    Mage::helper('adminnotification')->__('Total of %d record(s) were successfully marked as read', count($ids))
                 );
             } catch (Mage_Core_Exception $e) {
                 $session->addError($e->getMessage());
             }
             catch (Exception $e) {
-                $session->addException($e, Mage::helper('adminnotification')->__('An error occurred while marking the messages as read.'));
+                $session->addException($e, Mage::helper('adminnotification')->__('Error while marking as read. Please try again later.'));
             }
         }
         $this->_redirect('*/*/');
@@ -114,6 +114,7 @@ class Mage_Adminhtml_NotificationController extends Mage_Adminhtml_Controller_Ac
                 ->load($id);
 
             if (!$model->getId()) {
+                $session->addError(Mage::helper('adminnotification')->__('Unable to proceed. Please, try again'));
                 $this->_redirect('*/*/');
                 return ;
             }
@@ -121,13 +122,13 @@ class Mage_Adminhtml_NotificationController extends Mage_Adminhtml_Controller_Ac
             try {
                 $model->setIsRemove(1)
                     ->save();
-                $session->addSuccess(Mage::helper('adminnotification')->__('The message has been removed.'));
+                $session->addSuccess(Mage::helper('adminnotification')->__('Message was successfully removed'));
             }
             catch (Mage_Core_Exception $e) {
                 $session->addError($e->getMessage());
             }
             catch (Exception $e) {
-                $session->addException($e, Mage::helper('adminnotification')->__('An error occurred while removing the message.'));
+                $session->addException($e, Mage::helper('adminnotification')->__('Error while removing. Please try again later.'));
             }
 
             $this->_redirectReferer();
@@ -141,7 +142,7 @@ class Mage_Adminhtml_NotificationController extends Mage_Adminhtml_Controller_Ac
         $session = Mage::getSingleton('adminhtml/session');
         $ids = $this->getRequest()->getParam('notification');
         if (!is_array($ids)) {
-            $session->addError(Mage::helper('adminnotification')->__('Please select messages.'));
+            $session->addError(Mage::helper('adminnotification')->__('Please select messages'));
         }
         else {
             try {
@@ -154,13 +155,13 @@ class Mage_Adminhtml_NotificationController extends Mage_Adminhtml_Controller_Ac
                     }
                 }
                 $this->_getSession()->addSuccess(
-                    Mage::helper('adminnotification')->__('Total of %d record(s) have been removed.', count($ids))
+                    Mage::helper('adminnotification')->__('Total of %d record(s) were successfully removed', count($ids))
                 );
             } catch (Mage_Core_Exception $e) {
                 $session->addError($e->getMessage());
             }
             catch (Exception $e) {
-                $session->addException($e, Mage::helper('adminnotification')->__('An error occurred while removing messages.'));
+                $session->addException($e, Mage::helper('adminnotification')->__('Error while marking. Please try again later.'));
             }
         }
         $this->_redirectReferer();

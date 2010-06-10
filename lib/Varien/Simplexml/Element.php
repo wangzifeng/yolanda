@@ -140,31 +140,18 @@ class Varien_Simplexml_Element extends SimpleXMLElement
      * Find a descendant of a node by path
      *
      * @todo    Do we need to make it xpath look-a-like?
-     * @todo    Check if we still need all this and revert to plain XPath if this makes any sense
      * @todo    param string $path Subset of xpath. Example: "child/grand[@attrName='attrValue']/subGrand"
      * @param   string $path Example: "child/grand@attrName=attrValue/subGrand" (to make it faster without regex)
      * @return  Varien_Simplexml_Element
      */
     public function descend($path)
     {
-        # $node = $this->xpath($path);
-        # return $node[0];
+        #$node = $this->xpath($path);
+        #return $node[0];
         if (is_array($path)) {
             $pathArr = $path;
         } else {
-            // Simple exploding by / does not suffice,
-            // as an attribute value may contain a / inside
-            // Note that there are three matches for different kinds of attribute values specification
-            if(strpos($path, "@") === false) {
-                $pathArr = explode('/', $path);
-            }
-            else {
-                $regex = "#([^@/\\\"]+(?:@[^=/]+=(?:\\\"[^\\\"]*\\\"|[^/]*))?)/?#";
-                $pathArr = $pathMatches = array();
-                if(preg_match_all($regex, $path, $pathMatches)) {
-                    $pathArr = $pathMatches[1];
-                }
-            }
+            $pathArr = explode('/', $path);
         }
         $desc = $this;
         foreach ($pathArr as $nodeName) {
@@ -174,15 +161,10 @@ class Varien_Simplexml_Element extends SimpleXMLElement
                 $nodeName = $a[0];
                 $attributeName = $b[0];
                 $attributeValue = $b[1];
-                //
-                // Does a very simplistic trimming of attribute value.
-                //
-                $attributeValue = trim($attributeValue, '"');
                 $found = false;
-                foreach ($desc->$nodeName as $subdesc) {
-                    if ((string)$subdesc[$attributeName]===$attributeValue) {
+                foreach ($this->$nodeName as $desc) {
+                    if ((string)$nodeChild[$attributeName]===$attributeValue) {
                         $found = true;
-                        $desc = $subdesc;
                         break;
                     }
                 }

@@ -20,45 +20,34 @@
  *
  * @category    Mage
  * @package     Mage_Sales
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
+ * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-/**
- * Flat sales order shipment comments collection
- *
- */
-class Mage_Sales_Model_Mysql4_Order_Shipment_Comment_Collection extends Mage_Sales_Model_Mysql4_Collection_Abstract
-{
-    protected $_eventPrefix = 'sales_order_shipment_comment_collection';
-    protected $_eventObject = 'order_shipment_comment_collection';
 
+/**
+ * Shipment comments collection
+ *
+ * @category   Mage
+ * @package    Mage_Sales
+ * @author      Magento Core Team <core@magentocommerce.com>
+ */
+class Mage_Sales_Model_Mysql4_Order_Shipment_Comment_Collection extends Mage_Eav_Model_Entity_Collection_Abstract
+{
     protected function _construct()
     {
         $this->_init('sales/order_shipment_comment');
     }
 
-    /**
-     * Set shipment filter
-     *
-     * @param int $shipmentId
-     * @return Mage_Sales_Model_Mysql4_Order_Shipment_Comment_Collection
-     */
     public function setShipmentFilter($shipmentId)
     {
-        $this->addFieldToFilter('parent_id', $shipmentId);
+        $this->addAttributeToFilter('parent_id', $shipmentId);
         return $this;
     }
 
-    /**
-     * Set created_at sort order
-     *
-     * @param string $direction
-     * @return Mage_Sales_Model_Mysql4_Order_Shipment_Comment_Collection
-     */
-    public function setCreatedAtOrder($direction='desc')
+    public function setCreatedAtOrder($order='desc')
     {
-        $this->setOrder('created_at', $direction);
+        $this->setOrder('created_at', $order);
         return $this;
     }
 }

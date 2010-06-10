@@ -20,15 +20,15 @@
  *
  * @category    Mage
  * @package     Mage_Sales
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
+ * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-class Mage_Sales_Model_Mysql4_Report_Invoiced extends Mage_Sales_Model_Mysql4_Report_Abstract
+class Mage_Sales_Model_Mysql4_Report_Invoiced extends Mage_Core_Model_Mysql4_Abstract
 {
     protected function _construct()
     {
-        $this->_setResource('sales');
+        $this->_setResource(array('read', 'write'));
     }
 
     /**
@@ -40,20 +40,25 @@ class Mage_Sales_Model_Mysql4_Report_Invoiced extends Mage_Sales_Model_Mysql4_Re
      */
     public function aggregate($from = null, $to = null)
     {
-        // convert input dates to UTC to be comparable with DATETIME fields in DB
-        $from = $this->_dateToUtc($from);
-        $to = $this->_dateToUtc($to);
-
-        $this->_checkDates($from, $to);
+        if (!is_null($from)) {
+            $from = $this->formatDate($from);
+        }
+        if (!is_null($to)) {
+            $from = $this->formatDate($to);
+        }
         $this->_aggregateByOrderCreatedAt($from, $to);
         $this->_aggregateByInvoiceCreatedAt($from, $to);
 
-        $this->_setFlagData(Mage_Reports_Model_Flag::REPORT_INVOICE_FLAG_CODE);
+        $reportsFlagModel = Mage::getModel('reports/flag');
+        $reportsFlagModel->setReportFlagCode(Mage_Reports_Model_Flag::REPORT_INVOICE_FLAG_CODE);
+        $reportsFlagModel->loadSelf();
+        $reportsFlagModel->save();
+
         return $this;
     }
 
     /**
-     * Aggregate Invoiced data by invoice created_at as period
+     * Aggregate Invoiced data by invoice created_at
      *
      * @param mixed $from
      * @param mixed $to
@@ -61,67 +66,74 @@ class Mage_Sales_Model_Mysql4_Report_Invoiced extends Mage_Sales_Model_Mysql4_Re
      */
     protected function _aggregateByInvoiceCreatedAt($from, $to)
     {
-        $table = $this->getTable('sales/invoiced_aggregated');
-        $sourceTable = $this->getTable('sales/invoice');
-        $orderTable = $this->getTable('sales/order');
-        $this->_getWriteAdapter()->beginTransaction();
-
         try {
-            if ($from !== null || $to !== null) {
-                $subSelect = $this->_getTableDateRangeRelatedSelect(
-                    $sourceTable, $orderTable, array('order_id'=>'entity_id'),
-                    'created_at', 'updated_at', $from, $to
-                );
+            $tableName = $this->getTable('sales/invoiced_aggregated');
+            $writeAdapter = $this->_getWriteAdapter();
+
+            $writeAdapter->beginTransaction();
+
+            if (is_null($from) && is_null($to)) {
+                $writeAdapter->query("TRUNCATE TABLE {$tableName}");
             } else {
-                $subSelect = null;
+                $where = (!is_null($from)) ? "so.updated_at >= '{$from}'" : '';
+                if (!is_null($to)) {
+                    $where .= (!empty($where)) ? " AND so.updated_at <= '{$to}'" : "so.updated_at <= '{$to}'";
+                }
+
+                $subQuery = $writeAdapter->select();
+                $subQuery->from(array('so' => $this->getTable('sales/order') ), array('DISTINCT DATE(so.created_at)'))
+                    ->where($where);
+
+                $deleteCondition = 'DATE(period) IN (' . new Zend_Db_Expr($subQuery) . ')';
+                $writeAdapter->delete($tableName, $deleteCondition);
             }
 
-            $this->_clearTableByDateRange($table, $from, $to, $subSelect);
+            $invoice = Mage::getResourceSingleton('sales/order_invoice');
+            $invoiceAttr = $invoice->getAttribute('order_id');
 
             $columns = array(
-                // convert dates from UTC to current admin timezone
-                'period'                => "DATE(CONVERT_TZ(source_table.created_at, '+00:00', '" . $this->_getStoreTimezoneUtcOffset() . "'))",
-                'store_id'              => 'order_table.store_id',
-                'order_status'          => 'order_table.status',
-                'orders_count'          => 'COUNT(order_table.entity_id)',
-                'orders_invoiced'       => 'COUNT(order_table.entity_id)',
-                'invoiced'              => 'SUM(order_table.base_total_invoiced * order_table.base_to_global_rate)',
-                'invoiced_captured'     => 'SUM(order_table.base_total_paid * order_table.base_to_global_rate)',
-                'invoiced_not_captured' => 'SUM((order_table.base_total_invoiced - order_table.base_total_paid) * order_table.base_to_global_rate)'
+                'period'                => "DATE(soe.created_at)",
+                'store_id'              => 'so.store_id',
+                'order_status'          => 'so.status',
+                'orders_count'          => 'COUNT(so.entity_id)',
+                'orders_invoiced'       => 'COUNT(so.entity_id)',
+                'invoiced'              => 'SUM(so.base_total_invoiced * so.base_to_global_rate)',
+                'invoiced_captured'     => 'SUM(so.base_total_paid * so.base_to_global_rate)',
+                'invoiced_not_captured' => 'SUM((so.base_total_invoiced - so.base_total_paid) * so.base_to_global_rate)'
             );
 
-            $select = $this->_getWriteAdapter()->select();
-            $select->from(array('source_table' => $sourceTable), $columns)
-                ->joinInner(
-                    array('order_table' => $orderTable),
-                    $this->_getWriteAdapter()->quoteInto(
-                        'source_table.order_id = order_table.entity_id AND order_table.state <> ?',
-                        Mage_Sales_Model_Order::STATE_CANCELED),
-                    array()
-                );
+            $select = $writeAdapter->select()
+                ->from(array('soe' => $this->getTable('sales/order_entity')), $columns)
+                ->where('state <> ?', 'canceled');
 
-            $filterSubSelect = $this->_getWriteAdapter()->select();
-            $filterSubSelect->from(array('filter_source_table' => $sourceTable), 'MAX(filter_source_table.entity_id)')
-                ->where('filter_source_table.order_id = source_table.order_id');
+            $select->joinInner(array('soei' => $this->getTable($invoiceAttr->getBackend()->getTable())),
+                "`soei`.`entity_id` = `soe`.`entity_id`
+                AND `soei`.`attribute_id` = {$invoiceAttr->getAttributeId()}
+                AND `soei`.`entity_type_id` = `soe`.`entity_type_id`",
+                array()
+            );
 
-            if ($subSelect !== null) {
-                $select->where($this->_makeConditionFromDateRangeSelect($subSelect, 'source_table.created_at'));
+            $select->joinInner(array(
+                'so' => $this->getTable('sales/order')),
+                '`soei`.`value` = `so`.`entity_id`  AND `so`.base_total_invoiced > 0',
+                array()
+            );
+
+            if (!is_null($from) || !is_null($to)) {
+                $select->where("DATE(soe.created_at) IN(?)", new Zend_Db_Expr($subQuery));
             }
 
-            $select->where('source_table.entity_id = (?)', new Zend_Db_Expr($filterSubSelect));
-            unset($filterSubSelect);
-
             $select->group(array(
-                'period',
+                "DATE(`soe`.created_at)",
                 'store_id',
                 'order_status'
             ));
 
-            $select->having('orders_count > 0');
+            $writeAdapter->query("
+                INSERT INTO `{$tableName}` (" . implode(',', array_keys($columns)) . ") {$select}
+            ");
 
-            $this->_getWriteAdapter()->query($select->insertFromSelect($table, array_keys($columns)));
-
-            $select->reset();
+            $select = $writeAdapter->select();
 
             $columns = array(
                 'period'                => 'period',
@@ -135,30 +147,32 @@ class Mage_Sales_Model_Mysql4_Report_Invoiced extends Mage_Sales_Model_Mysql4_Re
             );
 
             $select
-                ->from($table, $columns)
-                ->where('store_id <> 0');
+                ->from($tableName, $columns)
+                ->where("store_id <> 0");
 
-            if ($subSelect !== null) {
-                $select->where($this->_makeConditionFromDateRangeSelect($subSelect, 'period'));
-            }
+                if (!is_null($from) || !is_null($to)) {
+                    $select->where("DATE(period) IN(?)", new Zend_Db_Expr($subQuery));
+                }
 
-            $select->group(array(
-                'period',
-                'order_status'
-            ));
+                $select->group(array(
+                    'period',
+                    'order_status'
+                ));
 
-            $this->_getWriteAdapter()->query($select->insertFromSelect($table, array_keys($columns)));
+            $writeAdapter->query("
+                INSERT INTO `{$tableName}` (" . implode(',', array_keys($columns)) . ") {$select}
+            ");
         } catch (Exception $e) {
-            $this->_getWriteAdapter()->rollBack();
+            $writeAdapter->rollBack();
             throw $e;
         }
 
-        $this->_getWriteAdapter()->commit();
+        $writeAdapter->commit();
         return $this;
     }
 
     /**
-     * Aggregate Invoiced data by order created_at as period
+     * Aggregate Invoiced data by order created_at
      *
      * @param mixed $from
      * @param mixed $to
@@ -166,21 +180,30 @@ class Mage_Sales_Model_Mysql4_Report_Invoiced extends Mage_Sales_Model_Mysql4_Re
      */
     protected function _aggregateByOrderCreatedAt($from, $to)
     {
-        $table = $this->getTable('sales/invoiced_aggregated_order');
-        $sourceTable = $this->getTable('sales/order');
-        $this->_getWriteAdapter()->beginTransaction();
-
         try {
-            if ($from !== null || $to !== null) {
-                $subSelect = $this->_getTableDateRangeSelect($sourceTable, 'created_at', 'updated_at', $from, $to);
+            $tableName = $this->getTable('sales/invoiced_aggregated_order');
+            $writeAdapter = $this->_getWriteAdapter();
+
+            $writeAdapter->beginTransaction();
+
+            if (is_null($from) && is_null($to)) {
+                $writeAdapter->query("TRUNCATE TABLE {$tableName}");
             } else {
-                $subSelect = null;
+                $where = (!is_null($from)) ? "so.updated_at >= '{$from}'" : '';
+                if (!is_null($to)) {
+                    $where .= (!empty($where)) ? " AND so.updated_at <= '{$to}'" : "so.updated_at <= '{$to}'";
+                }
+
+                $subQuery = $writeAdapter->select();
+                $subQuery->from(array('so' => $this->getTable('sales/order')), array('DISTINCT DATE(so.created_at)'))
+                    ->where($where);
+
+                $deleteCondition = 'DATE(period) IN (' . new Zend_Db_Expr($subQuery) . ')';
+                $writeAdapter->delete($tableName, $deleteCondition);
             }
 
-            $this->_clearTableByDateRange($table, $from, $to, $subSelect);
-
             $columns = array(
-                'period'                => "DATE(CONVERT_TZ(created_at, '+00:00', '" . $this->_getStoreTimezoneUtcOffset() . "'))",
+                'period'                => "DATE(created_at)",
                 'store_id'              => 'store_id',
                 'order_status'          => 'status',
                 'orders_count'          => 'COUNT(`base_total_invoiced`)',
@@ -190,25 +213,27 @@ class Mage_Sales_Model_Mysql4_Report_Invoiced extends Mage_Sales_Model_Mysql4_Re
                 'invoiced_not_captured' => 'SUM((`base_total_invoiced` - `base_total_paid`) * `base_to_global_rate`)'
             );
 
-            $select = $this->_getWriteAdapter()->select();
-            $select->from($sourceTable, $columns)
+            $select = $writeAdapter->select()
+                ->from($this->getTable('sales/order'), $columns)
                 ->where('state <> ?', Mage_Sales_Model_Order::STATE_CANCELED);
 
-            if ($subSelect !== null) {
-                $select->where($this->_makeConditionFromDateRangeSelect($subSelect, 'created_at'));
+            if (!is_null($from) || !is_null($to)) {
+                $select->where("DATE(created_at) IN(?)", new Zend_Db_Expr($subQuery));
             }
 
             $select->group(array(
-                'period',
+                "DATE(created_at)",
                 'store_id',
                 'order_status'
             ));
 
             $select->having('orders_count > 0');
 
-            $this->_getWriteAdapter()->query($select->insertFromSelect($table, array_keys($columns)));
+            $writeAdapter->query("
+                INSERT INTO `{$tableName}` (" . implode(',', array_keys($columns)) . ") {$select}
+            ");
 
-            $select->reset();
+            $select = $writeAdapter->select();
 
             $columns = array(
                 'period'                => 'period',
@@ -222,25 +247,27 @@ class Mage_Sales_Model_Mysql4_Report_Invoiced extends Mage_Sales_Model_Mysql4_Re
             );
 
             $select
-                ->from($table, $columns)
-                ->where('store_id <> 0');
+                ->from($tableName, $columns)
+                ->where("store_id <> 0");
 
-            if ($subSelect !== null) {
-                $select->where($this->_makeConditionFromDateRangeSelect($subSelect, 'period'));
-            }
+                if (!is_null($from) || !is_null($to)) {
+                    $select->where("DATE(period) IN(?)", new Zend_Db_Expr($subQuery));
+                }
 
-            $select->group(array(
-                'period',
-                'order_status'
-            ));
+                $select->group(array(
+                    'period',
+                    'order_status'
+                ));
 
-            $this->_getWriteAdapter()->query($select->insertFromSelect($table, array_keys($columns)));
+            $writeAdapter->query("
+                INSERT INTO `{$tableName}` (" . implode(',', array_keys($columns)) . ") {$select}
+            ");
         } catch (Exception $e) {
-            $this->_getWriteAdapter()->rollBack();
+            $writeAdapter->rollBack();
             throw $e;
         }
 
-        $this->_getWriteAdapter()->commit();
+        $writeAdapter->commit();
         return $this;
     }
 

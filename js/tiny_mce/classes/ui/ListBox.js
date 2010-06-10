@@ -1,29 +1,23 @@
 /**
- * ListBox.js
+ * $Id: ListBox.js 1157 2009-06-18 14:45:21Z spocke $
  *
- * Copyright 2009, Moxiecode Systems AB
- * Released under LGPL License.
- *
- * License: http://tinymce.moxiecode.com/license
- * Contributing: http://tinymce.moxiecode.com/contributing
+ * @author Moxiecode
+ * @copyright Copyright © 2004-2008, Moxiecode Systems AB, All rights reserved.
  */
 
 (function(tinymce) {
 	var DOM = tinymce.DOM, Event = tinymce.dom.Event, each = tinymce.each, Dispatcher = tinymce.util.Dispatcher;
 
-	/**
-	 * This class is used to create list boxes/select list. This one will generate
+	/**#@+
+	 * @class This class is used to create list boxes/select list. This one will generate
 	 * a non native control. This one has the benefits of having visual items added.
-	 *
-	 * @class tinymce.ui.ListBox
-	 * @extends tinymce.ui.Control
+	 * @member tinymce.ui.ListBox
+	 * @base tinymce.ui.Control
 	 */
 	tinymce.create('tinymce.ui.ListBox:tinymce.ui.Control', {
 		/**
 		 * Constructs a new listbox control instance.
 		 *
-		 * @constructor
-		 * @method ListBox
 		 * @param {String} id Control id for the list box.
 		 * @param {Object} s Optional name/value settings object.
 		 */
@@ -31,51 +25,22 @@
 			var t = this;
 
 			t.parent(id, s);
-
-			/**
-			 * Array of ListBox items.
-			 *
-			 * @property items
-			 * @type Array
-			 */
 			t.items = [];
-
-			/**
-			 * Fires when the selection has been changed.
-			 *
-			 * @event onChange
-			 */
 			t.onChange = new Dispatcher(t);
-
-			/**
-			 * Fires after the element has been rendered to DOM.
-			 *
-			 * @event onPostRender
-			 */
 			t.onPostRender = new Dispatcher(t);
-
-			/**
-			 * Fires when a new item is added.
-			 *
-			 * @event onAdd
-			 */
 			t.onAdd = new Dispatcher(t);
-
-			/**
-			 * Fires when the menu gets rendered.
-			 *
-			 * @event onRenderMenu
-			 */
 			t.onRenderMenu = new tinymce.util.Dispatcher(this);
-
 			t.classPrefix = 'mceListBox';
 		},
+
+		/**#@+
+		 * @method
+		 */
 
 		/**
 		 * Selects a item/option by value. This will both add a visual selection to the
 		 * item and change the title of the control to the title of the option.
 		 *
-		 * @method select
 		 * @param {String/function} va Value to look for inside the list box or a function selector.
 		 */
 		select : function(va) {
@@ -113,7 +78,6 @@
 		 * Selects a item/option by index. This will both add a visual selection to the
 		 * item and change the title of the control to the title of the option.
 		 *
-		 * @method selectByIndex
 		 * @param {String} idx Index to select, pass -1 to select menu/title of select box.
 		 */
 		selectByIndex : function(idx) {
@@ -141,7 +105,6 @@
 		/**
 		 * Adds a option item to the list box.
 		 *
-		 * @method add
 		 * @param {String} n Title for the new option.
 		 * @param {String} v Value for the new option.
 		 * @param {Object} o Optional object with settings like for example class.
@@ -162,7 +125,6 @@
 		/**
 		 * Returns the number of items inside the list box.
 		 *
-		 * @method getLength
 		 * @param {Number} Number of items inside the list box.
 		 */
 		getLength : function() {
@@ -173,7 +135,6 @@
 		 * Renders the list box as a HTML string. This method is much faster than using the DOM and when
 		 * creating a whole toolbar with buttons it does make a lot of difference.
 		 *
-		 * @method renderHTML
 		 * @return {String} HTML for the list box control element.
 		 */
 		renderHTML : function() {
@@ -189,8 +150,6 @@
 
 		/**
 		 * Displays the drop menu with all items.
-		 *
-		 * @method showMenu
 		 */
 		showMenu : function() {
 			var t = this, p1, p2, e = DOM.get(this.id), m;
@@ -235,29 +194,25 @@
 
 		/**
 		 * Hides the drop menu.
-		 *
-		 * @method hideMenu
 		 */
 		hideMenu : function(e) {
 			var t = this;
 
-			if (t.menu && t.menu.isMenuVisible) {
-				// Prevent double toogles by canceling the mouse click event to the button
-				if (e && e.type == "mousedown" && (e.target.id == t.id + '_text' || e.target.id == t.id + '_open'))
-					return;
+			// Prevent double toogles by canceling the mouse click event to the button
+			if (e && e.type == "mousedown" && (e.target.id == t.id + '_text' || e.target.id == t.id + '_open'))
+				return;
 
-				if (!e || !DOM.getParent(e.target, '.mceMenu')) {
-					DOM.removeClass(t.id, t.classPrefix + 'Selected');
-					Event.remove(DOM.doc, 'mousedown', t.hideMenu, t);
+			if (!e || !DOM.getParent(e.target, '.mceMenu')) {
+				DOM.removeClass(t.id, t.classPrefix + 'Selected');
+				Event.remove(DOM.doc, 'mousedown', t.hideMenu, t);
+
+				if (t.menu)
 					t.menu.hideMenu();
-				}
 			}
 		},
 
 		/**
 		 * Renders the menu to the DOM.
-		 *
-		 * @method renderMenu
 		 */
 		renderMenu : function() {
 			var t = this, m;
@@ -281,25 +236,13 @@
 			});
 
 			each(t.items, function(o) {
-				// No value then treat it as a title
-				if (o.value === undefined) {
-					m.add({
-						title : o.title,
-						'class' : 'mceMenuItemTitle',
-						onclick : function() {
-							if (t.settings.onselect('') !== false)
-								t.select(''); // Must be runned after
-						}
-					});
-				} else {
-					o.id = DOM.uniqueId();
-					o.onclick = function() {
-						if (t.settings.onselect(o.value) !== false)
-							t.select(o.value); // Must be runned after
-					};
+				o.id = DOM.uniqueId();
+				o.onclick = function() {
+					if (t.settings.onselect(o.value) !== false)
+						t.select(o.value); // Must be runned after
+				};
 
-					m.add(o);
-				}
+				m.add(o);
 			});
 
 			t.onRenderMenu.dispatch(t, m);
@@ -309,8 +252,6 @@
 		/**
 		 * Post render event. This will be executed after the control has been rendered and can be used to
 		 * set states, add events to the control etc. It's recommended for subclasses of the control to call this method by using this.parent().
-		 *
-		 * @method postRender
 		 */
 		postRender : function() {
 			var t = this, cp = t.classPrefix;
@@ -367,16 +308,13 @@
 			t.onPostRender.dispatch(t, DOM.get(t.id));
 		},
 
-		/**
-		 * Destroys the ListBox i.e. clear memory and events.
-		 *
-		 * @method destroy
-		 */
 		destroy : function() {
 			this.parent();
 
 			Event.clear(this.id + '_text');
 			Event.clear(this.id + '_open');
 		}
+
+		/**#@-*/
 	});
 })(tinymce);

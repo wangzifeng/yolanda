@@ -1,29 +1,23 @@
 /**
- * DropMenu.js
+ * $Id: DropMenu.js 1070 2009-04-01 18:03:06Z spocke $
  *
- * Copyright 2009, Moxiecode Systems AB
- * Released under LGPL License.
- *
- * License: http://tinymce.moxiecode.com/license
- * Contributing: http://tinymce.moxiecode.com/contributing
+ * @author Moxiecode
+ * @copyright Copyright © 2004-2008, Moxiecode Systems AB, All rights reserved.
  */
 
 (function(tinymce) {
 	var is = tinymce.is, DOM = tinymce.DOM, each = tinymce.each, Event = tinymce.dom.Event, Element = tinymce.dom.Element;
 
-	/**
-	 * This class is used to create drop menus, a drop menu can be a
+	/**#@+
+	 * @class This class is used to create drop menus, a drop menu can be a
 	 * context menu, or a menu for a list box or a menu bar.
-	 *
-	 * @class tinymce.ui.DropMenu
-	 * @extends tinymce.ui.Menu
+	 * @member tinymce.ui.DropMenu
+	 * @base tinymce.ui.Menu
 	 */
 	tinymce.create('tinymce.ui.DropMenu:tinymce.ui.Menu', {
 		/**
 		 * Constructs a new drop menu control instance.
 		 *
-		 * @constructor
-		 * @method DropMenu
 		 * @param {String} id Button control id for the button.
 		 * @param {Object} s Optional name/value settings object.
 		 */
@@ -44,10 +38,13 @@
 			this.classPrefix = 'mceMenu';
 		},
 
+		/**#@+
+		 * @method
+		 */
+
 		/**
 		 * Created a new sub menu for the drop menu control.
 		 *
-		 * @method createMenu
 		 * @param {Object} s Optional name/value settings object.
 		 * @return {tinymce.ui.DropMenu} New drop menu instance.
 		 */
@@ -69,8 +66,6 @@
 
 		/**
 		 * Repaints the menu after new items have been added dynamically.
-		 *
-		 * @method update
 		 */
 		update : function() {
 			var t = this, s = t.settings, tb = DOM.get('menu_' + t.id + '_tbl'), co = DOM.get('menu_' + t.id + '_co'), tw, th;
@@ -97,7 +92,6 @@
 		/**
 		 * Displays the menu at the specified cordinate.
 		 *
-		 * @method showMenu
 		 * @param {Number} x Horizontal position of the menu.
 		 * @param {Number} y Vertical position of the menu.
 		 * @param {Numner} px Optional parent X position used when menus are cascading.
@@ -214,8 +208,6 @@
 
 		/**
 		 * Hides the displayed menu.
-		 *
-		 * @method hideMenu
 		 */
 		hideMenu : function(c) {
 			var t = this, co = DOM.get('menu_' + t.id), e;
@@ -244,7 +236,6 @@
 		/**
 		 * Adds a new menu, menu item or sub classes of them to the drop menu.
 		 *
-		 * @method add
 		 * @param {tinymce.ui.Control} o Menu or menu item to add to the drop menu.
 		 * @return {tinymce.ui.Control} Same as the input control, the menu or menu item.
 		 */
@@ -262,8 +253,7 @@
 		/**
 		 * Collapses the menu, this will hide the menu and all menu items.
 		 *
-		 * @method collapse
-		 * @param {Boolean} d Optional deep state. If this is set to true all children will be collapsed as well.
+		 * @param {bool} d Optional deep state. If this is set to true all children will be collapsed as well.
 		 */
 		collapse : function(d) {
 			this.parent(d);
@@ -273,7 +263,6 @@
 		/**
 		 * Removes a specific sub menu or menu item from the drop menu.
 		 *
-		 * @method remove
 		 * @param {tinymce.ui.Control} o Menu item or menu to remove from drop menu.
 		 * @return {tinymce.ui.Control} Control instance or null if it wasn't found.
 		 */
@@ -286,8 +275,6 @@
 
 		/**
 		 * Destroys the menu. This will remove the menu from the DOM and any events added to it etc.
-		 *
-		 * @method destroy
 		 */
 		destroy : function() {
 			var t = this, co = DOM.get('menu_' + t.id);
@@ -304,7 +291,6 @@
 		/**
 		 * Renders the specified menu node to the dom.
 		 *
-		 * @method renderNode
 		 * @return {Element} Container element for the drop menu.
 		 */
 		renderNode : function() {
@@ -405,5 +391,7 @@
 
 			DOM.addClass(ro, 'mceLast');
 		}
+
+		/**#@-*/
 	});
 })(tinymce);

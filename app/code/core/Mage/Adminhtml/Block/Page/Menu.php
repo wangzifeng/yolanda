@@ -20,7 +20,7 @@
  *
  * @category    Mage
  * @package     Mage_Adminhtml
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
+ * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -65,18 +65,15 @@ class Mage_Adminhtml_Block_Page_Menu extends Mage_Adminhtml_Block_Template
     }
 
     /**
-     * Get Key pieces for caching block content
+     * Retrieve key for cache
      *
-     * @return array
+     * @return string
      */
-    public function getCacheKeyInfo()
+    public function getCacheKey()
     {
-        return array(
-            'admin_top_nav',
-            $this->getActive(),
-            Mage::getSingleton('admin/session')->getUser()->getId(),
-            Mage::app()->getLocale()->getLocaleCode()
-        );
+        // getting roles for current user, for now one role per user
+        $id = Mage::getSingleton('admin/session')->getUser()->getId();
+        return 'admin_top_nav_'.$this->getActive().'_'.$id.'_'.Mage::app()->getLocale()->getLocaleCode();
     }
 
     /**

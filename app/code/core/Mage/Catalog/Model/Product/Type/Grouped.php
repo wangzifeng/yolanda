@@ -20,7 +20,7 @@
  *
  * @category    Mage
  * @package     Mage_Catalog
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
+ * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -130,8 +130,8 @@ class Mage_Catalog_Model_Product_Type_Grouped extends Mage_Catalog_Model_Product
                 ->addStoreFilter($this->getStoreFilter($product))
                 ->addAttributeToFilter('status', array('in' => $this->getStatusFilters($product)));
 
-            foreach ($collection as $item) {
-                $associatedProducts[] = $item;
+            foreach ($collection as $product) {
+                $associatedProducts[] = $product;
             }
 
             $this->getProduct($product)->setData($this->_keyAssociatedProducts, $associatedProducts);
@@ -199,8 +199,8 @@ class Mage_Catalog_Model_Product_Type_Grouped extends Mage_Catalog_Model_Product
     {
         if (!$this->getProduct($product)->hasData($this->_keyAssociatedProductIds)) {
             $associatedProductIds = array();
-            foreach ($this->getAssociatedProducts($product) as $item) {
-                $associatedProductIds[] = $item->getId();
+            foreach ($this->getAssociatedProducts($product) as $product) {
+                $associatedProductIds[] = $product->getId();
             }
             $this->getProduct($product)->setData($this->_keyAssociatedProductIds, $associatedProductIds);
         }
@@ -275,7 +275,7 @@ class Mage_Catalog_Model_Product_Type_Grouped extends Mage_Catalog_Model_Product
                 foreach ($associatedProducts as $subProduct) {
                     if(isset($productsInfo[$subProduct->getId()])) {
                         $qty = $productsInfo[$subProduct->getId()];
-                        if (!empty($qty) && is_numeric($qty)) {
+                        if (!empty($qty)) {
 
                             $_result = $subProduct->getTypeInstance(true)
                                 ->prepareForCart($buyRequest, $subProduct);
@@ -284,7 +284,7 @@ class Mage_Catalog_Model_Product_Type_Grouped extends Mage_Catalog_Model_Product
                             }
 
                             if (!isset($_result[0])) {
-                                return Mage::helper('checkout')->__('Cannot add the item to shopping cart.');
+                                return Mage::helper('checkout')->__('Can not add item to shopping cart');
                             }
 
                             $_result[0]->setCartQty($qty);
@@ -306,19 +306,6 @@ class Mage_Catalog_Model_Product_Type_Grouped extends Mage_Catalog_Model_Product
                 return $products;
             }
         }
-        return Mage::helper('catalog')->__('Please specify the quantity of product(s).');
-    }
-
-    /**
-     * Retrieve products divided into groups required to purchase
-     * At least one product in each group has to be purchased
-     *
-     * @param Mage_Catalog_Model_Product $product
-     * @return array
-     */
-    public function getProductsToPurchaseByReqGroups($product = null)
-    {
-        $product = $this->getProduct($product);
-        return array($this->getAssociatedProducts($product));
+        return Mage::helper('catalog')->__('Please specify the product(s) quantity');
     }
 }

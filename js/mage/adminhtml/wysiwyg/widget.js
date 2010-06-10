@@ -19,7 +19,7 @@
  *
  * @category    Mage
  * @package     Mage_Adminhtml
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
+ * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
  * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
@@ -50,11 +50,10 @@ var widgetTools = {
             resizable:false,
             closable:true,
             className:'magento',
-            windowClassName:"popup-window",
-            title:'Insert Widget',
+            title:'Insert widget...',
             top:50,
             width:950,
-            //height:450,
+            height:800,
             zIndex:1000,
             recenterAuto:false,
             hideEffect:Element.hide,
@@ -351,10 +350,8 @@ WysiwygWidget.chooser.prototype = {
             resizable:true,
             closable:true,
             className:"magento",
-            windowClassName:"popup-window",
             title:this.config.buttons.open,
-            top:50,
-            width:950,
+            width:700,
             height:500,
             zIndex:1000,
             recenterAuto:false,

@@ -20,7 +20,7 @@
  *
  * @category    Mage
  * @package     Mage_PaypalUk
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
+ * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -29,10 +29,8 @@
  */
 class Mage_PaypalUk_Model_Express extends Mage_Paypal_Model_Express
 {
-    protected $_code = Mage_Paypal_Model_Config::METHOD_WPP_PE_EXPRESS;
+    protected $_code = Mage_PaypalUk_Model_Config::METHOD_WPP_PE_EXPRESS;
     protected $_formBlockType = 'paypaluk/express_form';
-    protected $_canCreateBillingAgreement = false;
-    protected $_canManageRecurringProfiles = false;
 
     /**
      * Website Payments Pro instance type
@@ -42,31 +40,11 @@ class Mage_PaypalUk_Model_Express extends Mage_Paypal_Model_Express
     protected $_proType = 'paypaluk/pro';
 
     /**
-     * Express Checkout payment method instance
+     * Notify Url
      *
-     * @var Mage_Paypal_Model_Express
+     * @var string
      */
-    protected $_ecInstance = null;
-
-    /**
-     * EC PE won't be available if the EC is available
-     *
-     * @param Mage_Sales_Model_Quote $quote
-     * @return bool
-     */
-    public function isAvailable($quote = null)
-    {
-        if (!parent::isAvailable($quote)) {
-            return false;
-        }
-        if (!$this->_ecInstance) {
-            $this->_ecInstance = Mage::helper('payment')->getMethodInstance(Mage_Paypal_Model_Config::METHOD_WPP_EXPRESS);
-        }
-        if ($quote) {
-            $this->_ecInstance->setStore($quote->getStoreId());
-        }
-        return !$this->_ecInstance->isAvailable();
-    }
+    protected $_ipnAction = 'paypaluk/ipn/express';
 
     /**
      * Import payment info to payment
@@ -83,7 +61,7 @@ class Mage_PaypalUk_Model_Express extends Mage_Paypal_Model_Express
             ->setIsTransactionPending($api->getIsPaymentPending())
             ->setTransactionAdditionalInfo(Mage_PaypalUk_Model_Pro::TRANSPORT_PAYFLOW_TXN_ID, $api->getTransactionId())
         ;
-        $payment->setPreparedMessage(Mage::helper('paypaluk')->__('Payflow PPREF: #%s.', $api->getTransactionId()));
+        $payment->setPreparedMessage(Mage::helper('paypaluk')->__('Payflow PNREF: #%s.', $api->getTransactionId()));
         Mage::getModel('paypal/info')->importToPayment($api, $payment);
     }
 

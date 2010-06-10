@@ -20,7 +20,7 @@
  *
  * @category    Mage
  * @package     Mage_Sales
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
+ * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -37,10 +37,9 @@ class Mage_Sales_Model_Order_Invoice_Total_Shipping extends Mage_Sales_Model_Ord
     {
         $invoice->setShippingAmount(0);
         $invoice->setBaseShippingAmount(0);
-        $orderShippingAmount        = $invoice->getOrder()->getShippingAmount();
-        $baseOrderShippingAmount    = $invoice->getOrder()->getBaseShippingAmount();
-        $shippingInclTax            = $invoice->getOrder()->getShippingInclTax();
-        $baseShippingInclTax        = $invoice->getOrder()->getBaseShippingInclTax();
+
+        $orderShippingAmount = $invoice->getOrder()->getShippingAmount();
+        $baseOrderShippingAmount = $invoice->getOrder()->getBaseShippingAmount();
         if ($orderShippingAmount) {
             /**
              * Check shipping amount in previus invoices
@@ -52,8 +51,6 @@ class Mage_Sales_Model_Order_Invoice_Total_Shipping extends Mage_Sales_Model_Ord
             }
             $invoice->setShippingAmount($orderShippingAmount);
             $invoice->setBaseShippingAmount($baseOrderShippingAmount);
-            $invoice->setShippingInclTax($shippingInclTax);
-            $invoice->setBaseShippingInclTax($baseShippingInclTax);
 
             $invoice->setGrandTotal($invoice->getGrandTotal()+$orderShippingAmount);
             $invoice->setBaseGrandTotal($invoice->getBaseGrandTotal()+$baseOrderShippingAmount);

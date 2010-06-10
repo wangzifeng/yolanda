@@ -19,7 +19,7 @@
  *
  * @category    Mage
  * @package     Mage_Adminhtml
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
+ * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
  * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
@@ -81,10 +81,9 @@ var Variables = {
             resizable:true,
             closable:true,
             className:"magento",
-            windowClassName:"popup-window",
             title:'Insert Variable...',
             width:700,
-            //height:270,
+            height:500,
             zIndex:1000,
             recenterAuto:false,
             hideEffect:Element.hide,

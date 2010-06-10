@@ -194,9 +194,6 @@ class Varien_Data_Form extends Varien_Data_Form_Abstract
 
     public function addSuffixToName($name, $suffix)
     {
-        if (!$name) {
-            return $suffix;
-        }
         $vars = explode('[', $name);
         $newName = $suffix;
         foreach ($vars as $index=>$value) {

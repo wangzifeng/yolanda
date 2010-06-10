@@ -20,7 +20,7 @@
  *
  * @category    Mage
  * @package     Mage_GiftMessage
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
+ * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -43,10 +43,9 @@ class Mage_GiftMessage_Model_Observer extends Varien_Object
      */
     public function salesEventConvertQuoteItemToOrderItem($observer)
     {
-        $orderItem = $observer->getEvent()->getOrderItem();
-        $quoteItem = $observer->getEvent()->getItem();
-        $orderItem->setGiftMessageId($quoteItem->getGiftMessageId())
-            ->setGiftMessageAvailable($this->_getAvailable($quoteItem->getProduct()));
+        $observer->getEvent()->getOrderItem()
+            ->setGiftMessageId($observer->getEvent()->getItem()->getGiftMessageId())
+            ->setGiftMessageAvailable($this->_getAvailable($observer->getEvent()->getItem()->getProductId()));
         return $this;
     }
 

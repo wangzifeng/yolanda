@@ -20,7 +20,7 @@
  *
  * @category    Mage
  * @package     Mage_Compiler
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
+ * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -66,7 +66,7 @@ class Mage_Compiler_ProcessController extends Mage_Adminhtml_Controller_Action
         try {
             $this->_getCompiler()->run();
             Mage::getSingleton('adminhtml/session')->addSuccess(
-                Mage::helper('compiler')->__('The compilation has completed.')
+                Mage::helper('compiler')->__('Compilation successfully finished')
             );
         } catch (Mage_Core_Exception $e) {
             Mage::getSingleton('adminhtml/session')->addError($e->getMessage());
@@ -91,7 +91,7 @@ class Mage_Compiler_ProcessController extends Mage_Adminhtml_Controller_Action
     {
         $this->_getCompiler()->registerIncludePath(false);
         Mage::getSingleton('adminhtml/session')->addSuccess(
-            Mage::helper('compiler')->__('Compiler include path is disabled.')
+            Mage::helper('compiler')->__('Compiler include path disabled')
         );
         $this->_redirect('*/*/');
     }
@@ -100,7 +100,7 @@ class Mage_Compiler_ProcessController extends Mage_Adminhtml_Controller_Action
     {
         $this->_getCompiler()->registerIncludePath();
         Mage::getSingleton('adminhtml/session')->addSuccess(
-            Mage::helper('compiler')->__('Compiler include path is enabled.')
+            Mage::helper('compiler')->__('Compiler include path enabled')
         );
         $this->_redirect('*/*/');
     }

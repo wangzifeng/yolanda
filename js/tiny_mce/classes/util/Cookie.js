@@ -1,27 +1,26 @@
 /**
- * Cookie.js
+ * $Id: Cookie.js 520 2008-01-07 16:30:32Z spocke $
  *
- * Copyright 2009, Moxiecode Systems AB
- * Released under LGPL License.
- *
- * License: http://tinymce.moxiecode.com/license
- * Contributing: http://tinymce.moxiecode.com/contributing
+ * @author Moxiecode
+ * @copyright Copyright © 2004-2008, Moxiecode Systems AB, All rights reserved.
  */
 
 (function() {
 	var each = tinymce.each;
 
-	/**
-	 * This class contains simple cookie manangement functions.
-	 *
-	 * @class tinymce.util.Cookie
+	/**#@+
+	 * @class This class contains simple cookie manangement functions.
+	 * @member tinymce.util.Cookie
 	 * @static
 	 */
 	tinymce.create('static tinymce.util.Cookie', {
+		/**#@+
+		 * @method
+		 */
+
 		/**
 		 * Parses the specified query string into an name/value object.
 		 *
-		 * @method getHash
 		 * @param {String} n String to parse into a n Hashtable object.
 		 * @return {Object} Name/Value object with items parsed from querystring.
 		 */
@@ -42,10 +41,9 @@
 		/**
 		 * Sets a hashtable name/value object to a cookie.
 		 *
-		 * @method setHash
 		 * @param {String} n Name of the cookie.
 		 * @param {Object} v Hashtable object to set as cookie.
-		 * @param {Date} e Optional date object for the expiration of the cookie.
+		 * @param {Date} d Optional date object for the expiration of the cookie.
 		 * @param {String} p Optional path to restrict the cookie to.
 		 * @param {String} d Optional domain to restrict the cookie to.
 		 * @param {String} s Is the cookie secure or not.
@@ -63,7 +61,6 @@
 		/**
 		 * Gets the raw data of a cookie by name.
 		 *
-		 * @method get
 		 * @param {String} n Name of cookie to retrive.
 		 * @return {String} Cookie data string.
 		 */
@@ -95,10 +92,9 @@
 		/**
 		 * Sets a raw cookie string.
 		 *
-		 * @method set
 		 * @param {String} n Name of the cookie.
 		 * @param {String} v Raw cookie data.
-		 * @param {Date} e Optional date object for the expiration of the cookie.
+		 * @param {Date} d Optional date object for the expiration of the cookie.
 		 * @param {String} p Optional path to restrict the cookie to.
 		 * @param {String} d Optional domain to restrict the cookie to.
 		 * @param {String} s Is the cookie secure or not.
@@ -114,7 +110,6 @@
 		/**
 		 * Removes/deletes a cookie by name.
 		 *
-		 * @method remove
 		 * @param {String} n Cookie name to remove/delete.
 		 * @param {Strong} p Optional path to remove the cookie from.
 		 */
@@ -125,5 +120,7 @@
 
 			this.set(n, '', d, p, d);
 		}
+
+		/**#@-*/
 	});
 })();

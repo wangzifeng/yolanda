@@ -19,7 +19,7 @@
  *
  * @category    Mage
  * @package     Mage_Adminhtml
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
+ * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
  * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
@@ -143,11 +143,6 @@ tinyMceWysiwygSetup.prototype =
             }
         };
 
-        // Set the document base URL
-        if (this.config.document_base_url) {
-            settings.document_base_url = this.config.document_base_url;
-        }
-
         if (this.config.files_browser_window_url) {
             settings.file_browser_callback = function(fieldName, url, objectType, w) {
                 varienGlobalEvents.fireEvent("open_browser_callback", {win:w, type:objectType, field:fieldName});
@@ -167,10 +162,7 @@ tinyMceWysiwygSetup.prototype =
 
     openFileBrowser: function(o) {
         var typeTitle;
-        var storeId = this.config.store_id !== null ? this.config.store_id : 0;
-        var wUrl = this.config.files_browser_window_url + 
-                   'target_element_id/' + this.id + '/' +
-                  'store/' + storeId + '/';
+        var wUrl = this.config.files_browser_window_url + 'target_element_id/' + this.id + '/';
 
         this.mediaBrowserOpener = o.win;
         this.mediaBrowserOpener.blur();
@@ -182,7 +174,7 @@ tinyMceWysiwygSetup.prototype =
             typeTitle = this.translate('Insert File...');
         }
 
-        MediabrowserUtility.openDialog(wUrl, false, false, typeTitle);
+        MediabrowserUtility.openDialog(wUrl, this.config.files_browser_window_width, this.config.files_browser_window_height, typeTitle);
     },
 
     translate: function(string) {
@@ -315,19 +307,15 @@ tinyMceWysiwygSetup.prototype =
     },
 
     beforeSetContent: function(o) {
-        if (this.config.add_widgets) {
+        if(this.config.add_widgets) {
             o.content = this.encodeWidgets(o.content);
-            o.content = this.encodeDirectives(o.content);
-        } else if (this.config.add_directives) {
             o.content = this.encodeDirectives(o.content);
         }
     },
 
     saveContent: function(o) {
-        if (this.config.add_widgets) {
+        if(this.config.add_widgets) {
             o.content = this.decodeWidgets(o.content);
-            o.content = this.decodeDirectives(o.content);
-        } else if (this.config.add_directives) {
             o.content = this.decodeDirectives(o.content);
         }
     },

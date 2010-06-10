@@ -20,7 +20,7 @@
  *
  * @category    Mage
  * @package     Mage_SalesRule
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
+ * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -53,7 +53,8 @@ class Mage_SalesRule_Model_Quote_Freeshipping extends Mage_Sales_Model_Quote_Add
         $store = Mage::app()->getStore($quote->getStoreId());
 
         $address->setFreeShipping(0);
-        $items = $this->_getAddressItems($address);
+        $items = $address->getAllItems();
+
         if (!count($items)) {
             return $this;
         }

@@ -56,7 +56,6 @@ Window.prototype = {
 
     this.options = Object.extend({
       className:         "dialog",
-      windowClassName:   null,
       blurClassName:     null,
       minWidth:          100, 
       minHeight:         20,
@@ -594,9 +593,6 @@ Window.prototype = {
     var win = document.createElement("div");
     win.setAttribute('id', id);
     win.className = "dialog";
-    if (this.options.windowClassName) {
-      win.className += ' ' + this.options.windowClassName;
-    }
 
     var content;
     if (this.options.url)
@@ -1471,7 +1467,7 @@ var Dialog = {
     return this._openDialog(content, parameters)
   },
   
-  info: function(content, parameters) {
+  info: function(content, parameters) {   
     // Get Ajax return before
     if (content && typeof content != "string") {
       Dialog._runAjaxRequest(content, parameters, Dialog.info);
@@ -1532,7 +1528,7 @@ var Dialog = {
     parameters.maximizable = parameters.maximizable ||  false;
     parameters.draggable   = parameters.draggable || false;
     parameters.closable    = parameters.closable || false;
-
+    
     var win = new Window(parameters);
     win.getContent().innerHTML = content;
     
@@ -1661,7 +1657,7 @@ var WindowUtilities = {
 
 
       if (self.innerHeight) {  // all except Explorer
-        windowWidth = document.documentElement.clientWidth;//self.innerWidth;
+        windowWidth = self.innerWidth;
         windowHeight = self.innerHeight;
       } else if (document.documentElement && document.documentElement.clientHeight) { // Explorer 6 Strict Mode
         windowWidth = document.documentElement.clientWidth;

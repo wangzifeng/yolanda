@@ -61,26 +61,16 @@ class Varien_Crypt_Mcrypt extends Varien_Crypt_Abstract
         }
 
         $this->setHandler(mcrypt_module_open($this->getCipher(), '', $this->getMode(), ''));
-
-        if (!$this->getInitVector()) {
-            if (MCRYPT_MODE_CBC == $this->getMode()) {
-                $this->setInitVector(substr(
-                    md5(mcrypt_create_iv (mcrypt_enc_get_iv_size($this->getHandler()), MCRYPT_RAND)),
-                    - mcrypt_enc_get_iv_size($this->getHandler())
-                ));
-            } else {
-                $this->setInitVector(mcrypt_create_iv (mcrypt_enc_get_iv_size($this->getHandler()), MCRYPT_RAND));
-            }
-        }
+        $iv = mcrypt_create_iv (mcrypt_enc_get_iv_size($this->getHandler()), MCRYPT_RAND);
 
         $maxKeySize = mcrypt_enc_get_key_size($this->getHandler());
 
-        if (strlen($key) > $maxKeySize) { // strlen() intentionally, to count bytes, rather than characters
+        if (iconv_strlen($key, 'UTF-8')>$maxKeySize) {
             $this->setHandler(null);
-            throw new Varien_Exception('Maximum key size must be smaller '.$maxKeySize);
+            throw new Varien_Exception('Maximum key size must should be smaller '.$maxKeySize);
         }
 
-        mcrypt_generic_init($this->getHandler(), $key, $this->getInitVector());
+        mcrypt_generic_init($this->getHandler(), $key, $iv);
 
         return $this;
     }

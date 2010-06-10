@@ -20,7 +20,7 @@
  *
  * @category    Mage
  * @package     Mage_Sales
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
+ * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -113,12 +113,11 @@ class Mage_Sales_Model_Mysql4_Report_Collection_Abstract extends Mage_Core_Model
     }
 
     /**
-     * Apply stores filter to select object
+     * Apply stores filter
      *
-     * @param Zend_Db_Select $select
      * @return Mage_Sales_Model_Mysql4_Report_Collection_Abstract
      */
-    protected function _applyStoresFilterToSelect(Zend_Db_Select $select)
+    protected function _applyStoresFilter()
     {
         $nullCheck = false;
         $storeIds = $this->_storesIds;
@@ -137,22 +136,12 @@ class Mage_Sales_Model_Mysql4_Report_Collection_Abstract extends Mage_Core_Model
         $storeIds[0] = ($storeIds[0] == '') ? 0 : $storeIds[0];
 
         if ($nullCheck) {
-            $select->where('store_id IN(?) OR store_id IS NULL', $storeIds);
+            $this->getSelect()->where('store_id IN(?) OR store_id IS NULL', $storeIds);
         } else {
-            $select->where('store_id IN(?)', $storeIds);
+            $this->getSelect()->where('store_id IN(?)', $storeIds);
         }
 
         return $this;
-    }
-
-    /**
-     * Apply stores filter
-     *
-     * @return Mage_Sales_Model_Mysql4_Report_Collection_Abstract
-     */
-    protected function _applyStoresFilter()
-    {
-        return $this->_applyStoresFilterToSelect($this->getSelect());
     }
 
     /**

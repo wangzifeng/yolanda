@@ -77,7 +77,7 @@ class Varien_Object_Mapper
                 $keyFrom = $keyTo;
             }
             if ($fromIsArray) {
-                if (array_key_exists($keyFrom, $from)) {
+                if (isset($from[$keyFrom])) {
                     if ($toIsArray) {
                         $to[$keyTo] = $from[$keyFrom];
                     } elseif ($toIsVO) {

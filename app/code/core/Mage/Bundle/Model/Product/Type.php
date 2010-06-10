@@ -20,7 +20,7 @@
  *
  * @category    Mage
  * @package     Mage_Bundle
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
+ * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -358,9 +358,7 @@ class Mage_Bundle_Model_Product_Type extends Mage_Catalog_Model_Product_Type_Abs
      */
     public function getSelectionsCollection($optionIds, $product = null)
     {
-        $keyOptionIds = (is_array($optionIds) ? implode('_', $optionIds) : '');
-        $key = $this->_keySelectionsCollection . $keyOptionIds;
-        if (!$this->getProduct($product)->hasData($key)) {
+        if (!$this->getProduct($product)->hasData($this->_keySelectionsCollection)) {
             $selectionsCollection = Mage::getResourceModel('bundle/selection_collection')
                 ->addAttributeToSelect(Mage::getSingleton('catalog/config')->getProductAttributes())
                 ->setFlag('require_stock_items', true)
@@ -370,9 +368,9 @@ class Mage_Bundle_Model_Product_Type extends Mage_Catalog_Model_Product_Type_Abs
                 ->addFilterByRequiredOptions()
                 ->setOptionIdsFilter($optionIds);
 
-            $this->getProduct($product)->setData($key, $selectionsCollection);
+            $this->getProduct($product)->setData($this->_keySelectionsCollection, $selectionsCollection);
         }
-        return $this->getProduct($product)->getData($key);
+        return $this->getProduct($product)->getData($this->_keySelectionsCollection);
     }
 
     /**
@@ -493,9 +491,7 @@ class Mage_Bundle_Model_Product_Type extends Mage_Catalog_Model_Product_Type_Abs
             $_appendAllSelections = true;
         }
 
-        $options = array_filter($buyRequest->getBundleOption(), 'intval');
-
-        if ($options) {
+        if ($options = $buyRequest->getBundleOption()) {
             $qtys = $buyRequest->getBundleOptionQty();
             foreach ($options as $_optionId => $_selections) {
                 if (empty($_selections)) {
@@ -514,7 +510,7 @@ class Mage_Bundle_Model_Product_Type extends Mage_Catalog_Model_Product_Type_Abs
             if (!$this->getProduct($product)->getSkipCheckRequiredOption()) {
                 foreach ($optionsCollection->getItems() as $option) {
                     if ($option->getRequired() && !isset($options[$option->getId()])) {
-                        return Mage::helper('bundle')->__('Required options are not selected.');
+                        return Mage::helper('bundle')->__('Required options not selected.');
                     }
                 }
             }
@@ -523,12 +519,12 @@ class Mage_Bundle_Model_Product_Type extends Mage_Catalog_Model_Product_Type_Abs
             foreach ($options as $optionId => $selectionId) {
                 if (!is_array($selectionId)) {
                     if ($selectionId != '') {
-                        $selectionIds[] = (int)$selectionId;
+                        $selectionIds[] = $selectionId;
                     }
                 } else {
                     foreach ($selectionId as $id) {
                         if ($id != '') {
-                            $selectionIds[] = (int)$id;
+                            $selectionIds[] = $id;
                         }
                     }
                 }
@@ -548,7 +544,7 @@ class Mage_Bundle_Model_Product_Type extends Mage_Catalog_Model_Product_Type_Abs
                         $moreSelections = false;
                     }
                     if ($_option->getRequired() && (!$_option->isMultiSelection() || ($_option->isMultiSelection() && !$moreSelections))) {
-                        return Mage::helper('bundle')->__('Selected required options are not available.');
+                        return Mage::helper('bundle')->__('Selected required options not available.');
                     }
                 }
             }
@@ -626,7 +622,7 @@ class Mage_Bundle_Model_Product_Type extends Mage_Catalog_Model_Product_Type_Abs
                 }
 
                 if (!isset($_result[0])) {
-                    return Mage::helper('checkout')->__('Cannot add item to the shopping cart.');
+                    return Mage::helper('checkout')->__('Can not add item to shopping cart');
                 }
 
                 $result[] = $_result[0]->setParentProductId($product->getId())
@@ -661,7 +657,7 @@ class Mage_Bundle_Model_Product_Type extends Mage_Catalog_Model_Product_Type_Abs
      */
     public function getSpecifyOptionMessage()
     {
-        return Mage::helper('bundle')->__('Please specify product option(s).');
+        return Mage::helper('bundle')->__('Please specify product option(s)');
     }
 
     /**
@@ -868,41 +864,11 @@ class Mage_Bundle_Model_Product_Type extends Mage_Catalog_Model_Product_Type_Abs
             $selection = $productSelections->getItemById($selectionId);
             if (!$selection || !$selection->isSalable()) {
                 Mage::throwException(
-                    Mage::helper('bundle')->__('Selected required options are not available.')
+                    Mage::helper('bundle')->__('Selected required options not available.')
                 );
             }
         }
 
         return $this;
-    }
-
-    /**
-     * Retrieve products divided into groups required to purchase
-     * At least one product in each group has to be purchased
-     *
-     * @param Mage_Catalog_Model_Product $product
-     * @return array
-     */
-    public function getProductsToPurchaseByReqGroups($product = null)
-    {
-        $product = $this->getProduct($product);
-        $groups = array();
-        $allProducts = array();
-        $hasRequiredOptions = false;
-        foreach ($this->getOptions($product) as $option) {
-            $groupProducts = array();
-            foreach ($this->getSelectionsCollection(array($option->getId()), $product) as $childProduct) {
-                $groupProducts[] = $childProduct;
-                $allProducts[] = $childProduct;
-            }
-            if ($option->getRequired()) {
-                $groups[] = $groupProducts;
-                $hasRequiredOptions = true;
-            }
-        }
-        if (!$hasRequiredOptions) {
-            $groups = array($allProducts);
-        }
-        return $groups;
     }
 }

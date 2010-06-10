@@ -20,15 +20,18 @@
  *
  * @category    Mage
  * @package     Mage_Reports
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
+ * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 /**
  * Products Ordered (Bestsellers) Report collection
  *
- * @deprecated after 1.4.0.1
+ * @category   Mage
+ * @package    Mage_Reports
+ * @author      Magento Core Team <core@magentocommerce.com>
  */
+
 class Mage_Reports_Model_Mysql4_Product_Ordered_Collection extends Mage_Reports_Model_Mysql4_Product_Collection
 {
     protected function _joinFields($from = '', $to = '')

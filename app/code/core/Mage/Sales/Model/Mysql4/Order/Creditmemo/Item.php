@@ -20,20 +20,25 @@
  *
  * @category    Mage
  * @package     Mage_Sales
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
+ * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 /**
- * Flat sales order creditmemo item resource
+ * Creditmemo item resource model
  *
+ * @category   Mage
+ * @package    Mage_Sales
+ * @author      Magento Core Team <core@magentocommerce.com>
  */
-class Mage_Sales_Model_Mysql4_Order_Creditmemo_Item extends Mage_Sales_Model_Mysql4_Order_Abstract
+class Mage_Sales_Model_Mysql4_Order_Creditmemo_Item extends Mage_Eav_Model_Entity_Abstract
 {
-    protected $_eventPrefix = 'sales_order_creditmemo_item_resource';
-
-    protected function _construct()
+    public function __construct()
     {
-        $this->_init('sales/creditmemo_item', 'entity_id');
+        $resource = Mage::getSingleton('core/resource');
+        $this->setType('creditmemo_item')->setConnection(
+            $resource->getConnection('sales_read'),
+            $resource->getConnection('sales_write')
+        );
     }
 }

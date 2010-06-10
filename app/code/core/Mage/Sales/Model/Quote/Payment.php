@@ -20,7 +20,7 @@
  *
  * @category    Mage
  * @package     Mage_Sales
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
+ * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -87,6 +87,7 @@ class Mage_Sales_Model_Quote_Payment extends Mage_Payment_Model_Info
 
         $this->setMethod($data->getMethod());
         $method = $this->getMethodInstance();
+        $method->setStore($this->getQuote()->getStore());
 
         /**
          * Payment avalability related with quote totals.
@@ -95,7 +96,7 @@ class Mage_Sales_Model_Quote_Payment extends Mage_Payment_Model_Info
         $this->getQuote()->collectTotals();
 
         if (!$method->isAvailable($this->getQuote())) {
-            Mage::throwException(Mage::helper('sales')->__('The requested Payment Method is not available.'));
+            Mage::throwException(Mage::helper('sales')->__('Requested Payment Method is not available'));
         }
 
         $method->assignData($data);
@@ -151,16 +152,5 @@ class Mage_Sales_Model_Quote_Payment extends Mage_Payment_Model_Info
             return $method->getOrderPlaceRedirectUrl();
         }
         return '';
-    }
-
-    /**
-     * Retrieve payment method model object
-     *
-     * @return Mage_Payment_Model_Method_Abstract
-     */
-    public function getMethodInstance()
-    {
-        $method = parent::getMethodInstance();
-        return $method->setStore($this->getQuote()->getStore());
     }
 }

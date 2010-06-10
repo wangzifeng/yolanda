@@ -20,7 +20,7 @@
  *
  * @category    Mage
  * @package     Mage_Centinel
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
+ * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -34,13 +34,6 @@ include_once '3Dsecure/CentinelClient.php';
  */
 class Mage_Centinel_Model_Api extends Varien_Object
 {
-    /**
-     * Fields that should be replaced in debug with '***'
-     *
-     * @var array
-     */
-    protected $_debugReplacePrivateDataKeys = array('TransactionPwd', 'CardNumber', 'CardExpMonth', 'CardExpYear');
-
     protected static $_iso4217Currencies = array(
         'AED' => '784', 'AFN' => '971',
         'ALL' => '008', 'AMD' => '051', 'ANG' => '532', 'AOA' => '973', 'ARS' => '032', 'AUD' => '036', 'AWG' => '533',
@@ -149,23 +142,10 @@ class Mage_Centinel_Model_Api extends Varien_Object
             'TransactionPwd'  => $this->getTransactionPwd(),
             'TransactionType' => $this->_getTransactionType(),
         ), $data);
-
-        $debugData = array('request' => $request);
-
-        try {
-            foreach($request as $key => $val) {
-                $client->add($key, $val);
-            }
-            $client->sendHttp($this->_getApiEndpointUrl(), $this->_getTimeoutConnect(), $this->_getTimeoutRead());
-        } catch (Exception $e) {
-            $debugData['response'] = array('error' => $e->getMessage(), 'code' => $e->getCode());
-            $this->_debug($debugData);
-            throw $e;
+        foreach($request as $key => $val) {
+            $client->add($key, $val);
         }
-
-        $debugData['response'] = $client->response;
-        $this->_debug($debugData);
-
+        $client->sendHttp($this->_getApiEndpointUrl(), $this->_getTimeoutConnect(), $this->_getTimeoutRead());
         return $client;
     }
 
@@ -201,7 +181,7 @@ class Mage_Centinel_Model_Api extends Varien_Object
         $currencyNumber = isset(self::$_iso4217Currencies[$currencyCode]) ? self::$_iso4217Currencies[$currencyCode] : '';
         if (!$currencyNumber) {
             return $result->setErrorNo(1)->setErrorDesc(
-                Mage::helper('payment')->__('Unsupported currency code: %s.', $currencyCode)
+                Mage::helper('payment')->__('Not supported currency code %s.', $currencyCode)
             );
         }
 
@@ -221,7 +201,6 @@ class Mage_Centinel_Model_Api extends Varien_Object
         $result->setAcsUrl($clientResponse->getValue('ACSUrl'));
         $result->setPayload($clientResponse->getValue('Payload'));
         $result->setEciFlag($clientResponse->getValue('EciFlag'));
-
         return $result;
     }
 
@@ -246,22 +225,7 @@ class Mage_Centinel_Model_Api extends Varien_Object
         $result->setCavv($clientResponse->getValue('Cavv'));
         $result->setEciFlag($clientResponse->getValue('EciFlag'));
         $result->setXid($clientResponse->getValue('Xid'));
-
         return $result;
-    }
-
-    /**
-     * Log debug data to file
-     *
-     * @param mixed $debugData
-     */
-    protected function _debug($debugData)
-    {
-        if ($this->getDebugFlag()) {
-            Mage::getModel('core/log_adapter', 'card_validation_3d_secure.log')
-               ->setFilterDataKeys($this->_debugReplacePrivateDataKeys)
-               ->log($debugData);
-        }
     }
 }
 

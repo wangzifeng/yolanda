@@ -1,3 +1,4 @@
+ 
 /**
  * Magento
  *
@@ -31,7 +32,6 @@
 .footer .powered-by { height:19px; }
 .simple-container { height:350px; }
 .messages li { height:23px; }
-#widget_window .magento_content { height:450px !important; overflow:visible !important; }
 
 .main-col { height:450px; zoom:1; }
 

@@ -20,7 +20,7 @@
  *
  * @category    Mage
  * @package     Mage_Sales
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
+ * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -76,13 +76,7 @@ class Mage_Sales_Model_Mysql4_Quote_Item_Collection extends Mage_Core_Model_Mysq
     public function setQuote($quote)
     {
         $this->_quote = $quote;
-        $quoteId = $quote->getId();
-        if ($quoteId) {
-            $this->addFieldToFilter('quote_id', $quote->getId());
-        } else {
-            $this->_totalRecords = 0;
-            $this->_setIsLoaded(true);
-        }
+        $this->addFieldToFilter('quote_id', $quote->getId());
         return $this;
     }
 

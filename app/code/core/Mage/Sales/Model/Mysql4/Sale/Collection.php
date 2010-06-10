@@ -20,7 +20,7 @@
  *
  * @category    Mage
  * @package     Mage_Sales
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
+ * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -52,9 +52,9 @@ class Mage_Sales_Model_Mysql4_Sale_Collection extends Varien_Object implements I
     /**
      * Entity attribute
      *
-     * @var Mage_Sales_Model_Mysql4_Order
+     * @var Mage_Eav_Model_Entity_Abstract
      */
-    protected $_resource;
+    protected $_entity;
 
     /**
      * Collection's Zend_Db_Select object
@@ -90,8 +90,8 @@ class Mage_Sales_Model_Mysql4_Sale_Collection extends Varien_Object implements I
      */
     public function __construct()
     {
-        $this->_resource = Mage::getResourceSingleton('sales/order');
-        $this->_read = $this->_resource->getReadConnection();
+        $this->_entity = Mage::getModel('sales_entity/order');
+        $this->_read = $this->_entity->getReadConnection();
     }
 
     /**
@@ -140,9 +140,12 @@ class Mage_Sales_Model_Mysql4_Sale_Collection extends Varien_Object implements I
      */
     public function load($printQuery = false, $logQuery = false)
     {
-        $this->_select = $this->_read->select();
+        $this->_select  = $this->_read->select();
+        $entityTable    = $this->getEntity()->getEntityTable();
+        $paidTable      = $this->getAttribute('grand_total')->getBackend()->getTable();
+        $idField        = $this->getEntity()->getIdFieldName();
         $this->getSelect()
-            ->from(array('sales' => $this->_resource->getMainTable()),
+            ->from(array('sales' => $entityTable),
                 array(
                     'store_id',
                     'lifetime'      => 'sum(sales.base_grand_total)',
@@ -152,6 +155,7 @@ class Mage_Sales_Model_Mysql4_Sale_Collection extends Varien_Object implements I
                     'num_orders'    => 'count(sales.base_grand_total)'
                 )
             )
+            ->where('sales.entity_type_id=?', $this->getEntity()->getTypeId())
             ->group('sales.store_id')
         ;
         if ($this->_customer instanceof Mage_Customer_Model_Customer) {

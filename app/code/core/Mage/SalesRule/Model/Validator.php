@@ -20,7 +20,7 @@
  *
  * @category    Mage
  * @package     Mage_SalesRule
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
+ * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -125,33 +125,14 @@ class Mage_SalesRule_Model_Validator extends Mage_Core_Model_Abstract
     {
         if (!$rule->hasIsValid()) {
             /**
-             * check per coupon usage limit
+             * too many times used in general
              */
-            $couponCode = $address->getQuote()->getCouponCode();
-            if ($couponCode) {
-                $coupon = Mage::getModel('salesrule/coupon');
-                $coupon->load($couponCode, 'code');
-                if ($coupon->getId()) {
-                    // check entire usage limit
-                    if ($coupon->getUsageLimit() && $coupon->getTimesUsed() >= $coupon->getUsageLimit()) {
-                        $rule->setIsValid(false);
-                        return false;
-                    }
-                    // check per customer usage limit
-                    $customerId = $address->getQuote()->getCustomerId();
-                    if ($customerId && $coupon->getUsagePerCustomer()) {
-                        $couponUsage = new Varien_Object();
-                        Mage::getResourceModel('salesrule/coupon_usage')->loadByCustomerCoupon(
-                            $couponUsage, $customerId, $coupon->getId());
-                        if ($couponUsage->getCouponId() && $couponUsage->getTimesUsed() >= $coupon->getUsagePerCustomer()) {
-                            $rule->setIsValid(false);
-                            return false;
-                        }
-                    }
-                }
+            if ($rule->getUsesPerCoupon() && ($rule->getTimesUsed() >= $rule->getUsesPerCoupon())) {
+                $rule->setIsValid(false);
+                return false;
             }
             /**
-             * check per rule usage limit
+             * too many times used for this customer
              */
             $ruleId = $rule->getId();
             if ($ruleId && $rule->getUsesPerCustomer()) {
@@ -385,7 +366,9 @@ class Mage_SalesRule_Model_Validator extends Mage_Core_Model_Abstract
 
             $appliedRuleIds[$rule->getRuleId()] = $rule->getRuleId();
 
-            $this->_maintainAddressCouponCode($address, $rule);
+            if ($rule->getCouponCode() && ( strtolower($rule->getCouponCode()) == strtolower($this->getCouponCode()))) {
+                $address->setCouponCode($this->getCouponCode());
+            }
             $this->_addDiscountDescription($address, $rule);
             if ($rule->getStopRulesProcessing()) {
                 break;
@@ -464,7 +447,9 @@ class Mage_SalesRule_Model_Validator extends Mage_Core_Model_Abstract
             $address->setBaseShippingDiscountAmount($baseDiscountAmount);
             $appliedRuleIds[$rule->getRuleId()] = $rule->getRuleId();
 
-            $this->_maintainAddressCouponCode($address, $rule);
+            if ($rule->getCouponCode() && ( strtolower($rule->getCouponCode()) == strtolower($this->getCouponCode()))) {
+                $address->setCouponCode($this->getCouponCode());
+            }
             $this->_addDiscountDescription($address, $rule);
             if ($rule->getStopRulesProcessing()) {
                 break;
@@ -491,21 +476,6 @@ class Mage_SalesRule_Model_Validator extends Mage_Core_Model_Abstract
     }
 
     /**
-     * Retrieve subordinate coupon IDs
-     *
-     * @return array
-     */
-    protected function _maintainAddressCouponCode($address, $rule)
-    {
-        foreach ($rule->getCoupons() as $coupon) {
-            if (strtolower($coupon->getCode()) == strtolower($this->getCouponCode())) {
-                $address->setCouponCode($this->getCouponCode());
-                break;
-            }
-        }
-    }
-
-    /**
      * Add rule discount description label to address object
      *
      * @param   Mage_Sales_Model_Quote_Address $address
@@ -519,8 +489,8 @@ class Mage_SalesRule_Model_Validator extends Mage_Core_Model_Abstract
         $label = '';
         if ($ruleLabel) {
             $label = $ruleLabel;
-        } else if ($address->getCouponCode()) {
-            $label = $address->getCouponCode();
+        } elseif ($rule->getCouponCode()) {
+            $label = $rule->getCouponCode();
         }
 
         if (!empty($label)) {
@@ -542,7 +512,6 @@ class Mage_SalesRule_Model_Validator extends Mage_Core_Model_Abstract
         $description = $address->getDiscountDescriptionArray();
 
         if (is_array($description) && !empty($description)) {
-            $description = array_unique($description);
             $description = implode($separator, $description);
         } else {
             $description = '';

@@ -1,37 +1,30 @@
 /**
- * AddOnManager.js
+ * $Id: PluginManager.js 352 2007-11-05 17:03:49Z spocke $
  *
- * Copyright 2009, Moxiecode Systems AB
- * Released under LGPL License.
- *
- * License: http://tinymce.moxiecode.com/license
- * Contributing: http://tinymce.moxiecode.com/contributing
+ * @author Moxiecode
+ * @copyright Copyright © 2004-2008, Moxiecode Systems AB, All rights reserved.
  */
 
 (function(tinymce) {
 	var Dispatcher = tinymce.util.Dispatcher, each = tinymce.each;
 
-	/**
-	 * This class handles the loading of themes/plugins or other add-ons and their language packs.
-	 *
-	 * @class tinymce.AddOnManager
+	/**#@+
+	 * @class This class handles the loading of themes/plugins or other add-ons and their language packs.
+	 * @member tinymce.AddOnManager
 	 */
 	tinymce.create('tinymce.AddOnManager', {
 		items : [],
 		urls : {},
 		lookup : {},
-
-		/**
-		 * Fires when a item is added.
-		 *
-		 * @event onAdd
-		 */
 		onAdd : new Dispatcher(this),
+
+		/**#@+
+		 * @method
+		 */
 
 		/**
 		 * Returns the specified add on by the short name.
 		 *
-		 * @method get
 		 * @param {String} n Add-on to look for.
 		 * @return {tinymce.Theme/tinymce.Plugin} Theme or plugin add-on instance or undefined.
 		 */
@@ -42,20 +35,24 @@
 		/**
 		 * Loads a language pack for the specified add-on.
 		 *
-		 * @method requireLangPack
 		 * @param {String} n Short name of the add-on.
 		 */
 		requireLangPack : function(n) {
-			var s = tinymce.settings;
+			var u, s = tinymce.EditorManager.settings;
 
-			if (s && s.language)
-				tinymce.ScriptLoader.add(this.urls[n] + '/langs/' + s.language + '.js');
+			if (s && s.language) {
+				u = this.urls[n] + '/langs/' + s.language + '.js';
+
+				if (!tinymce.dom.Event.domLoaded && !s.strict_mode)
+					tinymce.ScriptLoader.load(u);
+				else
+					tinymce.ScriptLoader.add(u);
+			}
 		},
 
 		/**
 		 * Adds a instance of the add-on by it's short name.
 		 *
-		 * @method add
 		 * @param {String} id Short name/id for the add-on.
 		 * @param {tinymce.Theme/tinymce.Plugin} o Theme or plugin to add.
 		 * @return {tinymce.Theme/tinymce.Plugin} The same theme or plugin instance that got passed in.
@@ -71,7 +68,6 @@
 		/**
 		 * Loads an add-on from a specific url.
 		 *
-		 * @method load
 		 * @param {String} n Short name of the add-on that gets loaded.
 		 * @param {String} u URL to the add-on that will get loaded.
 		 * @param {function} cb Optional callback to execute ones the add-on is loaded.
@@ -89,21 +85,11 @@
 			t.urls[n] = u.substring(0, u.lastIndexOf('/'));
 			tinymce.ScriptLoader.add(u, cb, s);
 		}
+
+		/**#@-*/
 	});
 
 	// Create plugin and theme managers
 	tinymce.PluginManager = new tinymce.AddOnManager();
 	tinymce.ThemeManager = new tinymce.AddOnManager();
 }(tinymce));
-
-/**
- * TinyMCE theme class.
- *
- * @class tinymce.Theme
- */
-
-/**
- * TinyMCE plugin class.
- *
- * @class tinymce.Plugin
- */

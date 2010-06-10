@@ -20,7 +20,7 @@
  *
  * @category    Mage
  * @package     Mage_Adminhtml
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
+ * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -33,32 +33,25 @@
  */
 class Mage_Adminhtml_Sales_Order_CreditmemoController extends Mage_Adminhtml_Controller_Sales_Creditmemo
 {
-    /**
-     * Get requested items qtys and return to stock flags
-     */
     protected function _getItemData()
     {
         $data = $this->getRequest()->getParam('creditmemo');
         if (isset($data['items'])) {
             $qtys = $data['items'];
-        } else {
+        }
+        else {
             $qtys = array();
         }
         return $qtys;
     }
 
-    /**
-     * Check if creditmeno can be created for order
-     * @param Mage_Sales_Model_Order $order
-     * @return bool
-     */
     protected function _canCreditmemo($order)
     {
         /**
          * Check order existing
          */
         if (!$order->getId()) {
-            $this->_getSession()->addError($this->__('The order no longer exists.'));
+            $this->_getSession()->addError($this->__('Order not longer exist'));
             return false;
         }
 
@@ -66,28 +59,10 @@ class Mage_Adminhtml_Sales_Order_CreditmemoController extends Mage_Adminhtml_Con
          * Check creditmemo create availability
          */
         if (!$order->canCreditmemo()) {
-            $this->_getSession()->addError($this->__('Cannot create credit memo for the order.'));
+            $this->_getSession()->addError($this->__('Can not do credit memo for order'));
             return false;
         }
         return true;
-    }
-
-    /**
-     * Initialize requested invoice instance
-     * @param unknown_type $order
-     */
-    protected function _initInvoice($order)
-    {
-        $invoiceId = $this->getRequest()->getParam('invoice_id');
-        if ($invoiceId) {
-            $invoice = Mage::getModel('sales/order_invoice')
-                ->load($invoiceId)
-                ->setOrder($order);
-            if ($invoice->getId()) {
-                return $invoice;
-            }
-        }
-        return false;
     }
 
     /**
@@ -100,69 +75,149 @@ class Mage_Adminhtml_Sales_Order_CreditmemoController extends Mage_Adminhtml_Con
         $this->_title($this->__('Sales'))->_title($this->__('Credit Memos'));
 
         $creditmemo = false;
-        $creditmemoId = $this->getRequest()->getParam('creditmemo_id');
-        $orderId = $this->getRequest()->getParam('order_id');
-        if ($creditmemoId) {
+        if ($creditmemoId = $this->getRequest()->getParam('creditmemo_id')) {
             $creditmemo = Mage::getModel('sales/order_creditmemo')->load($creditmemoId);
-        } elseif ($orderId) {
+        }
+        elseif ($orderId = $this->getRequest()->getParam('order_id')) {
             $data   = $this->getRequest()->getParam('creditmemo');
             $order  = Mage::getModel('sales/order')->load($orderId);
-            $invoice = $this->_initInvoice($order);
+            $invoiceId = $this->getRequest()->getParam('invoice_id');
+            $invoice= null;
 
             if (!$this->_canCreditmemo($order)) {
                 return false;
             }
 
+            if ($invoiceId) {
+                $invoice = Mage::getModel('sales/order_invoice')
+                    ->load($invoiceId)
+                    ->setOrder($order);
+            }
+
+            $convertor  = Mage::getModel('sales/convert_order');
+            $creditmemo = $convertor->toCreditmemo($order)
+                ->setInvoice($invoice);
+
             $savedData = $this->_getItemData();
 
-            $qtys = array();
-            $backToStock = array();
-            foreach ($savedData as $orderItemId =>$itemData) {
-                if (isset($itemData['qty'])) {
-                    $qtys[$orderItemId] = $itemData['qty'];
-                }
-                if (isset($itemData['back_to_stock'])) {
-                    $backToStock[$orderItemId] = true;
-                }
-            }
-            $data['qtys'] = $qtys;
+            if ($invoice && $invoice->getId()) {
+                foreach ($invoice->getAllItems() as $invoiceItem) {
+                    $orderItem = $invoiceItem->getOrderItem();
 
-            $service = Mage::getModel('sales/service_order', $order);
-            if ($invoice) {
-                $creditmemo = $service->prepareInvoiceCreditmemo($invoice, $data);
+                    if (!$orderItem->isDummy() && !$orderItem->getQtyToRefund()) {
+                        continue;
+                    }
+
+                    if (!$update && $orderItem->isDummy() && !empty($savedData) && !$this->_needToAddDummy($orderItem, $savedData)) {
+                        continue;
+                    }
+
+                    $item = $convertor->itemToCreditmemoItem($orderItem);
+                    if (isset($savedData[$orderItem->getId()]['qty'])) {
+                        $qty = $savedData[$orderItem->getId()]['qty'];
+                    }
+                    else {
+                        if ($orderItem->isDummy()) {
+                            if ($orderItem->getParentItem() && isset($savedData[$orderItem->getParentItem()->getId()]['qty'])) {
+                                $parentItemNewQty = $savedData[$orderItem->getParentItem()->getId()]['qty'];
+                                $parentItemOrigQty = $orderItem->getParentItem()->getQtyOrdered();
+                                $itemOrigQty = $orderItem->getQtyOrdered()/$parentItemOrigQty;
+                                $qty = $itemOrigQty*$parentItemNewQty;
+                                if (isset($savedData[$orderItem->getParentItem()->getId()]['back_to_stock'])) {
+                                    $savedData[$orderItem->getId()]['back_to_stock'] = 1;
+                                }
+                            } else {
+                                $qty = 1;
+                            }
+                        } else {
+                            $qty = min($orderItem->getQtyToRefund(), $invoiceItem->getQty());
+                        }
+                    }
+
+                    $item->setQty($qty);
+
+                    $children = $orderItem->getChildrenItems();
+                    if (!empty($children)) {
+                        $item->setBackToStock(false);
+                    } else {
+                        $item->setBackToStock(isset($savedData[$orderItem->getId()]['back_to_stock']));
+                    }
+
+                    $creditmemo->addItem($item);
+                }
             } else {
-                $creditmemo = $service->prepareCreditmemo($data);
-            }
+                foreach ($order->getAllItems() as $orderItem) {
 
-            /**
-             * Process back to stock flags
-             */
-            foreach ($creditmemo->getAllItems() as $creditmemoItem) {
-                $orderItem = $creditmemoItem->getOrderItem();
-                $parentId = $orderItem->getParentItemId();
-                if (isset($backToStock[$orderItem->getId()])) {
-                    $creditmemoItem->setBackToStock(true);
-                } elseif ($orderItem->getParentItem() && isset($backToStock[$parentId]) && $backToStock[$parentId]) {
-                    $creditmemoItem->setBackToStock(true);
-                } elseif (empty($savedData)) {
-                    $creditmemoItem->setBackToStock(Mage::helper('cataloginventory')->isAutoReturnEnabled());
-                } else {
-                    $creditmemoItem->setBackToStock(false);
+                    if (!$orderItem->isDummy() && !$orderItem->getQtyToRefund()) {
+                        continue;
+                    }
+
+                    if (!$update && $orderItem->isDummy() && !empty($savedData) && !$this->_needToAddDummy($orderItem, $savedData)) {
+                        continue;
+                    }
+
+                    $item = $convertor->itemToCreditmemoItem($orderItem);
+                    if (isset($savedData[$orderItem->getId()]['qty'])) {
+                        $qty = $savedData[$orderItem->getId()]['qty'];
+                    }
+                    else {
+                        if ($orderItem->isDummy()) {
+                            if ($orderItem->getParentItem() && isset($savedData[$orderItem->getParentItem()->getId()]['qty'])) {
+                                $parentItemNewQty = $savedData[$orderItem->getParentItem()->getId()]['qty'];
+                                $parentItemOrigQty = $orderItem->getParentItem()->getQtyOrdered();
+                                $itemOrigQty = $orderItem->getQtyOrdered()/$parentItemOrigQty;
+                                $qty = $itemOrigQty*$parentItemNewQty;
+                                if (isset($savedData[$orderItem->getParentItem()->getId()]['back_to_stock'])) {
+                                    $savedData[$orderItem->getId()]['back_to_stock'] = 1;
+                                }
+                            } else {
+                                $qty = 1;
+                            }
+                        } else {
+                            $qty = $orderItem->getQtyToRefund();
+                        }
+                    }
+
+                    $item->setQty($qty);
+
+                    $children = $orderItem->getChildrenItems();
+                    if (!empty($children)) {
+                        $item->setBackToStock(false);
+                    } else {
+                        $item->setBackToStock(isset($savedData[$orderItem->getId()]['back_to_stock']));
+                    }
+
+                    $creditmemo->addItem($item);
                 }
             }
+
+            if (isset($data['shipping_amount'])) {
+                $creditmemo->setBaseShippingAmount((float)$data['shipping_amount']);
+            } elseif ($invoice) {
+                $baseAllowedAmount = $order->getBaseShippingAmount()-$order->getBaseShippingRefunded();
+                $creditmemo->setBaseShippingAmount(min($baseAllowedAmount, $invoice->getBaseShippingAmount()));
+            }
+
+            if (isset($data['adjustment_positive'])) {
+                $creditmemo->setAdjustmentPositive($data['adjustment_positive']);
+            }
+            if (isset($data['adjustment_negative'])) {
+                $creditmemo->setAdjustmentNegative($data['adjustment_negative']);
+            }
+
+            $creditmemo->collectTotals();
         }
 
-        $args = array('creditmemo' => $creditmemo, 'request' => $this->getRequest());
+        $args = array(
+            'creditmemo' => $creditmemo,
+            'request'    => $this->getRequest(),
+        );
         Mage::dispatchEvent('adminhtml_sales_order_creditmemo_register_before', $args);
 
         Mage::register('current_creditmemo', $creditmemo);
         return $creditmemo;
     }
 
-    /**
-     * Save creditmemo and related order, invoice in one transaction
-     * @param Mage_Sales_Model_Order_Creditmemo $creditmemo
-     */
     protected function _saveCreditmemo($creditmemo)
     {
         $transactionSave = Mage::getModel('core/resource_transaction')
@@ -181,8 +236,7 @@ class Mage_Adminhtml_Sales_Order_CreditmemoController extends Mage_Adminhtml_Con
      */
     public function viewAction()
     {
-        $creditmemo = $this->_initCreditmemo();
-        if ($creditmemo) {
+        if ($creditmemo = $this->_initCreditmemo()) {
             if ($creditmemo->getInvoice()) {
                 $this->_title($this->__("View Memo for #%s", $creditmemo->getInvoice()->getIncrementId()));
             } else {
@@ -194,7 +248,8 @@ class Mage_Adminhtml_Sales_Order_CreditmemoController extends Mage_Adminhtml_Con
                 ->updateBackButtonUrl($this->getRequest()->getParam('come_from'));
             $this->_setActiveMenu('sales/order')
                 ->renderLayout();
-        } else {
+        }
+        else {
             $this->_forward('noRoute');
         }
     }
@@ -222,14 +277,15 @@ class Mage_Adminhtml_Sales_Order_CreditmemoController extends Mage_Adminhtml_Con
                 $this->_title($this->__("New Memo"));
             }
 
-            if ($comment = Mage::getSingleton('adminhtml/session')->getCommentText(true)) {
-                $creditmemo->setCommentText($comment);
-            }
+            $commentText = Mage::getSingleton('adminhtml/session')->getCommentText(true);
+
+            $creditmemo->addData(array('commentText'=>$commentText));
 
             $this->loadLayout()
                 ->_setActiveMenu('sales/order')
                 ->renderLayout();
-        } else {
+        }
+        else {
             $this->_forward('noRoute');
         }
     }
@@ -243,16 +299,18 @@ class Mage_Adminhtml_Sales_Order_CreditmemoController extends Mage_Adminhtml_Con
             $creditmemo = $this->_initCreditmemo(true);
             $this->loadLayout();
             $response = $this->getLayout()->getBlock('order_items')->toHtml();
-        } catch (Mage_Core_Exception $e) {
+        }
+        catch (Mage_Core_Exception $e) {
             $response = array(
                 'error'     => true,
                 'message'   => $e->getMessage()
             );
             $response = Mage::helper('core')->jsonEncode($response);
-        } catch (Exception $e) {
+        }
+        catch (Exception $e) {
             $response = array(
                 'error'     => true,
-                'message'   => $this->__('Cannot update the item\'s quantity.')
+                'message'   => $this->__('Can not update item qty')
             );
             $response = Mage::helper('core')->jsonEncode($response);
         }
@@ -266,18 +324,15 @@ class Mage_Adminhtml_Sales_Order_CreditmemoController extends Mage_Adminhtml_Con
     public function saveAction()
     {
         $data = $this->getRequest()->getPost('creditmemo');
-        if (!empty($data['comment_text'])) {
-            Mage::getSingleton('adminhtml/session')->setCommentText($data['comment_text']);
-        }
-
         try {
-            $creditmemo = $this->_initCreditmemo();
-            if ($creditmemo) {
+            if ($creditmemo = $this->_initCreditmemo()) {
                 if (($creditmemo->getGrandTotal() <=0) && (!$creditmemo->getAllowZeroGrandTotal())) {
                     Mage::throwException(
-                        $this->__('Credit memo\'s total must be positive.')
+                        $this->__('Credit Memo total must be positive.')
                     );
                 }
+
+                Mage::getSingleton('adminhtml/session')->setCommentText($data['comment_text']);
 
                 $comment = '';
                 if (!empty($data['comment_text'])) {
@@ -302,19 +357,22 @@ class Mage_Adminhtml_Sales_Order_CreditmemoController extends Mage_Adminhtml_Con
                 $creditmemo->getOrder()->setCustomerNoteNotify(!empty($data['send_email']));
                 $this->_saveCreditmemo($creditmemo);
                 $creditmemo->sendEmail(!empty($data['send_email']), $comment);
-                $this->_getSession()->addSuccess($this->__('The credit memo has been created.'));
+                $this->_getSession()->addSuccess($this->__('Credit Memo was successfully created'));
                 Mage::getSingleton('adminhtml/session')->getCommentText(true);
                 $this->_redirect('*/sales_order/view', array('order_id' => $creditmemo->getOrderId()));
                 return;
-            } else {
+            }
+            else {
                 $this->_forward('noRoute');
                 return;
             }
-        } catch (Mage_Core_Exception $e) {
+        }
+        catch (Mage_Core_Exception $e) {
             $this->_getSession()->addError($e->getMessage());
-        } catch (Exception $e) {
+        }
+        catch (Exception $e) {
             Mage::logException($e);
-            $this->_getSession()->addError($this->__('Cannot save the cedit memo.'));
+            $this->_getSession()->addError($this->__('Cannot save Credit Memo.'));
         }
         $this->_redirect('*/*/new', array('_current' => true));
     }
@@ -328,14 +386,17 @@ class Mage_Adminhtml_Sales_Order_CreditmemoController extends Mage_Adminhtml_Con
             try {
                 $creditmemo->cancel();
                 $this->_saveCreditmemo($creditmemo);
-                $this->_getSession()->addSuccess($this->__('The credit memo has been canceled.'));
-            } catch (Mage_Core_Exception $e) {
+                $this->_getSession()->addSuccess($this->__('Credit Memo was successfully canceled.'));
+            }
+            catch (Mage_Core_Exception $e) {
                 $this->_getSession()->addError($e->getMessage());
-            } catch (Exception $e) {
-                $this->_getSession()->addError($this->__('Unable to cancel the credit memo.'));
+            }
+            catch (Exception $e) {
+                $this->_getSession()->addError($this->__('Credit Memo cancel error.'));
             }
             $this->_redirect('*/*/view', array('creditmemo_id'=>$creditmemo->getId()));
-        } else {
+        }
+        else {
             $this->_forward('noRoute');
         }
     }
@@ -349,21 +410,21 @@ class Mage_Adminhtml_Sales_Order_CreditmemoController extends Mage_Adminhtml_Con
             try {
                 $creditmemo->void();
                 $this->_saveCreditmemo($creditmemo);
-                $this->_getSession()->addSuccess($this->__('The credit memo has been voided.'));
-            } catch (Mage_Core_Exception $e) {
+                $this->_getSession()->addSuccess($this->__('Credit Memo was successfully voided'));
+            }
+            catch (Mage_Core_Exception $e) {
                 $this->_getSession()->addError($e->getMessage());
-            } catch (Exception $e) {
-                $this->_getSession()->addError($this->__('Unable to void the credit memo.'));
+            }
+            catch (Exception $e) {
+                $this->_getSession()->addError($this->__('Credit Memo void error'));
             }
             $this->_redirect('*/*/view', array('creditmemo_id'=>$creditmemo->getId()));
-        } else {
+        }
+        else {
             $this->_forward('noRoute');
         }
     }
 
-    /**
-     * Add comment to creditmemo history
-     */
     public function addCommentAction()
     {
         try {
@@ -373,26 +434,27 @@ class Mage_Adminhtml_Sales_Order_CreditmemoController extends Mage_Adminhtml_Con
             );
             $data = $this->getRequest()->getPost('comment');
             if (empty($data['comment'])) {
-                Mage::throwException($this->__('The Comment Text field cannot be empty.'));
+                Mage::throwException($this->__('Comment text field can not be empty.'));
             }
             $creditmemo = $this->_initCreditmemo();
             $creditmemo->addComment($data['comment'], isset($data['is_customer_notified']));
-            $creditmemo->_hasDataChanges = true;
             $creditmemo->save();
             $creditmemo->sendUpdateEmail(!empty($data['is_customer_notified']), $data['comment']);
 
             $this->loadLayout();
             $response = $this->getLayout()->getBlock('creditmemo_comments')->toHtml();
-        } catch (Mage_Core_Exception $e) {
+        }
+        catch (Mage_Core_Exception $e) {
             $response = array(
                 'error'     => true,
                 'message'   => $e->getMessage()
             );
             $response = Mage::helper('core')->jsonEncode($response);
-        } catch (Exception $e) {
+        }
+        catch (Exception $e) {
             $response = array(
                 'error'     => true,
-                'message'   => $this->__('Cannot add new comment.')
+                'message'   => $this->__('Can not add new comment.')
             );
             $response = Mage::helper('core')->jsonEncode($response);
         }
@@ -404,7 +466,6 @@ class Mage_Adminhtml_Sales_Order_CreditmemoController extends Mage_Adminhtml_Con
      * for eaxample we don't need create dummy parent if all
      * children are not in process
      *
-     * @deprecated after 1.4, Mage_Sales_Model_Service_Order used
      * @param Mage_Sales_Model_Order_Item $item
      * @param array $qtys
      * @return bool

@@ -43,12 +43,6 @@ class Varien_Object implements ArrayAccess
     protected $_data = array();
 
     /**
-     * Data changes flag (true after setData|unsetData call)
-     * @var $_hasDataChange bool
-     */
-    protected $_hasDataChanges = false;
-
-    /**
     * Original data that was loaded
     *
     * @var array
@@ -69,8 +63,10 @@ class Varien_Object implements ArrayAccess
      */
     protected static $_underscoreCache = array();
 
+    protected static $_camelizeCache = array();
+
     /**
-     * Object delete flag
+     * Enter description here...
      *
      * @var boolean
      */
@@ -95,14 +91,16 @@ class Varien_Object implements ArrayAccess
     }
 
     /**
-     * Internal constructor not depended on params. Can be used for object initialization
+     * Enter description here...
+     *
      */
     protected function _construct()
     {
+
     }
 
     /**
-     * Set _isDeleted flag value (if $isDeleted param is defined) and return current flag value
+     * Enter description here...
      *
      * @param boolean $isDeleted
      * @return boolean
@@ -114,16 +112,6 @@ class Varien_Object implements ArrayAccess
             $this->_isDeleted = $isDeleted;
         }
         return $result;
-    }
-
-    /**
-     * Get data change status
-     *
-     * @return bool
-     */
-    public function hasDataChanges()
-    {
-        return $this->_hasDataChanges;
     }
 
     /**
@@ -157,9 +145,9 @@ class Varien_Object implements ArrayAccess
     public function getId()
     {
         if ($this->getIdFieldName()) {
-            return $this->_getData($this->getIdFieldName());
+            return $this->getData($this->getIdFieldName());
         }
-        return $this->_getData('id');
+        return $this->getData('id');
     }
 
     /**
@@ -172,7 +160,8 @@ class Varien_Object implements ArrayAccess
     {
         if ($this->getIdFieldName()) {
             $this->setData($this->getIdFieldName(), $value);
-        } else {
+        }
+        else {
             $this->setData('id', $value);
         }
         return $this;
@@ -208,7 +197,6 @@ class Varien_Object implements ArrayAccess
      */
     public function setData($key, $value=null)
     {
-        $this->_hasDataChanges = true;
         if(is_array($key)) {
             $this->_data = $key;
         } else {
@@ -227,7 +215,6 @@ class Varien_Object implements ArrayAccess
      */
     public function unsetData($key=null)
     {
-        $this->_hasDataChanges = true;
         if (is_null($key)) {
             $this->_data = array();
         } else {
@@ -317,13 +304,6 @@ class Varien_Object implements ArrayAccess
         return isset($this->_data[$key]) ? $this->_data[$key] : null;
     }
 
-    /**
-     * Set object data with calling setter method
-     *
-     * @param string $key
-     * @param mixed $args
-     * @return Varien_Object
-     */
     public function setDataUsingMethod($key, $args=array())
     {
         $method = 'set'.$this->_camelize($key);
@@ -331,13 +311,6 @@ class Varien_Object implements ArrayAccess
         return $this;
     }
 
-    /**
-     * Get object data by key with calling getter method
-     *
-     * @param string $key
-     * @param mixed $args
-     * @return mixed
-     */
     public function getDataUsingMethod($key, $args=null)
     {
         $method = 'get'.$this->_camelize($key);
@@ -590,6 +563,7 @@ class Varien_Object implements ArrayAccess
      */
     public function __set($var, $value)
     {
+        $this->_isChanged = true;
         $var = $this->_underscore($var);
         $this->setData($var, $value);
     }
@@ -660,7 +634,7 @@ class Varien_Object implements ArrayAccess
     }
 
     /**
-     * Get object loaded data (original data)
+     * Enter description here...
      *
      * @param string $key
      * @return mixed
@@ -674,7 +648,7 @@ class Varien_Object implements ArrayAccess
     }
 
     /**
-     * Initialize object original data
+     * Enter description here...
      *
      * @param string $key
      * @param mixed $data
@@ -691,7 +665,7 @@ class Varien_Object implements ArrayAccess
     }
 
     /**
-     * Compare onject data with original data
+     * Enter description here...
      *
      * @param string $field
      * @return boolean
@@ -704,12 +678,55 @@ class Varien_Object implements ArrayAccess
     }
 
     /**
-     * Present object data as string in debug mode
+     * Enter description here...
      *
-     * @param mixed $data
-     * @param array $objects
-     * @return string
+     * @param string $field
+     * @return boolean
      */
+    public function isDirty($field=null)
+    {
+        if (empty($this->_dirty)) {
+            return false;
+        }
+        if (is_null($field)) {
+            return true;
+        }
+        return isset($this->_dirty[$field]);
+    }
+
+    /**
+     * Enter description here...
+     *
+     * @param string $field
+     * @param boolean $flag
+     * @return Varien_Object
+     */
+    public function flagDirty($field, $flag=true)
+    {
+        if (is_null($field)) {
+            foreach ($this->getData() as $field=>$value) {
+                $this->flagDirty($field, $flag);
+            }
+        } else {
+            if ($flag) {
+                $this->_dirty[$field] = true;
+            } else {
+                unset($this->_dirty[$field]);
+            }
+        }
+        return $this;
+    }
+/*
+    public function __sleep()
+    {
+        return array('_data', '_idFieldName');
+    }
+
+    public function __wakeup()
+    {
+        $this->_construct();
+    }
+*/
     public function debug($data=null, &$objects=array())
     {
         if (is_null($data)) {
@@ -780,44 +797,4 @@ class Varien_Object implements ArrayAccess
         return isset($this->_data[$offset]) ? $this->_data[$offset] : null;
     }
 
-
-    /**
-     * Enter description here...
-     *
-     * @param string $field
-     * @return boolean
-     */
-    public function isDirty($field=null)
-    {
-        if (empty($this->_dirty)) {
-            return false;
-        }
-        if (is_null($field)) {
-            return true;
-        }
-        return isset($this->_dirty[$field]);
-    }
-
-    /**
-     * Enter description here...
-     *
-     * @param string $field
-     * @param boolean $flag
-     * @return Varien_Object
-     */
-    public function flagDirty($field, $flag=true)
-    {
-        if (is_null($field)) {
-            foreach ($this->getData() as $field=>$value) {
-                $this->flagDirty($field, $flag);
-            }
-        } else {
-            if ($flag) {
-                $this->_dirty[$field] = true;
-            } else {
-                unset($this->_dirty[$field]);
-            }
-        }
-        return $this;
-    }
 }

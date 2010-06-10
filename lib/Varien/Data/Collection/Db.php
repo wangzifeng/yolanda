@@ -412,9 +412,9 @@ class Varien_Data_Collection_Db extends Varien_Data_Collection
             foreach ($fieldName as $f) {
                 $orSql = array();
                 foreach ($condition as $orCondition) {
-                    $orSql[] = '('.$this->_getConditionSql($f[0], $f[1]).')';
+                    $orSql[] = "(".$this->_getConditionSql($f[0], $f[1]).")";
                 }
-                $sql = '('. join(' or ', $orSql) .')';
+                $sql = "(".join(" or ", $orSql).")";
             }
             return $sql;
         }
@@ -528,14 +528,9 @@ class Varien_Data_Collection_Db extends Varien_Data_Collection
      */
     protected function _renderOrders()
     {
-        $ordersInSelect = $this->_select->getPart(Zend_Db_Select::ORDER);
-
         foreach ($this->_orders as $orderExpr) {
-            if (!in_array($orderExpr, $ordersInSelect)) {
-                $this->_select->order($orderExpr);
-            }
+            $this->_select->order($orderExpr);
         }
-
         return $this;
     }
 
@@ -565,16 +560,6 @@ class Varien_Data_Collection_Db extends Varien_Data_Collection
     }
 
     /**
-     * Before load action
-     *
-     * @return Varien_Data_Collection_Db
-     */
-    protected function _beforeLoad()
-    {
-        return $this;
-    }
-
-    /**
      * Load data
      *
      * @return  Varien_Data_Collection_Db
@@ -584,8 +569,6 @@ class Varien_Data_Collection_Db extends Varien_Data_Collection
         if ($this->isLoaded()) {
             return $this;
         }
-
-        $this->_beforeLoad();
 
         $this->_renderFilters()
              ->_renderOrders()

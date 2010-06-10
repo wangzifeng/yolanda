@@ -20,15 +20,15 @@
  *
  * @category    Mage
  * @package     Mage_Sales
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
+ * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-class Mage_Sales_Model_Mysql4_Report_Shipping extends Mage_Sales_Model_Mysql4_Report_Abstract
+class Mage_Sales_Model_Mysql4_Report_Shipping extends Mage_Core_Model_Mysql4_Abstract
 {
     protected function _construct()
     {
-        $this->_setResource('sales');
+        $this->_setResource(array('read', 'write'));
     }
 
     /**
@@ -40,74 +40,81 @@ class Mage_Sales_Model_Mysql4_Report_Shipping extends Mage_Sales_Model_Mysql4_Re
      */
     public function aggregate($from = null, $to = null)
     {
-        // convert input dates to UTC to be comparable with DATETIME fields in DB
-        $from = $this->_dateToUtc($from);
-        $to = $this->_dateToUtc($to);
+        if (!is_null($from)) {
+            $from = $this->formatDate($from);
+        }
+        if (!is_null($to)) {
+            $from = $this->formatDate($to);
+        }
 
-        $this->_checkDates($from, $to);
         $this->_aggregateByOrderCreatedAt($from, $to);
         $this->_aggregateByShippingCreatedAt($from, $to);
-        $this->_setFlagData(Mage_Reports_Model_Flag::REPORT_SHIPPING_FLAG_CODE);
+
+        $reportsFlagModel = Mage::getModel('reports/flag');
+        $reportsFlagModel->setReportFlagCode(Mage_Reports_Model_Flag::REPORT_SHIPPING_FLAG_CODE);
+        $reportsFlagModel->loadSelf();
+        $reportsFlagModel->save();
+
         return $this;
     }
 
-    /**
-     * Aggregate shipping report by order create_at as period
-     *
-     * @param mixed $from
-     * @param mixed $to
-     * @return Mage_Sales_Model_Mysql4_Report_Shipping
-     */
     protected function _aggregateByOrderCreatedAt($from, $to)
     {
-        $table = $this->getTable('sales/shipping_aggregated_order');
-        $sourceTable = $this->getTable('sales/order');
-        $this->_getWriteAdapter()->beginTransaction();
-
         try {
-            if ($from !== null || $to !== null) {
-                $subSelect = $this->_getTableDateRangeSelect($sourceTable, 'created_at', 'updated_at', $from, $to);
+            $tableName = $this->getTable('sales/shipping_aggregated_order');
+            $writeAdapter = $this->_getWriteAdapter();
+
+            $writeAdapter->beginTransaction();
+
+            if (is_null($from) && is_null($to)) {
+                $writeAdapter->query("TRUNCATE TABLE {$tableName}");
             } else {
-                $subSelect = null;
+                $where = (!is_null($from)) ? "so.updated_at >= '{$from}'" : '';
+                if (!is_null($to)) {
+                    $where .= (!empty($where)) ? " AND so.updated_at <= '{$to}'" : "so.updated_at <= '{$to}'";
+                }
+
+                $subQuery = $writeAdapter->select();
+                $subQuery->from(array('so'=>$this->getTable('sales/order')), array('DISTINCT DATE(so.created_at)'))
+                    ->where($where);
+
+                $deleteCondition = 'DATE(period) IN (' . new Zend_Db_Expr($subQuery) . ')';
+                $writeAdapter->delete($tableName, $deleteCondition);
             }
 
-            $this->_clearTableByDateRange($table, $from, $to, $subSelect);
-
             $columns = array(
-                // convert dates from UTC to current admin timezone
-                'period'                => "DATE(CONVERT_TZ(created_at, '+00:00', '" . $this->_getStoreTimezoneUtcOffset() . "'))",
+                'period'                => "DATE(created_at)",
                 'store_id'              => 'store_id',
                 'order_status'          => 'status',
                 'shipping_description'  => 'shipping_description',
                 'orders_count'          => 'COUNT(entity_id)',
-                'total_shipping'        => 'SUM((`base_shipping_amount` - IFNULL(`base_shipping_canceled`, 0)) * `base_to_global_rate`)',
-                'total_shipping_actual' => 'SUM((`base_shipping_invoiced` - IFNULL(`base_shipping_refunded`, 0)) * `base_to_global_rate`)',
+                'total_shipping'        => 'SUM(`base_shipping_amount` * `base_to_global_rate`)'
             );
 
-            $select = $this->_getWriteAdapter()->select();
-            $select->from($sourceTable, $columns)
-                 ->where('state NOT IN (?)', array(
+            $select = $writeAdapter->select()
+                ->from($this->getTable('sales/order'), $columns)
+                ->where('state NOT IN (?)', array(
                     Mage_Sales_Model_Order::STATE_PENDING_PAYMENT,
                     Mage_Sales_Model_Order::STATE_NEW
                 ))
                 ->where('is_virtual = 0');
 
-            if ($subSelect !== null) {
-                $select->where($this->_makeConditionFromDateRangeSelect($subSelect, 'created_at'));
-            }
+                if (!is_null($from) || !is_null($to)) {
+                    $select->where("DATE(created_at) IN(?)", new Zend_Db_Expr($subQuery));
+                }
 
-            $select->group(array(
-                'period',
-                'store_id',
-                'order_status',
-                'shipping_description'
-            ));
+                $select->group(array(
+                    "DATE(created_at)",
+                    'store_id',
+                    'order_status',
+                    'shipping_description'
+                ));
 
-            $select->having('orders_count > 0');
+            $writeAdapter->query("
+                INSERT INTO `{$tableName}` (" . implode(',', array_keys($columns)) . ") {$select}
+            ");
 
-            $this->_getWriteAdapter()->query($select->insertFromSelect($table, array_keys($columns)));
-
-            $select->reset();
+            $select = $writeAdapter->select();
 
             $columns = array(
                 'period'                => 'period',
@@ -115,103 +122,103 @@ class Mage_Sales_Model_Mysql4_Report_Shipping extends Mage_Sales_Model_Mysql4_Re
                 'order_status'          => 'order_status',
                 'shipping_description'  => 'shipping_description',
                 'orders_count'          => 'SUM(orders_count)',
-                'total_shipping'        => 'SUM(total_shipping)',
-                'total_shipping_actual' => 'SUM(total_shipping_actual)',
+                'total_shipping'        => 'SUM(total_shipping)'
             );
 
             $select
-                ->from($table, $columns)
+                ->from($tableName, $columns)
                 ->where("store_id <> 0");
 
-            if ($subSelect !== null) {
-                $select->where($this->_makeConditionFromDateRangeSelect($subSelect, 'period'));
-            }
+                if (!is_null($from) || !is_null($to)) {
+                    $select->where("DATE(period) IN(?)", new Zend_Db_Expr($subQuery));
+                }
 
-            $select->group(array(
-                'period',
-                'order_status',
-                'shipping_description'
-            ));
+                $select->group(array(
+                    'period',
+                    'order_status',
+                    'shipping_description'
+                ));
 
-            $this->_getWriteAdapter()->query($select->insertFromSelect($table, array_keys($columns)));
+            $writeAdapter->query("
+                INSERT INTO `{$tableName}` (" . implode(',', array_keys($columns)) . ") {$select}
+            ");
         } catch (Exception $e) {
-            $this->_getWriteAdapter()->rollBack();
+            $writeAdapter->rollBack();
             throw $e;
         }
 
-        $this->_getWriteAdapter()->commit();
+        $writeAdapter->commit();
         return $this;
     }
 
-    /**
-     * Aggregate shipping report by shipment create_at as period
-     *
-     * @param mixed $from
-     * @param mixed $to
-     * @return Mage_Sales_Model_Mysql4_Report_Shipping
-     */
     protected function _aggregateByShippingCreatedAt($from, $to)
     {
-        $table = $this->getTable('sales/shipping_aggregated');
-        $sourceTable = $this->getTable('sales/invoice');
-        $orderTable = $this->getTable('sales/order');
-        $this->_getWriteAdapter()->beginTransaction();
-
         try {
-            if ($from !== null || $to !== null) {
-                $subSelect = $this->_getTableDateRangeRelatedSelect(
-                    $sourceTable, $orderTable, array('order_id'=>'entity_id'),
-                    'created_at', 'updated_at', $from, $to
-                );
-            } else {
-                $subSelect = null;
-            }
+            $tableName = $this->getTable('sales/shipping_aggregated');
+            $writeAdapter = $this->_getWriteAdapter();
 
-            $this->_clearTableByDateRange($table, $from, $to, $subSelect);
+            $writeAdapter->beginTransaction();
+
+            if (is_null($from) && is_null($to)) {
+                $writeAdapter->query("TRUNCATE TABLE {$tableName}");
+            } else {
+                $where = (!is_null($from)) ? "so.updated_at >= '{$from}'" : '';
+                if (!is_null($to)) {
+                    $where .= (!empty($where)) ? " AND so.updated_at <= '{$to}'" : "so.updated_at <= '{$to}'";
+                }
+
+                $subQuery = $writeAdapter->select();
+                $subQuery->from(array('so'=>$this->getTable('sales/order')), array('DISTINCT DATE(so.created_at)'))
+                    ->where($where);
+
+                $deleteCondition = 'DATE(period) IN (' . new Zend_Db_Expr($subQuery) . ')';
+                $writeAdapter->delete($tableName, $deleteCondition);
+            }
 
             $columns = array(
-                // convert dates from UTC to current admin timezone
-                'period'                => "DATE(CONVERT_TZ(source_table.created_at, '+00:00', '" . $this->_getStoreTimezoneUtcOffset() . "'))",
-                'store_id'              => 'order_table.store_id',
-                'order_status'          => 'order_table.status',
-                'shipping_description'  => 'order_table.shipping_description',
-                'orders_count'          => 'COUNT(order_table.entity_id)',
-                'total_shipping'        => 'SUM((order_table.`base_shipping_amount` - IFNULL(order_table.`base_shipping_canceled`, 0)) * order_table.`base_to_global_rate`)',
-                'total_shipping_actual' => 'SUM((order_table.`base_shipping_invoiced` - IFNULL(order_table.`base_shipping_refunded`, 0)) * order_table.`base_to_global_rate`)',
+                'period'                => "DATE(soe.created_at)",
+                'store_id'              => 'so.store_id',
+                'order_status'          => 'so.status',
+                'shipping_description'  => 'so.shipping_description',
+                'orders_count'          => 'COUNT(so.entity_id)',
+                'total_shipping'        => 'SUM(so.`base_shipping_amount` * so.`base_to_global_rate`)'
             );
 
-            $select = $this->_getWriteAdapter()->select();
-            $select->from(array('source_table' => $sourceTable), $columns)
-                ->joinInner(
-                    array('order_table' => $orderTable),
-                    $this->_getWriteAdapter()->quoteInto(
-                        'source_table.order_id = order_table.entity_id AND order_table.state <> ?',
-                        Mage_Sales_Model_Order::STATE_CANCELED),
-                    array()
-                )
-                ->useStraightJoin();
+            $shipment = Mage::getResourceSingleton('sales/order_shipment');
+            $shipmentAttr = $shipment->getAttribute('order_id');
 
-            $filterSubSelect = $this->_getWriteAdapter()->select();
-            $filterSubSelect->from(array('filter_source_table' => $sourceTable), 'MIN(filter_source_table.entity_id)')
-                ->where('filter_source_table.order_id = source_table.order_id');
+            $select = $writeAdapter->select()
+                    ->from(array('soe' => $this->getTable('sales/order_entity')), $columns)
+                    ->where('state <> ?', 'canceled');
 
-            if ($subSelect !== null) {
-                $select->where($this->_makeConditionFromDateRangeSelect($subSelect, 'source_table.created_at'));
-            }
 
-            $select->where('source_table.entity_id = (?)', new Zend_Db_Expr($filterSubSelect));
-            unset($filterSubSelect);
+            $select->joinInner(array('soei' => $this->getTable($shipmentAttr->getBackend()->getTable())), "`soei`.`entity_id` = `soe`.`entity_id`
+                AND `soei`.`attribute_id` = {$shipmentAttr->getAttributeId()}
+                AND `soei`.`entity_type_id` = `soe`.`entity_type_id`",
+                array()
+            );
 
-            $select->group(array(
-                'period',
-                'store_id',
-                'order_status',
-                'shipping_description'
-            ));
+            $select->joinInner(array('so' => $this->getTable('sales/order')),
+                '`soei`.`value` = `so`.`entity_id`  AND `so`.base_total_invoiced > 0',
+                array()
+            );
 
-            $this->_getWriteAdapter()->query($select->insertFromSelect($table, array_keys($columns)));
+                if (!is_null($from) || !is_null($to)) {
+                    $select->where("DATE(soe.created_at) IN(?)", new Zend_Db_Expr($subQuery));
+                }
 
-            $select->reset();
+                $select->group(array(
+                    "DATE(soe.created_at)",
+                    'store_id',
+                    'order_status',
+                    'shipping_description'
+                ));
+
+            $writeAdapter->query("
+                INSERT INTO `{$tableName}` (" . implode(',', array_keys($columns)) . ") {$select}
+            ");
+
+            $select = $writeAdapter->select();
 
             $columns = array(
                 'period'                => 'period',
@@ -219,32 +226,33 @@ class Mage_Sales_Model_Mysql4_Report_Shipping extends Mage_Sales_Model_Mysql4_Re
                 'order_status'          => 'order_status',
                 'shipping_description'  => 'shipping_description',
                 'orders_count'          => 'SUM(orders_count)',
-                'total_shipping'        => 'SUM(total_shipping)',
-                'total_shipping_actual' => 'SUM(total_shipping_actual)',
+                'total_shipping'        => 'SUM(total_shipping)'
             );
 
             $select
-                ->from($table, $columns)
-                ->where('store_id <> 0');
+                ->from($tableName, $columns)
+                ->where("store_id <> 0");
 
-            if ($subSelect !== null) {
-                $select->where($this->_makeConditionFromDateRangeSelect($subSelect, 'period'));
-            }
+                if (!is_null($from) || !is_null($to)) {
+                    $select->where("DATE(period) IN(?)", new Zend_Db_Expr($subQuery));
+                }
 
-            $select->group(array(
-                'period',
-                'order_status',
-                'shipping_description'
-            ));
+                $select->group(array(
+                    'period',
+                    'order_status',
+                    'shipping_description'
+                ));
 
-            $this->_getWriteAdapter()->query($select->insertFromSelect($table, array_keys($columns)));
+            $writeAdapter->query("
+                INSERT INTO `{$tableName}` (" . implode(',', array_keys($columns)) . ") {$select}
+            ");
+
         } catch (Exception $e) {
-            $this->_getWriteAdapter()->rollBack();
+            $writeAdapter->rollback();
             throw $e;
         }
 
-        $this->_getWriteAdapter()->commit();
+        $writeAdapter->commit();
         return $this;
-
     }
 }

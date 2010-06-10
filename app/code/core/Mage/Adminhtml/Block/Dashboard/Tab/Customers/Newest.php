@@ -20,7 +20,7 @@
  *
  * @category    Mage
  * @package     Mage_Adminhtml
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
+ * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -44,7 +44,9 @@ class Mage_Adminhtml_Block_Dashboard_Tab_Customers_Newest extends Mage_Adminhtml
     protected function _prepareCollection()
     {
         $collection = Mage::getResourceModel('reports/customer_collection')
-            ->addCustomerName();
+            ->addCustomerName()
+            ->joinOrders()
+            ->addOrdersCount();
 
         $storeFilter = 0;
         if ($this->getParam('store')) {
@@ -58,7 +60,7 @@ class Mage_Adminhtml_Block_Dashboard_Tab_Customers_Newest extends Mage_Adminhtml
             $collection->addAttributeToFilter('store_id', array('in' => $storeIds));
         }
 
-        $collection->addOrdersStatistics($storeFilter)
+        $collection->addSumAvgTotals($storeFilter)
             ->orderByCustomerRegistration();
 
         $this->setCollection($collection);
