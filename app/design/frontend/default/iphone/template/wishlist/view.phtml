@@ -82,7 +82,7 @@
         <p><?php echo $this->__('You have no items in your wishlist.') ?></p>
     <?php endif ?>
     <br /><div class="button-set">
-        <a href="<?php echo $this->getBackUrl() ?>" class="left">&laquo; <?php echo $this->__('Back') ?></a>
+        <a href="<?php echo $this->escapeUrl($this->getBackUrl()) ?>" class="left">&laquo; <?php echo $this->__('Back') ?></a>
     </div><br /><br />
 </div>
 <script type="text/javascript">

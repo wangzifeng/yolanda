@@ -89,7 +89,7 @@ class Mage_Tax_Model_Observer
                             'base_real_amount'=>$baseRealAmount,
                             );
 
-                Mage::getModel('sales/order_tax')->setData($data)->save();
+                Mage::getModel('tax/sales_order_tax')->setData($data)->save();
             }
         }
         $order->setAppliedTaxIsSaved(true);
@@ -168,7 +168,7 @@ class Mage_Tax_Model_Observer
         Mage::app()->getLocale()->emulate(0);
         $currentDate = Mage::app()->getLocale()->date();
         $date = $currentDate->subHour(25);
-        Mage::getResourceModel('tax/tax')->aggregate($date);
+        Mage::getResourceModel('tax/report_tax')->aggregate($date);
         Mage::app()->getLocale()->revert();
         return $this;
     }

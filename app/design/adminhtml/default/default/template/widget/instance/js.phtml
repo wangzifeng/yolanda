@@ -25,6 +25,7 @@
  */
 ?>
 <script type="text/javascript">
+//<![CDATA[
 function setSettings(urlTemplate, typeElement, packageThemeElement) {
     templateSyntax = /(^|.|\r|\n)({{(\w+)}})/;
     var template = new Template(urlTemplate, templateSyntax);
@@ -35,4 +36,5 @@ function setSettings(urlTemplate, typeElement, packageThemeElement) {
 function saveAndContinueEdit(){
     editForm.submit($('edit_form').action+'back/edit/');
 }
+//]]>
 </script>

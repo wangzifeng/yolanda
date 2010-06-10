@@ -340,4 +340,14 @@ class Mage_Checkout_Block_Cart_Item_Renderer extends Mage_Core_Block_Template
 
         return $result;
     }
+
+    /**
+     * Check whether Product is visible in site
+     *
+     * @return bool
+     */
+    public function isProductVisible()
+    {
+        return $this->getProduct()->isVisibleInSiteVisibility();
+    }
 }

@@ -128,7 +128,7 @@ class Mage_Adminhtml_Block_Permissions_User_Edit_Tab_Main extends Mage_Adminhtml
                 'name'  	=> 'is_active',
                 'label' 	=> Mage::helper('adminhtml')->__('This account is'),
                 'id'    	=> 'is_active',
-                'title' 	=> Mage::helper('adminhtml')->__('Account status'),
+                'title' 	=> Mage::helper('adminhtml')->__('Account Status'),
                 'class' 	=> 'input-select',
                 'style'		=> 'width: 80px',
                 'options'	=> array('1' => Mage::helper('adminhtml')->__('Active'), '0' => Mage::helper('adminhtml')->__('Inactive')),

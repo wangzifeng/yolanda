@@ -67,14 +67,6 @@ class Mage_Adminhtml_Block_Tag_Grid_Pending extends Mage_Adminhtml_Block_Widget_
             'index'     => 'name',
         ));
 
-        $this->addColumn('total_used', array(
-            'header'    => Mage::helper('tag')->__('Uses'),
-            'width'     => '140px',
-            'align'     => 'right',
-            'index'     => 'uses',
-            'type'      => 'number',
-        ));
-
         $this->addColumn('products', array(
             'header'    => Mage::helper('tag')->__('Products'),
             'width'     => '140px',
@@ -91,13 +83,6 @@ class Mage_Adminhtml_Block_Tag_Grid_Pending extends Mage_Adminhtml_Block_Widget_
             'type'      => 'number',
         ));
 
-        $this->addColumn('popularity', array(
-            'header'    => Mage::helper('tag')->__('Popularity'),
-            'width'     => '140px',
-            'align'     => 'right',
-            'index'     => 'popularity',
-            'type'      => 'number',
-        ));
         // Collection for stores filters
         if (!$collection = Mage::registry('stores_select_collection')) {
             $collection =  Mage::app()->getStore()->getResourceCollection()
@@ -107,7 +92,7 @@ class Mage_Adminhtml_Block_Tag_Grid_Pending extends Mage_Adminhtml_Block_Widget_
 
         if (!Mage::app()->isSingleStoreMode()) {
             $this->addColumn('visible_in', array(
-                'header'    => Mage::helper('tag')->__('Visible In'),
+                'header'    => Mage::helper('tag')->__('Store View'),
                 'type'      => 'store',
                 'index'     => 'stores',
                 'sortable'  => false,

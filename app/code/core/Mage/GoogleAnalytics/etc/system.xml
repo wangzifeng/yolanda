@@ -54,7 +54,7 @@
                             <show_in_store>1</show_in_store>
                         </active>
                         <account translate="label">
-                            <label>Account number</label>
+                            <label>Account Number</label>
                             <frontend_type>text</frontend_type>
                             <sort_order>20</sort_order>
                             <show_in_default>1</show_in_default>

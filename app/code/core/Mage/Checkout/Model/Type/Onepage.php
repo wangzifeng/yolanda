@@ -148,7 +148,7 @@ class Mage_Checkout_Model_Type_Onepage
      *
      * @return string
      */
-    public function getCheckoutMehod()
+    public function getCheckoutMethod()
     {
         if ($this->getCustomerSession()->isLoggedIn()) {
             return self::METHOD_CUSTOMER;
@@ -164,6 +164,17 @@ class Mage_Checkout_Model_Type_Onepage
     }
 
     /**
+     * Get quote checkout method
+     *
+     * @deprecated since 1.4.0.1
+     * @return string
+     */
+    public function getCheckoutMehod()
+    {
+        return $this->getCheckoutMethod();
+    }
+
+    /**
      * Specify chceckout method
      *
      * @param   string $method
@@ -172,7 +183,7 @@ class Mage_Checkout_Model_Type_Onepage
     public function saveCheckoutMethod($method)
     {
         if (empty($method)) {
-            return array('error' => -1, 'message' => $this->_helper->__('Invalid data'));
+            return array('error' => -1, 'message' => $this->_helper->__('Invalid data.'));
         }
 
         $this->getQuote()->setCheckoutMethod($method)->save();
@@ -207,7 +218,7 @@ class Mage_Checkout_Model_Type_Onepage
     public function saveBilling($data, $customerAddressId)
     {
         if (empty($data)) {
-            return array('error' => -1, 'message' => $this->_helper->__('Invalid data'));
+            return array('error' => -1, 'message' => $this->_helper->__('Invalid data.'));
         }
 
         $address = $this->getQuote()->getBillingAddress();
@@ -356,7 +367,7 @@ class Mage_Checkout_Model_Type_Onepage
     public function saveShipping($data, $customerAddressId)
     {
         if (empty($data)) {
-            return array('error' => -1, 'message' => $this->_helper->__('Invalid data'));
+            return array('error' => -1, 'message' => $this->_helper->__('Invalid data.'));
         }
         $address = $this->getQuote()->getShippingAddress();
 
@@ -426,7 +437,7 @@ class Mage_Checkout_Model_Type_Onepage
     public function savePayment($data)
     {
         if (empty($data)) {
-            return array('error' => -1, 'message' => $this->_helper->__('Invalid data'));
+            return array('error' => -1, 'message' => $this->_helper->__('Invalid data.'));
         }
         if ($this->getQuote()->isVirtual()) {
             $this->getQuote()->getBillingAddress()->setPaymentMethod(isset($data['method']) ? $data['method'] : null);
@@ -552,10 +563,10 @@ class Mage_Checkout_Model_Type_Onepage
         if (isset($customerBilling) && !$customer->getDefaultBilling()) {
             $customerBilling->setIsDefaultBilling(true);
         }
-        if ($shipping && isset($customerBilling) && !$customer->getDefaultShipping() && $shipping->getSameAsBilling()) {
-            $customerBilling->setIsDefaultShipping(true);
-        } elseif ($shipping && isset($customerShipping) && !$customer->getDefaultShipping()) {
+        if ($shipping && isset($customerShipping) && !$customer->getDefaultShipping()) {
             $customerShipping->setIsDefaultShipping(true);
+        } elseif (isset($customerBilling) && !$customer->getDefaultShipping()) {
+            $customerBilling->setIsDefaultShipping(true);
         }
         $quote->setCustomer($customer);
     }
@@ -590,7 +601,7 @@ class Mage_Checkout_Model_Type_Onepage
     {
         $this->validate();
         $isNewCustomer = false;
-        switch ($this->getCheckoutMehod()) {
+        switch ($this->getCheckoutMethod()) {
             case self::METHOD_GUEST:
                 $this->_prepareGuestQuote();
                 break;
@@ -741,7 +752,7 @@ class Mage_Checkout_Model_Type_Onepage
 //        switch ($this->getQuote()->getCheckoutMethod()) {
 //        case Mage_Sales_Model_Quote::CHECKOUT_METHOD_GUEST:
 //            if (!$this->getQuote()->isAllowedGuestCheckout()) {
-//                Mage::throwException($this->_helper->__('Sorry, guest checkout is not enabled. Please try again or contact store owner.'));
+//                Mage::throwException($this->_helper->__('Sorry, guest checkout is not enabled. Please try again or contact the store owner.'));
 //            }
 //            $this->getQuote()->setCustomerId(null)
 //                ->setCustomerEmail($billing->getEmail())

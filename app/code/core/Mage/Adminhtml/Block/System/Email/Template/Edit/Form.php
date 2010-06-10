@@ -184,10 +184,6 @@ class Mage_Adminhtml_Block_System_Email_Template_Edit_Form extends Mage_Adminhtm
         if ($template->getId() && $templateVariables = $template->getVariablesOptionArray(true)) {
             $variables[] = $templateVariables;
         }
-//        array_unshift($variables, array(
-//            'value' => '',
-//            'label' => Mage::helper('adminhtml')->__('-- Please Select --')
-//        ));
         return $variables;
     }
 }

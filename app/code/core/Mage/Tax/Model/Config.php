@@ -108,6 +108,11 @@ class Mage_Tax_Model_Config
     protected $_needUseShippingExcludeTax = false;
 
     /**
+     * @var $_shippingPriceIncludeTax bool
+     */
+    protected $_shippingPriceIncludeTax = null;
+
+    /**
      * Check if product prices inputed include tax
      *
      * @param   mix $store
@@ -268,9 +273,21 @@ class Mage_Tax_Model_Config
      */
     public function shippingPriceIncludesTax($store = null)
     {
-        return (bool) Mage::getStoreConfig(self::CONFIG_XML_PATH_SHIPPING_INCLUDES_TAX, $store);
+        if ($this->_shippingPriceIncludeTax === null) {
+            $this->_shippingPriceIncludeTax = (bool) Mage::getStoreConfig(self::CONFIG_XML_PATH_SHIPPING_INCLUDES_TAX, $store);
+        }
+        return $this->_shippingPriceIncludeTax;
     }
 
+    /**
+     * Declare shipping prices type
+     * @param bool $flag
+     */
+    public function setShippingPriceIncludeTax($flag)
+    {
+        $this->_shippingPriceIncludeTax = $flag;
+        return $this;
+    }
 
 
     /**

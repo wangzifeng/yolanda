@@ -132,6 +132,9 @@
                 <adminhtml>
                     <file>main.xml</file>
                 </adminhtml>
+                <report>
+                    <file>report.xml</file>
+                </report>
                 <catalog>
                     <file>catalog.xml</file>
                 </catalog>

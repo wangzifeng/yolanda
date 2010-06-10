@@ -115,6 +115,18 @@ class Mage_Wishlist_Model_Wishlist extends Mage_Core_Model_Abstract
     }
 
     /**
+     * Set date of last update for wishlist
+     *
+     * @return Mage_Wishlist_Model_Wishlist
+     */
+    protected function _beforeSave()
+    {
+        parent::_beforeSave();
+        $this->setUpdatedAt(Mage::getSingleton('core/date')->gmtDate());
+        return $this;
+    }
+
+    /**
      * Retrieve wishlist item collection
      *
      * @return Mage_Wishlist_Model_Mysql4_Item_Collection

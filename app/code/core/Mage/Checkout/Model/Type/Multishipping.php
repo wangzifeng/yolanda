@@ -243,10 +243,17 @@ class Mage_Checkout_Model_Type_Multishipping extends Mage_Checkout_Model_Type_Ab
                 if (!$_item->getProduct()->getIsVirtual()) {
                     continue;
                 }
-                if (isset($itemData[$_item->getId()]['qty']) && ($qty = (int)$itemData[$_item->getId()]['qty'])) {
-                    $_item->setQty($qty);
-                }
-                $quote->getBillingAddress()->addItem($_item);
+
+                if (isset($itemData[$_item->getId()]['qty'])) {
+                    if ($qty = (int)$itemData[$_item->getId()]['qty']) {
+                        $_item->setQty($qty);
+                        $quote->getBillingAddress()->addItem($_item);
+                    } else {
+                        $_item->setQty(0);
+                        $_item->delete();
+                    }
+                 }
+
             }
 
             $this->save();

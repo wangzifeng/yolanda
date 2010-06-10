@@ -89,6 +89,30 @@ class Mage_Sales_Model_Mysql4_Quote extends Mage_Sales_Model_Mysql4_Abstract
         return $this;
     }
 
+    /**
+     * Load only active quote
+     *
+     * @param Mage_Sales_Model_Quote $quote
+     * @param int $quoteId
+     */
+    public function loadActive($quote, $quoteId)
+    {
+        $read = $this->_getReadAdapter();
+        if ($read) {
+            $select = $this->_getLoadSelect('entity_id', $quoteId, $quote)
+                ->where('is_active=1');
+
+            $data = $read->fetchRow($select);
+
+            if ($data) {
+                $quote->setData($data);
+            }
+        }
+
+        $this->_afterLoad($quote);
+        return $this;
+    }
+
     public function getReservedOrderId($quote)
     {
         return Mage::getSingleton('eav/config')->getEntityType('order')->fetchNewIncrementId($quote->getStoreId());

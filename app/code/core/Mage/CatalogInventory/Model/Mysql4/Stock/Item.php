@@ -101,4 +101,25 @@ class Mage_CatalogInventory_Model_Mysql4_Stock_Item extends Mage_Core_Model_Mysq
             null, 'left');
         return $this;
     }
+
+    /**
+     * Use qty correction for qty column update
+     *
+     * @param Varien_Object $object
+     * @param string $table
+     * @return array
+     */
+    protected function _prepareDataForTable(Varien_Object $object, $table)
+    {
+        $data = parent::_prepareDataForTable($object, $table);
+        if ($object->getQtyCorrection()) {
+            if ($object->getQtyCorrection() < 0) {
+                $data['qty'] = new Zend_Db_Expr('`qty`-'.abs($object->getQtyCorrection()));
+            } else {
+                $data['qty'] = new Zend_Db_Expr('`qty`+'.$object->getQtyCorrection());
+            }
+        }
+        return $data;
+    }
+
 }

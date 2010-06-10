@@ -44,11 +44,18 @@ class Mage_Sales_Model_Service_Quote
     protected $_convertor;
 
     /**
-     * List of additional order attributes which will beadded to order befire save
+     * List of additional order attributes which will be added to order before save
      *
      * @var array
      */
     protected $_orderData = array();
+
+    /**
+     * List of recurring payment profiles that may have been generated before placing the order
+     *
+     * @var array
+     */
+    protected $_recurringPaymentProfiles = array();
 
     /**
      * Class constructor
@@ -146,7 +153,14 @@ class Mage_Sales_Model_Service_Quote
          */
         Mage::dispatchEvent('checkout_type_onepage_save_order', array('order'=>$order, 'quote'=>$quote));
         Mage::dispatchEvent('sales_model_service_quote_submit_before', array('order'=>$order, 'quote'=>$quote));
-        $transaction->save();
+        try {
+            $transaction->save();
+            Mage::dispatchEvent('sales_model_service_quote_submit_success', array('order'=>$order, 'quote'=>$quote));
+            $this->_submitRecurringProfiles($order);
+        } catch (Exception $e) {
+            Mage::dispatchEvent('sales_model_service_quote_submit_failure', array('order'=>$order, 'quote'=>$quote));
+            throw $e;
+        }
         Mage::dispatchEvent('sales_model_service_quote_submit_after', array('order'=>$order, 'quote'=>$quote));
         return $order;
     }
@@ -170,7 +184,7 @@ class Mage_Sales_Model_Service_Quote
             $method= $address->getShippingMethod();
             $rate  = $address->getShippingRateByCode($method);
             if (!$this->getQuote()->isVirtual() && (!$method || !$rate)) {
-                Mage::throwException($helper->__('Please specify shipping method.'));
+                Mage::throwException($helper->__('Please specify a shipping method.'));
             }
         }
 
@@ -182,8 +196,69 @@ class Mage_Sales_Model_Service_Quote
         }
 
         if (!($this->getQuote()->getPayment()->getMethod())) {
-            Mage::throwException($helper->__('Please select valid payment method.'));
+            Mage::throwException($helper->__('Please select a valid payment method.'));
         }
+
+        $this->_prepareRecurringPaymentProfiles();
         return $this;
+    }
+
+    /**
+     * Request recurring profiles from the quote and attempt to validate them
+     *
+     * @throws Mage_Core_Exception
+     */
+    protected function _prepareRecurringPaymentProfiles()
+    {
+        $this->_recurringPaymentProfiles = $this->_quote->prepareRecurringPaymentProfiles();
+        if ($this->_recurringPaymentProfiles) {
+            foreach ($this->_recurringPaymentProfiles as $profile) {
+                if (!$profile->isValid()) {
+                    Mage::throwException($profile->getValidationErrors(true, true));
+                }
+            }
+        }
+    }
+
+    /**
+     * Submit prepared recurring profiles
+     * Profiles and recurring order items correspond each other in a severe sequence
+     *
+     * @param Mage_Sales_Model_Order $order
+     * @throws Mage_Core_Exception
+     */
+    protected function _submitRecurringProfiles(Mage_Sales_Model_Order $order)
+    {
+        if (!$this->_recurringPaymentProfiles) {
+            return;
+        }
+        try {
+            // shift a payment profile instance for each recurring order item
+            foreach ($order->getAllVisibleItems() as $item) {
+                if ($item->getIsRecurring() == '1') {
+                    $profile = array_shift($this->_recurringPaymentProfiles);
+                    if ($profile) {
+                        $profile->submit($item);
+                    } else {
+                        // no translation intentionally
+                        throw new Exception(sprintf('No recurring profile matched for item "%s" in order #%s.',
+                            $item->getSku(), $order->getIncrementId()
+                        ));
+                    }
+                }
+            }
+            if ($this->_recurringPaymentProfiles) {
+                // no translation intentionally
+                throw new Exception(sprintf('Order #%s was placed with redundant recurring payment profiles.',
+                    $order->getIncrementId()
+                ));
+            }
+        } catch (Exception $e) {
+            if ($order->isNominal()) {
+                throw $e;
+            } else {
+                Mage::logException($e);
+            }
+        }
     }
 }

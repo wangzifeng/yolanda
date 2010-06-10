@@ -42,7 +42,7 @@ class Mage_Bundle_Block_Adminhtml_Catalog_Product_Edit_Tab_Bundle_Option_Search 
 
     public function getHeaderText()
     {
-        return Mage::helper('bundle')->__('Please select products to add');
+        return Mage::helper('bundle')->__('Please Select Products to Add');
     }
 
     protected function _prepareLayout()

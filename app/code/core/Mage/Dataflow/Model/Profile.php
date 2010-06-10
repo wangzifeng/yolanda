@@ -82,7 +82,7 @@ class Mage_Dataflow_Model_Profile extends Mage_Core_Model_Abstract
         }
 
         if ($this->_getResource()->isProfileExists($this->getName(), $this->getId())) {
-            Mage::throwException(Mage::helper("dataflow")->__("Profile with such name already exists."));
+            Mage::throwException(Mage::helper("dataflow")->__("Profile with the same name already exists."));
         }
     }
 

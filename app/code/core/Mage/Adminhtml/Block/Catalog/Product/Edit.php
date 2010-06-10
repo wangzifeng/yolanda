@@ -96,7 +96,7 @@ class Mage_Adminhtml_Block_Catalog_Product_Edit extends Mage_Adminhtml_Block_Wid
                 $this->setChild('save_and_edit_button',
                     $this->getLayout()->createBlock('adminhtml/widget_button')
                         ->setData(array(
-                            'label'     => Mage::helper('catalog')->__('Save And Continue Edit'),
+                            'label'     => Mage::helper('catalog')->__('Save and Continue Edit'),
                             'onclick'   => 'saveAndContinueEdit(\''.$this->getSaveAndContinueUrl().'\')',
                             'class' => 'save'
                         ))

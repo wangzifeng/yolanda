@@ -29,6 +29,9 @@ class Mage_Sales_Model_Order_Address extends Mage_Customer_Model_Address_Abstrac
 {
     protected $_order;
 
+    protected $_eventPrefix = 'sales_order_address';
+    protected $_eventObject = 'address';
+
     protected function _construct()
     {
         $this->_init('sales/order_address');
@@ -43,5 +46,21 @@ class Mage_Sales_Model_Order_Address extends Mage_Customer_Model_Address_Abstrac
     public function getOrder()
     {
         return $this->_order;
+    }
+
+    /**
+     * Before object save manipulations
+     *
+     * @return Mage_Sales_Model_Order_Address
+     */
+    protected function _beforeSave()
+    {
+        parent::_beforeSave();
+
+        if (!$this->getParentId() && $this->getOrder()) {
+            $this->setParentId($this->getOrder()->getId());
+        }
+
+        return $this;
     }
 }

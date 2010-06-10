@@ -66,7 +66,7 @@ class Mage_Adminhtml_Block_Customer_Edit_Tab_Newsletter extends Mage_Adminhtml_B
         if($changedDate = $this->getStatusChangedDate()) {
              $fieldset->addField('change_status_date', 'label',
                  array(
-                        'label' => $subscriber->isSubscribed() ? Mage::helper('customer')->__('Last date subscribed') : Mage::helper('customer')->__('Last date unsubscribed'),
+                        'label' => $subscriber->isSubscribed() ? Mage::helper('customer')->__('Last Date Subscribed') : Mage::helper('customer')->__('Last Date Unsubscribed'),
                         'value' => $changedDate,
                         'bold'  => true
                  )

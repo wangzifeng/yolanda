@@ -164,19 +164,27 @@ class Mage_Adminhtml_Block_Promo_Quote_Edit_Tab_Main
             'values'    => $customerGroups,
         ));
 
-        $fieldset->addField('coupon_code', 'text', array(
-            'name' => 'coupon_code',
-            'label' => Mage::helper('salesrule')->__('Coupon code'),
+        $couponTypeFiled = $fieldset->addField('coupon_type', 'select', array(
+            'name'       => 'coupon_type',
+            'label'      => Mage::helper('salesrule')->__('Coupon'),
+            'required'   => true,
+            'options'    => Mage::getModel('salesrule/rule')->getCouponTypes(),
         ));
 
-        $fieldset->addField('uses_per_coupon', 'text', array(
+        $couponCodeFiled = $fieldset->addField('coupon_code', 'text', array(
+            'name' => 'coupon_code',
+            'label' => Mage::helper('salesrule')->__('Coupon Code'),
+            'required' => true,
+        ));
+
+        $usesPerCouponFiled = $fieldset->addField('uses_per_coupon', 'text', array(
             'name' => 'uses_per_coupon',
-            'label' => Mage::helper('salesrule')->__('Uses per coupon'),
+            'label' => Mage::helper('salesrule')->__('Uses per Coupon'),
         ));
 
         $fieldset->addField('uses_per_customer', 'text', array(
             'name' => 'uses_per_customer',
-            'label' => Mage::helper('salesrule')->__('Uses per customer'),
+            'label' => Mage::helper('salesrule')->__('Uses per Customer'),
         ));
 
         $dateFormatIso = Mage::app()->getLocale()->getDateFormat(Mage_Core_Model_Locale::FORMAT_TYPE_SHORT);
@@ -228,6 +236,23 @@ class Mage_Adminhtml_Block_Promo_Quote_Edit_Tab_Main
         //$form->setUseContainer(true);
 
         $this->setForm($form);
+
+        // field dependencies
+        $this->setChild('form_after', $this->getLayout()->createBlock('adminhtml/widget_form_element_dependence')
+            ->addFieldMap($couponTypeFiled->getHtmlId(), $couponTypeFiled->getName())
+            ->addFieldMap($couponCodeFiled->getHtmlId(), $couponCodeFiled->getName())
+            ->addFieldMap($usesPerCouponFiled->getHtmlId(), $usesPerCouponFiled->getName())
+            ->addFieldDependence(
+                $couponCodeFiled->getName(),
+                $couponTypeFiled->getName(),
+                Mage_SalesRule_Model_Rule::COUPON_TYPE_SPECIFIC)
+            ->addFieldDependence(
+                $usesPerCouponFiled->getName(),
+                $couponTypeFiled->getName(),
+                Mage_SalesRule_Model_Rule::COUPON_TYPE_SPECIFIC)
+        );
+
+        Mage::dispatchEvent('adminhtml_promo_quote_edit_tab_main_prepare_form', array('form' => $form));
 
         return parent::_prepareForm();
     }

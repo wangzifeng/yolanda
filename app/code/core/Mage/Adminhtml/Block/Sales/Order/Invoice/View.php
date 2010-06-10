@@ -77,7 +77,7 @@ class Mage_Adminhtml_Block_Sales_Order_Invoice_View extends Mage_Adminhtml_Block
             {
                 $this->_addButton('capture', array( // capture?
                     'label'     => Mage::helper('sales')->__('Credit Memo...'),
-                    'class'     => 'save',
+                    'class'     => 'go',
                     'onclick'   => 'setLocation(\''.$this->getCreditMemoUrl().'\')'
                     )
                 );
@@ -125,23 +125,12 @@ class Mage_Adminhtml_Block_Sales_Order_Invoice_View extends Mage_Adminhtml_Block
     public function getHeaderText()
     {
         if ($this->getInvoice()->getEmailSent()) {
-            $emailSent = Mage::helper('sales')->__('Invoice email sent');
+            $emailSent = Mage::helper('sales')->__('the invoice email was sent');
         }
         else {
-            $emailSent = Mage::helper('sales')->__('Invoice email not sent');
+            $emailSent = Mage::helper('sales')->__('the invoice email is not sent');
         }
-
-        $header = Mage::helper('sales')->__('Invoice #%s | %s (%s)',
-            $this->getInvoice()->getIncrementId(),
-            $this->getInvoice()->getStateName(),
-            $emailSent
-        );
-        /*$header = Mage::helper('sales')->__('Invoice #%s | Order Date: %s | Customer Name: %s',
-            $this->getInvoice()->getIncrementId(),
-            $this->formatDate($this->getInvoice()->getOrder()->getCreatedAt(), 'medium', true),
-            $this->getInvoice()->getOrder()->getCustomerName()
-        );*/
-        return $header;
+        return Mage::helper('sales')->__('Invoice #%1$s | %2$s | %4$s (%3$s)', $this->getInvoice()->getIncrementId(), $this->getInvoice()->getStateName(), $emailSent, $this->formatDate($this->getInvoice()->getCreatedAtDate(), 'medium', true));
     }
 
     public function getBackUrl()
@@ -195,6 +184,9 @@ class Mage_Adminhtml_Block_Sales_Order_Invoice_View extends Mage_Adminhtml_Block
     public function updateBackButtonUrl($flag)
     {
         if ($flag) {
+            if ($this->getInvoice()->getBackUrl()) {
+                return $this->_updateButton('back', 'onclick', 'setLocation(\'' . $this->getInvoice()->getBackUrl() . '\')');
+            }
             return $this->_updateButton('back', 'onclick', 'setLocation(\'' . $this->getUrl('*/sales_invoice/') . '\')');
         }
         return $this;

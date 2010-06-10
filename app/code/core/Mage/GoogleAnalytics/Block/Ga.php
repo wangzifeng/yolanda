@@ -177,6 +177,7 @@ class Mage_GoogleAnalytics_Block_Ga extends Mage_Core_Block_Text
         (document.getElementsByTagName(\'head\')[0] || document.getElementsByTagName(\'body\')[0]).appendChild(ga);
     })();
 
+    var _gaq = _gaq || [];
     _gaq.push(["_setAccount", "' . $this->getAccount() . '"]);
     _gaq.push(["_trackPageview", "'.$this->getPageName().'"]);
 //]]>

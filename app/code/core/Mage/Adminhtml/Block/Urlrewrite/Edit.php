@@ -106,7 +106,7 @@ class Mage_Adminhtml_Block_Urlrewrite_Edit extends Mage_Adminhtml_Block_Widget_C
                 $this->setChild('categories_tree', $this->getLayout()->createBlock('adminhtml/urlrewrite_category_tree'));
                 $this->setChild('skip_categories',
                     $this->getLayout()->createBlock('adminhtml/widget_button')->setData(array(
-                        'label'   => Mage::helper('adminhtml')->__('Skip category selection'),
+                        'label'   => Mage::helper('adminhtml')->__('Skip Category Selection'),
                         'onclick' => 'window.location = \'' . Mage::helper('adminhtml')->getUrl('*/*/*', array(
                             'product' => $this->getProductId()
                         )) . '\'',

@@ -30,7 +30,7 @@ class Mage_SalesRule_Model_Rule_Action_Product extends Mage_Rule_Model_Action_Ab
     public function loadAttributeOptions()
     {
         $this->setAttributeOption(array(
-            'rule_price'=>Mage::helper('salesrule')->__('Special price'),
+            'rule_price'=>Mage::helper('salesrule')->__('Special Price'),
         ));
         return $this;
     }

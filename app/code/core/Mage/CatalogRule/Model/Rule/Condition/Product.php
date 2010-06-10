@@ -50,7 +50,7 @@ class Mage_CatalogRule_Model_Rule_Condition_Product extends Mage_Rule_Model_Cond
      *
      * @var string
      */
-    protected $_isUsedForRuleProperty = 'is_used_for_price_rules';
+    protected $_isUsedForRuleProperty = 'is_used_for_promo_rules';
 
     /**
      * Retrieve attribute object

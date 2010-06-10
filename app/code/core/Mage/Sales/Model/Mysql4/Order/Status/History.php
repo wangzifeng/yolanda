@@ -25,23 +25,15 @@
  */
 
 /**
- * Order status history entity resource model
+ * Flat sales order status history resource
  *
- * @category   Mage
- * @package    Mage_Sales
- * @author      Magento Core Team <core@magentocommerce.com>
  */
-
-class Mage_Sales_Model_Mysql4_Order_Status_History extends Mage_Eav_Model_Entity_Abstract
+class Mage_Sales_Model_Mysql4_Order_Status_History extends Mage_Sales_Model_Mysql4_Order_Abstract
 {
+    protected $_eventPrefix = 'sales_order_status_history_resource';
 
-    public function __construct()
+    protected function _construct()
     {
-        $resource = Mage::getSingleton('core/resource');
-        $this->setType('order_status_history')->setConnection(
-            $resource->getConnection('sales_read'),
-            $resource->getConnection('sales_write')
-        );
+        $this->_init('sales/order_status_history', 'entity_id');
     }
-
 }

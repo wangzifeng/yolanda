@@ -46,7 +46,7 @@ class Mage_Adminhtml_Block_Report_Tag_Customer_Detail_Grid extends Mage_Adminhtm
             ->getEntityCollection()
             ->joinAttribute('original_name', 'catalog_product/name', 'entity_id')
             ->addCustomerFilter($this->getRequest()->getParam('id'))
-            ->addStatusFilter(Mage::getModel('tag/tag')->getApprovedStatus())
+            ->addStatusFilter(Mage_Tag_Model_Tag::STATUS_APPROVED)
             ->setDescOrder('DESC')
             ->addStoresVisibility()
             ->setActiveFilter()

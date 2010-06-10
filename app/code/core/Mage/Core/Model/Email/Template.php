@@ -281,10 +281,10 @@ class Mage_Core_Model_Email_Template extends Mage_Core_Model_Abstract
             ->setVariables($variables);
 
         $this->_applyDesignConfig();
-        try{
+        try {
             $processedResult = $processor->filter($this->getPreparedTemplateText());
         }
-        catch ( Exception $e)   {
+        catch (Exception $e)   {
             $this->_cancelDesignConfig();
             throw $e;
         }
@@ -466,7 +466,7 @@ class Mage_Core_Model_Email_Template extends Mage_Core_Model_Abstract
         try{
             $processedResult = $processor->filter($this->getTemplateSubject());
         }
-        catch ( Exception $e)   {
+        catch (Exception $e) {
             $this->_cancelDesignConfig();
             throw $e;
         }
@@ -638,7 +638,7 @@ class Mage_Core_Model_Email_Template extends Mage_Core_Model_Abstract
     {
         $code = $this->getTemplateCode();
         if (empty($code)) {
-            Mage::throwException(Mage::helper('core')->__('Template Name must be not empty'));
+            Mage::throwException(Mage::helper('core')->__('The template Name must not be empty.'));
         }
         if($this->_getResource()->checkCodeUsage($this)) {
             Mage::throwException(Mage::helper('core')->__('Duplicate Of Template Name'));

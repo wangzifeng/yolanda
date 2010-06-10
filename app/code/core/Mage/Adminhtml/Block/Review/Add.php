@@ -53,6 +53,7 @@ class Mage_Adminhtml_Block_Review_Add extends Mage_Adminhtml_Block_Widget_Form_C
         ';
 
         $this->_formInitScripts[] = '
+            //<![CDATA[
             var review = function() {
                 return {
                     productInfoUrl : null,
@@ -111,6 +112,7 @@ class Mage_Adminhtml_Block_Review_Add extends Mage_Adminhtml_Block_Widget_Form_C
                      Event.observe($("select_stores"), \'change\', review.updateRating);
                  }
            });
+           //]]>
         ';
     }
 

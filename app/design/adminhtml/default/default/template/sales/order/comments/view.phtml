@@ -54,7 +54,7 @@
             <?php endif; ?>
             </strong></small>
             <br/>
-            <?php echo $_comment->getComment() ?>
+            <?php echo $this->escapeHtml($_comment->getComment(), array('b','br','strong','i','u')) ?>
         </li>
     <?php endforeach; ?>
     </ul>

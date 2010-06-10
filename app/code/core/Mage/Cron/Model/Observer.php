@@ -74,11 +74,11 @@ class Mage_Cron_Model_Observer
             }
             try {
                 $errorStatus = Mage_Cron_Model_Schedule::STATUS_ERROR;
-                $errorMessage = Mage::helper('cron')->__('Unknown error');
+                $errorMessage = Mage::helper('cron')->__('Unknown error.');
 
                 if ($time < $now - $scheduleLifetime) {
                     $errorStatus = Mage_Cron_Model_Schedule::STATUS_MISSED;
-                    Mage::throwException(Mage::helper('cron')->__('Too late for the schedule'));
+                    Mage::throwException(Mage::helper('cron')->__('Too late for the schedule.'));
                 }
 
                 if ($runConfig->model) {
@@ -109,7 +109,7 @@ class Mage_Cron_Model_Observer
 
             } catch (Exception $e) {
                 $schedule->setStatus($errorStatus)
-                    ->setMessages($e->getMessage());
+                    ->setMessages($e->__toString());
             }
             $schedule->save();
         }

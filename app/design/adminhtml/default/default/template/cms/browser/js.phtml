@@ -34,5 +34,6 @@
 <script type="text/javascript">
 //<![CDATA[
 MediabrowserInstance = new Mediabrowser(<?php echo $this->getFilebrowserSetupObject() ?>);
+MediabrowserInstance.storeId = '<?php echo $this->getStoreId() ?>';
 //]]>
 </script>

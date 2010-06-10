@@ -40,4 +40,11 @@
     <p class="note-msg">
         <?php echo $this->__('There are no %s available.', $this->getItemsTitle()); ?>
     </p>
+    <script type="text/javascript">
+    //<![CDATA[
+        if ($('sitemap_top_links') != undefined) {
+            $('sitemap_top_links').hide();
+        }
+    //]]>
+    </script>
 <?php endif ?>

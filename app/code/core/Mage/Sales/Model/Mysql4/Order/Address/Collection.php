@@ -25,25 +25,16 @@
  */
 
 /**
- * Order address collection
+ * Flat sales order payment collection
  *
- * @category   Mage
- * @package    Mage_Sales
- * @author      Magento Core Team <core@magentocommerce.com>
  */
-
-class Mage_Sales_Model_Mysql4_Order_Address_Collection extends Mage_Eav_Model_Entity_Collection_Abstract
+class Mage_Sales_Model_Mysql4_Order_Address_Collection extends Mage_Sales_Model_Mysql4_Order_Collection_Abstract
 {
+    protected $_eventPrefix = 'sales_order_address_collection';
+    protected $_eventObject = 'order_address_collection';
 
     protected function _construct()
     {
         $this->_init('sales/order_address');
     }
-
-    public function setOrderFilter($orderId)
-    {
-        $this->addAttributeToFilter('parent_id', $orderId);
-        return $this;
-    }
-
 }

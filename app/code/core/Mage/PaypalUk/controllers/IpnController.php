@@ -34,14 +34,14 @@ class Mage_PaypalUk_IpnController extends Mage_Paypal_Controller_Ipn_Abstract
      *
      * @var string
      */
-    protected $_configType = 'paypaluk/config';
+    protected $_configType = 'paypal/config';
 
     /**
      * Process IPN for PayPal Express
      */
     public function expressAction()
     {
-        return $this->_ipnAction(Mage_PaypalUk_Model_Config::METHOD_WPP_PE_EXPRESS);
+        return $this->_ipnAction(Mage_Paypal_Model_Config::METHOD_WPP_PE_EXPRESS);
     }
 
     /**
@@ -49,6 +49,6 @@ class Mage_PaypalUk_IpnController extends Mage_Paypal_Controller_Ipn_Abstract
      */
     public function directAction()
     {
-        return $this->_ipnAction(Mage_PaypalUk_Model_Config::METHOD_WPP_PE_DIRECT);
+        return $this->_ipnAction(Mage_Paypal_Model_Config::METHOD_WPP_PE_DIRECT);
     }
 }

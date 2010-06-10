@@ -219,7 +219,7 @@ class Mage_Sales_OrderController extends Mage_Core_Controller_Front_Action
                 $this->_redirect('*/*/history');
             } catch (Exception $e) {
                 Mage::getSingleton('checkout/session')->addException($e,
-                    Mage::helper('checkout')->__('Can not add item to shopping cart')
+                    Mage::helper('checkout')->__('Cannot add the item to shopping cart.')
                 );
                 $this->_redirect('checkout/cart');
             }

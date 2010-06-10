@@ -157,10 +157,10 @@ abstract class Mage_Core_Block_Abstract extends Varien_Object
      */
     public function getRequest()
     {
-        if ($controller = Mage::app()->getFrontController()) {
+        $controller = Mage::app()->getFrontController();
+        if ($controller) {
             $this->_request = $controller->getRequest();
-        }
-        else {
+        } else {
             throw new Exception(Mage::helper('core')->__("Can't retrieve request object"));
         }
         return $this->_request;
@@ -235,6 +235,10 @@ abstract class Mage_Core_Block_Abstract extends Varien_Object
         return $this->_layout;
     }
 
+    /**
+     * Check if block is using auto generated (Anonymous) name
+     * @return bool
+     */
     public function getIsAnonymous()
     {
         return $this->_isAnonymous;
@@ -277,9 +281,8 @@ abstract class Mage_Core_Block_Abstract extends Varien_Object
     public function setNameInLayout($name)
     {
         if (!empty($this->_nameInLayout) && $this->getLayout()) {
-            $this->getLayout()
-            ->unsetBlock($this->_nameInLayout)
-            ->setBlock($name, $this);
+            $this->getLayout()->unsetBlock($this->_nameInLayout)
+                ->setBlock($name, $this);
         }
         $this->_nameInLayout = $name;
         return $this;
@@ -316,14 +319,11 @@ abstract class Mage_Core_Block_Abstract extends Varien_Object
         if (is_string($block)) {
             $block = $this->getLayout()->getBlock($block);
         }
-        /**
-         * @see self::insert()
-         */
         if (!$block) {
             return $this;
         }
-        if ($block->getIsAnonymous()) {
 
+        if ($block->getIsAnonymous()) {
             $suffix = $block->getAnonSuffix();
             if (empty($suffix)) {
                 $suffix = 'child'.sizeof($this->_children);
@@ -331,9 +331,8 @@ abstract class Mage_Core_Block_Abstract extends Varien_Object
             $blockName = $this->getNameInLayout().'.'.$suffix;
 
             if ($this->getLayout()) {
-                $this->getLayout()
-                ->unsetBlock($block->getNameInLayout())
-                ->setBlock($blockName, $block);
+                $this->getLayout()->unsetBlock($block->getNameInLayout())
+                    ->setBlock($blockName, $block);
             }
 
             $block->setNameInLayout($blockName);
@@ -346,9 +345,7 @@ abstract class Mage_Core_Block_Abstract extends Varien_Object
 
         $block->setParentBlock($this);
         $block->setBlockAlias($alias);
-
         $this->_children[$alias] = $block;
-
         return $this;
     }
 
@@ -583,8 +580,7 @@ abstract class Mage_Core_Block_Abstract extends Varien_Object
         if (''===$siblingName) {
             if ($after) {
                 array_push($this->_sortedChildren, $name);
-            }
-            else {
+            } else {
                 array_unshift($this->_sortedChildren, $name);
             }
         } else {
@@ -597,8 +593,7 @@ abstract class Mage_Core_Block_Abstract extends Varien_Object
             } else {
                 if ($after) {
                     array_push($this->_sortedChildren, $name);
-                }
-                else {
+                } else {
                     array_unshift($this->_sortedChildren, $name);
                 }
             }
@@ -658,12 +653,11 @@ abstract class Mage_Core_Block_Abstract extends Varien_Object
     final public function toHtml()
     {
         Mage::dispatchEvent('core_block_abstract_to_html_before', array('block' => $this));
-
         if (Mage::getStoreConfig('advanced/modules_disable_output/'.$this->getModuleName())) {
             return '';
         }
-
-        if (!($html = $this->_loadCache())) {
+        $html = $this->_loadCache();
+        if (!$html) {
             $translate = Mage::getSingleton('core/translate');
             /* @var $translate Mage_Core_Model_Translate */
             if ($this->hasData('translate_inline')) {
@@ -886,6 +880,121 @@ abstract class Mage_Core_Block_Abstract extends Varien_Object
     }
 
     /**
+     * @deprecated after 1.4.0.0-rc1
+     * @see self::escapeHtml()
+     */
+    public function htmlEscape($data, $allowedTags = null)
+    {
+        return $this->escapeHtml($data, $allowedTags);
+    }
+
+    /**
+     * Escape html entities
+     *
+     * @param   mixed $data
+     * @param   array $allowedTags
+     * @return  string
+     */
+    public function escapeHtml($data, $allowedTags = null)
+    {
+        return $this->helper('core')->escapeHtml($data, $allowedTags);
+    }
+
+    /**
+     * Wrapper for standart strip_tags() function with extra functionality for html entities
+     *
+     * @param string $data
+     * @param string $allowableTags
+     * @param bool $allowHtmlEntities
+     * @return string
+     */
+    public function stripTags($data, $allowableTags = null, $allowHtmlEntities = false)
+    {
+        return $this->helper('core')->stripTags($data, $allowableTags, $allowHtmlEntities);
+    }
+
+    /**
+     * @deprecated after 1.4.0.0-rc1
+     * @see self::escapeUrl()
+     */
+    public function urlEscape($data)
+    {
+        return $this->escapeUrl($data);
+    }
+
+    /**
+     * Escape html entities in url
+     *
+     * @param string $data
+     * @return string
+     */
+    public function escapeUrl($data)
+    {
+        return $this->helper('core')->escapeUrl($data);
+    }
+
+    /**
+     * Escape quotes in java scripts
+     *
+     * @param mixed $data
+     * @param string $quote
+     * @return mixed
+     */
+    public function jsQuoteEscape($data, $quote = '\'')
+    {
+        return $this->helper('core')->jsQuoteEscape($data, $quote);
+    }
+
+    /**
+     * Alias for getName method.
+     *
+     * @return string
+     */
+    public function getNameInLayout()
+    {
+        return $this->_nameInLayout;
+    }
+
+    /**
+     * Get chilren blocks count
+     * @return int
+     */
+    public function countChildren()
+    {
+        return count($this->_children);
+    }
+
+    /**
+     * Prepare url for save to cache
+     *
+     * @return Mage_Core_Block_Abstract
+     */
+    protected function _beforeCacheUrl()
+    {
+        if (Mage::app()->useCache(self::CACHE_GROUP)) {
+            Mage::app()->setUseSessionVar(true);
+        }
+        return $this;
+    }
+
+    /**
+     * Replace URLs from cache
+     *
+     * @param string $html
+     * @return string
+     */
+    protected function _afterCacheUrl($html)
+    {
+        if (Mage::app()->useCache(self::CACHE_GROUP)) {
+            Mage::app()->setUseSessionVar(false);
+            Varien_Profiler::start('CACHE_URL');
+            $html = Mage::getSingleton('core/url')->sessionUrlVar($html);
+            Varien_Profiler::stop('CACHE_URL');
+        }
+        return $html;
+    }
+
+    /**
      * Get Key for caching block content
      *
      * @return string
@@ -928,9 +1037,9 @@ abstract class Mage_Core_Block_Abstract extends Varien_Object
     }
 
     /**
-     * Enter description here...
+     * Load block html from cache storage
      *
-     * @return unknown
+     * @return string | false
      */
     protected function _loadCache()
     {
@@ -941,9 +1050,9 @@ abstract class Mage_Core_Block_Abstract extends Varien_Object
     }
 
     /**
-     * Enter description here...
+     * Save block content to cache storage
      *
-     * @param unknown_type $data
+     * @param string $data
      * @return Mage_Core_Block_Abstract
      */
     protected function _saveCache($data)
@@ -953,94 +1062,5 @@ abstract class Mage_Core_Block_Abstract extends Varien_Object
         }
         Mage::app()->saveCache($data, $this->getCacheKey(), $this->getCacheTags(), $this->getCacheLifetime());
         return $this;
-    }
-
-    /**
-     * @deprecated after 1.4.0.0-rc1
-     * @see self::escapeHtml()
-     */
-    public function htmlEscape($data, $allowedTags = null)
-    {
-        return $this->escapeHtml($data, $allowedTags);
-    }
-
-    /**
-     * Escape html entities
-     *
-     * @param   mixed $data
-     * @param   array $allowedTags
-     * @return  string
-     */
-    public function escapeHtml($data, $allowedTags = null)
-    {
-        return $this->helper('core')->htmlEscape($data, $allowedTags);
-    }
-
-    /**
-     * Escape html entities in url
-     *
-     * @param string $data
-     * @return string
-     */
-    public function urlEscape($data)
-    {
-        return $this->helper('core')->urlEscape($data);
-    }
-
-    /**
-     * Escape quotes in java scripts
-     *
-     * @param mixed $data
-     * @param string $quote
-     * @return mixed
-     */
-    public function jsQuoteEscape($data, $quote = '\'')
-    {
-        return $this->helper('core')->jsQuoteEscape($data, $quote);
-    }
-
-    /**
-     * Alias for getName method.
-     *
-     * @return string
-     */
-    public function getNameInLayout()
-    {
-        return $this->_nameInLayout;
-    }
-
-    public function countChildren()
-    {
-        return count($this->_children);
-    }
-
-    /**
-     * Prepare url for save to cache
-     *
-     * @return Mage_Core_Block_Abstract
-     */
-    protected function _beforeCacheUrl()
-    {
-        if (Mage::app()->useCache(self::CACHE_GROUP)) {
-            Mage::app()->setUseSessionVar(true);
-        }
-        return $this;
-    }
-
-    /**
-     * Replace URLs from cache
-     *
-     * @param string $html
-     * @return string
-     */
-    protected function _afterCacheUrl($html)
-    {
-        if (Mage::app()->useCache(self::CACHE_GROUP)) {
-            Mage::app()->setUseSessionVar(false);
-            Varien_Profiler::start('CACHE_URL');
-            $html = Mage::getSingleton('core/url')->sessionUrlVar($html);
-            Varien_Profiler::stop('CACHE_URL');
-        }
-        return $html;
     }
 }

@@ -57,7 +57,13 @@ class Mage_Sales_Model_Mysql4_Quote_Address_Item_Collection extends Mage_Core_Mo
 
     public function setAddressFilter($addressId)
     {
-        $this->addFieldToFilter('quote_address_id', $addressId);
+        if ($addressId) {
+            $this->addFieldToFilter('quote_address_id', $addressId);
+        } else {
+            $this->_totalRecords = 0;
+            $this->_setIsLoaded(true);
+        }
+
         return $this;
     }
 }

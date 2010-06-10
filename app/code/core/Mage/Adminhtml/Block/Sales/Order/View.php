@@ -50,20 +50,20 @@ class Mage_Adminhtml_Block_Sales_Order_View extends Mage_Adminhtml_Block_Widget_
 
         if ($this->_isAllowedAction('edit') && $order->canEdit()) {
             $onclickJs = 'deleteConfirm(\''
-                . Mage::helper('sales')->__('Are you sure? This order will be cancelled and a new one will be created instead')
+                . Mage::helper('sales')->__('Are you sure? This order will be canceled and a new one will be created instead')
                 . '\', \'' . $this->getEditUrl() . '\');';
             $this->_addButton('order_edit', array(
                 'label'    => Mage::helper('sales')->__('Edit'),
                 'onclick'  => $onclickJs,
             ));
             // see if order has non-editable products as items
-            $nonEditableTypes = array_keys(Mage::getResourceSingleton('sales/order')->aggregateProductsByTypes(
+            $nonEditableTypes = array_keys($this->getOrder()->getResource()->aggregateProductsByTypes(
                 $order->getId(), array_keys(Mage::getConfig()->getNode('adminhtml/sales/order/create/available_product_types')->asArray()), false
             ));
             if ($nonEditableTypes) {
                 $this->_updateButton('order_edit', 'onclick',
                     'if (!confirm(\'' .
-                    Mage::helper('sales')->__('This order contains (%s) items and therefore cannot be edited through the admin interface at this time, if you wish to continue editing the (%s) items will be removed, the order will be cancelled and a new order will be placed', implode(', ', $nonEditableTypes), implode(', ', $nonEditableTypes)) . '\')) return false;' . $onclickJs
+                    Mage::helper('sales')->__('This order contains (%s) items and therefore cannot be edited through the admin interface at this time, if you wish to continue editing the (%s) items will be removed, the order will be canceled and a new order will be placed.', implode(', ', $nonEditableTypes), implode(', ', $nonEditableTypes)) . '\')) return false;' . $onclickJs
                 );
             }
         }
@@ -86,8 +86,9 @@ class Mage_Adminhtml_Block_Sales_Order_View extends Mage_Adminhtml_Block_Widget_
 
         if ($this->_isAllowedAction('creditmemo') && $order->canCreditmemo()) {
             $this->_addButton('order_creditmemo', array(
-                'label'     => Mage::helper('sales')->__('Credit Memo...'),
+                'label'     => Mage::helper('sales')->__('Credit Memo'),
                 'onclick'   => 'setLocation(\'' . $this->getCreditmemoUrl() . '\')',
+                'class'     => 'go'
             ));
         }
 
@@ -114,28 +115,45 @@ class Mage_Adminhtml_Block_Sales_Order_View extends Mage_Adminhtml_Block_Widget_
             ));
         }
 
+        if ($this->_isAllowedAction('accept_payment') && $order->canPaymentReview()) {
+            $this->_addButton('accept_payment', array(
+                'label'     => Mage::helper('sales')->__('Accept Payment'),
+                'onclick'   => 'setLocation(\'' . $this->getAcceptPaymentUrl() . '\')',
+            ));
+        }
+
+        if ($this->_isAllowedAction('deny_payment') && $order->canPaymentReview()) {
+            $this->_addButton('deny_payment', array(
+                'label'     => Mage::helper('sales')->__('Deny Payment'),
+                'onclick'   => 'setLocation(\'' . $this->getDenyPaymentUrl() . '\')',
+            ));
+        }
+
         if ($this->_isAllowedAction('invoice') && $order->canInvoice()) {
             $_label = $order->getForcedDoShipmentWithInvoice() ?
-                Mage::helper('sales')->__('Invoice and Ship...') :
-                Mage::helper('sales')->__('Invoice...');
+                Mage::helper('sales')->__('Invoice and Ship') :
+                Mage::helper('sales')->__('Invoice');
             $this->_addButton('order_invoice', array(
                 'label'     => $_label,
                 'onclick'   => 'setLocation(\'' . $this->getInvoiceUrl() . '\')',
+                'class'     => 'go'
             ));
         }
 
         if ($this->_isAllowedAction('ship') && $order->canShip()
             && !$order->getForcedDoShipmentWithInvoice()) {
             $this->_addButton('order_ship', array(
-                'label'     => Mage::helper('sales')->__('Ship...'),
+                'label'     => Mage::helper('sales')->__('Ship'),
                 'onclick'   => 'setLocation(\'' . $this->getShipUrl() . '\')',
+                'class'     => 'go'
             ));
         }
 
         if ($this->_isAllowedAction('reorder') && $order->canReorder()) {
             $this->_addButton('order_reorder', array(
-                'label'     => Mage::helper('sales')->__('Reorder...'),
+                'label'     => Mage::helper('sales')->__('Reorder'),
                 'onclick'   => 'setLocation(\'' . $this->getReorderUrl() . '\')',
+                'class'     => 'go'
             ));
         }
     }
@@ -167,12 +185,7 @@ class Mage_Adminhtml_Block_Sales_Order_View extends Mage_Adminhtml_Block_Widget_
         } else {
             $_extOrderId = '';
         }
-        $text = Mage::helper('sales')->__('Order # %s %s| Order Date %s',
-            $this->getOrder()->getRealOrderId(),
-            $_extOrderId,
-            $this->formatDate($this->getOrder()->getCreatedAtDate(), 'medium', true)
-        );
-        return $text;
+        return Mage::helper('sales')->__('Order # %s %s | %s', $this->getOrder()->getRealOrderId(), $_extOrderId, $this->formatDate($this->getOrder()->getCreatedAtDate(), 'medium', true));
     }
 
     public function getUrl($params='', $params2=array())
@@ -242,5 +255,39 @@ class Mage_Adminhtml_Block_Sales_Order_View extends Mage_Adminhtml_Block_Widget_
     protected function _isAllowedAction($action)
     {
         return Mage::getSingleton('admin/session')->isAllowed('sales/order/actions/' . $action);
+    }
+
+    /**
+     * Return back url for view grid
+     *
+     * @return string
+     */
+    public function getBackUrl()
+    {
+        if ($this->getOrder()->getBackUrl()) {
+            return $this->getOrder()->getBackUrl();
+        }
+
+        return $this->getUrl('*/*/');
+    }
+
+    /**
+     * Return URL for accept payment action
+     *
+     * @return string
+     */
+    public function getAcceptPaymentUrl()
+    {
+        return $this->getUrl('*/*/acceptPayment');
+    }
+
+    /**
+     * Return URL for deny payment action
+     *
+     * @return string
+     */
+    public function getDenyPaymentUrl()
+    {
+        return $this->getUrl('*/*/denyPayment');
     }
 }

@@ -76,7 +76,7 @@ class Mage_Adminhtml_Model_System_Config_Backend_Locale extends Mage_Core_Model_
                             break;
                     }
 
-                    $exceptions[] = Mage::helper('adminhtml')->__('Currency "%s" is used as %s in %s',
+                    $exceptions[] = Mage::helper('adminhtml')->__('Currency "%s" is used as %s in %s.',
                         $currencyName,
                         $fieldName,
                         $scopeName

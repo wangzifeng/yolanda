@@ -42,6 +42,13 @@ class Mage_Core_Model_Resource_Setup
     protected $_moduleConfig;
 
     /**
+     * Call afterApplyAllUpdates method flag
+     *
+     * @var boolean
+     */
+    protected $_callAfterApplyAllUpdates = false;
+
+    /**
      * Setup Connection
      *
      * @var Varien_Db_Adapter_Pdo_Mysql
@@ -141,6 +148,7 @@ class Mage_Core_Model_Resource_Setup
         self::$_hadUpdates = false;
 
         $resources = Mage::getConfig()->getNode('global/resources')->children();
+        $afterApplyUpdates = array();
         foreach ($resources as $resName=>$resource) {
             if (!$resource->setup) {
                 continue;
@@ -151,7 +159,15 @@ class Mage_Core_Model_Resource_Setup
             }
             $setupClass = new $className($resName);
             $setupClass->applyUpdates();
+            if ($setupClass->getCallAfterApplyAllUpdates()) {
+                $afterApplyUpdates[] = $setupClass;
+            }
         }
+
+        foreach ($afterApplyUpdates as $setupClass) {
+            $setupClass->afterApplyAllUpdates();
+        }
+
         Mage::app()->setUpdateMode(false);
         self::$_schemaUpdatesChecked = true;
         return true;
@@ -629,6 +645,27 @@ SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO';
 SET SQL_MODE=IFNULL(@OLD_SQL_MODE,'');
 SET FOREIGN_KEY_CHECKS=IF(@OLD_FOREIGN_KEY_CHECKS=0, 0, 1);
 ");
+        return $this;
+    }
+
+    /**
+     * Check call afterApplyAllUpdates method for setup class
+     *
+     * @return boolean
+     */
+    public function getCallAfterApplyAllUpdates()
+    {
+        return $this->_callAfterApplyAllUpdates;
+    }
+
+    /**
+     * Run each time after applying of all updates,
+     * if setup model setted  $_callAfterApplyAllUpdates flag to true
+     *
+     * @return Mage_Core_Model_Resource_Setup
+     */
+    public function afterApplyAllUpdates()
+    {
         return $this;
     }
 }

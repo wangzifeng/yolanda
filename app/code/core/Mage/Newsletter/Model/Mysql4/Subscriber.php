@@ -168,7 +168,7 @@ class Mage_Newsletter_Model_Mysql4_Subscriber extends Mage_Core_Model_Mysql4_Abs
         }
         catch (Exception $e) {
             $this->_write->rollBack();
-            Mage::throwException(Mage::helper('newsletter')->__('Cannot mark as received subscriber'));
+            Mage::throwException(Mage::helper('newsletter')->__('Cannot mark as received subscriber.'));
         }
         return $this;
     }

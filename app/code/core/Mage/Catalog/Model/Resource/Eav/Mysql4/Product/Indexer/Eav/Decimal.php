@@ -127,5 +127,18 @@ class Mage_Catalog_Model_Resource_Eav_Mysql4_Product_Indexer_Eav_Decimal
 
         return $adapter->fetchCol($select);
     }
+
+    /**
+     * Retrieve temporary decimal index table name
+     *
+     * @return string
+     */
+    public function getIdxTable($table = null)
+    {
+        if ($this->useIdxTable()) {
+            return $this->getTable('catalog/product_eav_decimal_indexer_idx');
+        }
+        return $this->getTable('catalog/product_eav_decimal_indexer_tmp');
+    }
 }
 

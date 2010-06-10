@@ -134,3 +134,4 @@ varienEvents.prototype = {
 };
 
 varienGlobalEvents = new varienEvents();
+

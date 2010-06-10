@@ -148,6 +148,9 @@ class Mage_Core_Model_App_Area
 
     protected function _initDesign()
     {
+        if (Mage::app()->getRequest()->isStraight()) {
+            return $this;
+        }
         $designPackage = Mage::getSingleton('core/design_package');
         if ($designPackage->getArea() != self::AREA_FRONTEND)
             return;

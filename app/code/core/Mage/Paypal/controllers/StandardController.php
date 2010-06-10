@@ -83,6 +83,7 @@ class Mage_Paypal_StandardController extends Mage_Core_Controller_Front_Action
         $session->setPaypalStandardQuoteId($session->getQuoteId());
         $this->getResponse()->setBody($this->getLayout()->createBlock('paypal/standard_redirect')->toHtml());
         $session->unsQuoteId();
+        $session->unsRedirectUrl();
     }
 
     /**

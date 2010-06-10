@@ -70,7 +70,7 @@ $numColumns = sizeof($this->getColumns());
                 </div>
 
                 <div class="f-left">
-                    <?php echo $this->__('Show by') ?>:
+                    <?php echo $this->__('Show By') ?>:
                     <select name="report_period" id="report_period" style="width:6em;">
                     <?php foreach ($this->getPeriods() as $_value=>$_label): ?>
                         <option value="<?php echo $_value ?>" <?php if($this->getFilter('report_period')==$_value): ?> selected<?php endif; ?>><?php echo $_label ?></option>

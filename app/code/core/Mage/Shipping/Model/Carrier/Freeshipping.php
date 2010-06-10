@@ -38,6 +38,7 @@ class Mage_Shipping_Model_Carrier_Freeshipping
 {
 
     protected $_code = 'freeshipping';
+    protected $_isFixed = true;
 
     /**
      * FreeShipping Rates Collector

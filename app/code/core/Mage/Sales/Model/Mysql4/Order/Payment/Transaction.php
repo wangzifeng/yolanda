@@ -27,8 +27,17 @@
 /**
  * Sales transaction resource model
  */
-class Mage_Sales_Model_Mysql4_Order_Payment_Transaction extends Mage_Core_Model_Mysql4_Abstract
+class Mage_Sales_Model_Mysql4_Order_Payment_Transaction extends Mage_Sales_Model_Mysql4_Order_Abstract
 {
+    /**
+     * Serializeable field: additional_information
+     *
+     * @var array
+     */
+    protected $_serializableFields = array(
+        'additional_information' => array(null, array())
+    );
+
     /**
      * Initialize main table and the primary key field name
      */
@@ -85,6 +94,21 @@ class Mage_Sales_Model_Mysql4_Order_Payment_Transaction extends Mage_Core_Model_
     }
 
     /**
+     * Retrieve order website id
+     *
+     * @param int $orderId
+     * @return string
+     */
+    public function getOrderWebsiteId($orderId)
+    {
+        $select = $this->_getReadAdapter()->select()
+            ->from(array('so' => $this->getTable('sales/order')), 'cs.website_id')
+            ->joinInner(array('cs' => $this->getTable('core/store')), 'cs.store_id = so.store_id')
+            ->where('so.entity_id = ?', $orderId);
+        return $this->_getReadAdapter()->fetchOne($select);
+    }
+
+    /**
      * Lookup for parent_id in already saved transactions of this payment by the order_id
      * Also serialize additional information, if any
      *
@@ -102,7 +126,7 @@ class Mage_Sales_Model_Mysql4_Order_Payment_Transaction extends Mage_Core_Model_
 
         if ($parentTxnId) {
             if (!$txnId || !$orderId || !$paymentId) {
-                Mage::throwException(Mage::helper('sales')->__('Not enough valid data to save parent transaction ID.'));
+                Mage::throwException(Mage::helper('sales')->__('Not enough valid data to save the parent transaction ID.'));
             }
             $parentId = (int)$this->_lookupByTxnId($orderId, $paymentId, $parentTxnId, $idFieldName);
             if ($parentId) {
@@ -118,52 +142,7 @@ class Mage_Sales_Model_Mysql4_Order_Payment_Transaction extends Mage_Core_Model_
             }
         }
 
-        // serialize or set additional information to null
-        $additionalInformation = $transaction->getData('additional_information');
-        if (empty($additionalInformation)) {
-            $transaction->setData('additional_information', null);
-        } elseif (is_array($additionalInformation)) {
-            $transaction->setData('additional_information', serialize($additionalInformation));
-        }
         return parent::_beforeSave($transaction);
-    }
-
-    /**
-     * Unserialize additional data after loading the object
-     *
-     * @param Mage_Core_Model_Abstract $transaction
-     * @return Mage_Sales_Model_Mysql4_Order_Payment_Transaction
-     */
-    protected function _afterLoad(Mage_Core_Model_Abstract $transaction)
-    {
-        $this->unserializeFields($transaction);
-        return parent::_afterLoad($transaction);
-    }
-
-    /**
-     * Unserialize additional data after saving the object (to have the data and orig_data consistent)
-     *
-     * @param Mage_Core_Model_Abstract $transaction
-     * @return Mage_Sales_Model_Mysql4_Order_Payment_Transaction
-     */
-    protected function _afterSave(Mage_Core_Model_Abstract $transaction)
-    {
-        $this->unserializeFields($transaction);
-        return parent::_afterSave($transaction);
-    }
-
-    /**
-     * Unserialize additional information if required
-     * @param Mage_Sales_Model_Order_Payment_Transaction $transaction
-     */
-    public function unserializeFields(Mage_Sales_Model_Order_Payment_Transaction $transaction)
-    {
-        $additionalInformation = $transaction->getData('additional_information');
-        if (empty($additionalInformation)) {
-            $transaction->setData('additional_information', array());
-        } elseif (!is_array($additionalInformation)) {
-            $transaction->setData('additional_information', unserialize($additionalInformation));
-        }
     }
 
     /**

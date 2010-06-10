@@ -36,14 +36,30 @@
     </centinel_index_authenticationcomplete>
 
     <checkout_multishipping_overview>
+        <reference name="head">
+            <action method="addJs"><script>mage/centinel.js</script></action>
+        </reference>
         <reference name="checkout.multishipping.overview.items.after">
-            <block type="centinel/authentication" name="centinel.frame" template="centinel/authentication.phtml"/>
+            <block type="centinel/authentication" name="centinel.frame" template="centinel/authentication.phtml">
+                <action method="addRelatedBlock"><blockId>checkout-review-submit</blockId></action>
+                <action method="setAuthenticationStartMode"><mode>window</mode></action>
+            </block>
         </reference>
     </checkout_multishipping_overview>
 
     <checkout_onepage_savepayment>
         <reference name="checkout.onepage.review.info.items.before">
-            <block type="centinel/authentication" name="centinel.frame" template="centinel/authentication.phtml"/>
+            <block type="centinel/authentication" name="centinel.frame" template="centinel/authentication.phtml">
+                <action method="addRelatedBlock"><blockId>checkout-review-submit</blockId></action>
+                <action method="addRelatedBlock"><blockId>checkout-review-table-wrapper</blockId></action>
+                <action method="setAuthenticationStartMode"><mode>instant</mode></action>
+            </block>
         </reference>
     </checkout_onepage_savepayment>
+
+    <checkout_onepage_index>
+        <reference name="head">
+            <action method="addJs"><script>mage/centinel.js</script></action>
+        </reference>
+    </checkout_onepage_index>
 </layout>

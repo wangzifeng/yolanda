@@ -45,9 +45,6 @@ class Mage_Adminhtml_Block_Sales_Order_View_Messages extends Mage_Adminhtml_Bloc
          * Check customer existing
          */
         $customer = Mage::getModel('customer/customer')->load($this->_getOrder()->getCustomerId());
-        if (!$customer->getId()) {
-            //$this->addNotice(Mage::helper('sales')->__(' The customer doesn\'t exist in the system anymore'));
-        }
 
         /**
          * Check Item products existing
@@ -57,17 +54,6 @@ class Mage_Adminhtml_Block_Sales_Order_View_Messages extends Mage_Adminhtml_Bloc
             $productIds[] = $item->getProductId();
         }
 
-//        $productCollection = Mage::getModel('catalog/product')->getCollection()
-//            ->addIdFilter($productIds)
-//            ->load();
-//
-//        foreach ($this->_getOrder()->getAllItems() as $item) {
-//            if (!$productCollection->getItemById($item->getProductId())) {
-//                /*$this->addNotice(
-//                    Mage::helper('sales')->__('The item %s (SKU %s) doesn\'t exist in the catalog anymore', $item->getName(), $item->getSku())
-//                );*/
-//            }
-//        }
         return parent::_prepareLayout();
     }
 

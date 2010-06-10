@@ -28,7 +28,7 @@
 <config>
     <modules>
         <Mage_Downloadable>
-            <version>0.1.16</version>
+            <version>1.4.0.1</version>
         </Mage_Downloadable>
     </modules>
     <global>
@@ -94,6 +94,12 @@
                     <link_purchased_item>
                         <table>downloadable_link_purchased_item</table>
                     </link_purchased_item>
+                    <product_price_indexer_idx>
+                        <table>catalog_product_index_price_downlod_idx</table>
+                    </product_price_indexer_idx>
+                    <product_price_indexer_tmp>
+                        <table>catalog_product_index_price_downlod_tmp</table>
+                    </product_price_indexer_tmp>
                 </entities>
             </downloadable_mysql4>
         </models>

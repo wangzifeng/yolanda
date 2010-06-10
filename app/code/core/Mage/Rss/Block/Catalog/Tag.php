@@ -47,7 +47,7 @@ class Mage_Rss_Block_Catalog_Tag extends Mage_Rss_Block_Catalog_Abstract
         //store id is store view id
         $storeId = $this->_getStoreId();
         $tagModel = Mage::registry('tag_model');
-        $newurl = Mage::getUrl('rss/catalog/new');
+        $newurl = Mage::getUrl('rss/catalog/tag/tagName/' . $tagModel->getName());
         $title = Mage::helper('rss')->__('Products tagged with %s', $tagModel->getName());
         $lang = Mage::getStoreConfig('general/locale/code');
 

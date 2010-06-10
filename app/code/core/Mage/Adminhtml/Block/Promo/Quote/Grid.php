@@ -71,7 +71,7 @@ class Mage_Adminhtml_Block_Promo_Quote_Grid extends Mage_Adminhtml_Block_Widget_
             'header'    => Mage::helper('salesrule')->__('Coupon Code'),
             'align'     => 'left',
             'width'     => '150px',
-            'index'     => 'coupon_code',
+            'index'     => 'code',
         ));
 
         $this->addColumn('from_date', array(
@@ -102,7 +102,7 @@ class Mage_Adminhtml_Block_Promo_Quote_Grid extends Mage_Adminhtml_Block_Widget_
                 0 => 'Inactive',
             ),
         ));
-        
+
         $this->addColumn('sort_order', array(
             'header'    => Mage::helper('salesrule')->__('Priority'),
             'align'     => 'right',

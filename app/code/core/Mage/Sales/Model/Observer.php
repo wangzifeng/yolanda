@@ -130,7 +130,7 @@ class Mage_Sales_Model_Observer
         Mage::app()->getLocale()->emulate(0);
         $currentDate = Mage::app()->getLocale()->date();
         $date = $currentDate->subHour(25);
-        Mage::getResourceModel('sales/order')->aggregate($date);
+        Mage::getResourceModel('sales/report_order')->aggregate($date);
         Mage::app()->getLocale()->revert();
         return $this;
     }
@@ -181,6 +181,46 @@ class Mage_Sales_Model_Observer
         Mage::getResourceModel('sales/report_refunded')->aggregate($date);
         Mage::app()->getLocale()->revert();
         return $this;
+    }
+
+    /**
+     * Refresh bestsellers report statistics for last day
+     *
+     * @param Mage_Cron_Model_Schedule $schedule
+     * @return Mage_Sales_Model_Observer
+     */
+    public function aggregateSalesReportBestsellersData($schedule)
+    {
+        Mage::app()->getLocale()->emulate(0);
+        $currentDate = Mage::app()->getLocale()->date();
+        $date = $currentDate->subHour(25);
+        Mage::getResourceModel('sales/report_bestsellers')->aggregate($date);
+        Mage::app()->getLocale()->revert();
+        return $this;
+    }
+
+    /**
+     * Add the recurring profile form when editing a product
+     *
+     * @param Varien_Event_Observer $observer
+     */
+    public function prepareProductEditFormRecurringProfile($observer)
+    {
+        // replace the element of recurring payment profile field with a form
+        $profileElement = $observer->getEvent()->getProductElement();
+        $block = Mage::app()->getLayout()->createBlock('sales/adminhtml_recurring_profile_edit_form')
+            ->setParentElement($profileElement)
+            ->setProductEntity($observer->getEvent()->getProduct())
+        ;
+        $observer->getEvent()->getResult()->output = $block->toHtml();
+
+        // make the profile element dependent on is_recurring
+        $dependencies = Mage::app()->getLayout()->createBlock('adminhtml/widget_form_element_dependence')
+            ->addFieldMap('is_recurring', 'product[is_recurring]')
+            ->addFieldMap($profileElement->getHtmlId(), $profileElement->getName())
+            ->addFieldDependence($profileElement->getName(), 'product[is_recurring]', '1')
+            ->addConfigOptions(array('levels_up' => 2));
+        $observer->getEvent()->getResult()->output .= $dependencies->toHtml();
     }
 }
 

@@ -52,7 +52,7 @@ class Mage_SalesRule_Model_Quote_Discount extends Mage_Sales_Model_Quote_Address
         $quote = $address->getQuote();
         $store = Mage::app()->getStore($quote->getStoreId());
 
-        $items = $address->getAllItems();
+        $items = $this->_getAddressItems($address);
         if (!count($items)) {
             return $this;
         }

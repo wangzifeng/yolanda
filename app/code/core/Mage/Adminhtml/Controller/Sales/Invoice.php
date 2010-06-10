@@ -97,7 +97,7 @@ class Mage_Adminhtml_Controller_Sales_Invoice extends Mage_Adminhtml_Controller_
         if ($invoiceId = $this->getRequest()->getParam('invoice_id')) {
             if ($invoice = Mage::getModel('sales/order_invoice')->load($invoiceId)) {
                 $invoice->sendEmail();
-                $this->_getSession()->addSuccess(Mage::helper('sales')->__('Message was successfully sent'));
+                $this->_getSession()->addSuccess(Mage::helper('sales')->__('The message has been sent.'));
                 $this->_redirect('*/sales_invoice/view', array(
                     'order_id'  => $invoice->getOrder()->getId(),
                     'invoice_id'=> $invoiceId,

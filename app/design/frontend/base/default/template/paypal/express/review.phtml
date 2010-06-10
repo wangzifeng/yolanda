@@ -106,6 +106,9 @@
             <div class="box-title">
                 <h3><?php echo $this->__('Payment Method') ?> <span class="separator">|</span> <a href="<?php echo $this->getUrl($this->getPaypalActionPrefix().'/express/edit') ?>"><?php echo $this->__('Change Payment Method') ?></a></h3>
             </div>
+            <div class="box-content">
+                <?php echo $this->getPaymentMethodTitle() ?>
+            </div>
         </div>
     </div>
     <div class="col-2">

@@ -192,7 +192,7 @@ class Mage_Catalog_Model_Category extends Mage_Catalog_Model_Abstract
 
         if (!$parent->getId()) {
             Mage::throwException(
-                Mage::helper('catalog')->__('Category move operation is not possible: new parent category not found.')
+                Mage::helper('catalog')->__('Category move operation is not possible: the new parent category was not found.')
             );
         }
 

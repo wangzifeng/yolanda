@@ -49,14 +49,14 @@ class Mage_Catalog_Model_Product_Option_Type_Select extends Mage_Catalog_Model_P
 
         if (empty($value) && $option->getIsRequire() && !$this->getProduct()->getSkipCheckRequiredOption()) {
             $this->setIsValid(false);
-            Mage::throwException(Mage::helper('catalog')->__('Please specify the product required option(s)'));
+            Mage::throwException(Mage::helper('catalog')->__('Please specify the product required option(s).'));
         }
         if (!$this->_isSingleSelection()) {
             $valuesCollection = $option->getOptionValuesByOptionId($value, $this->getProduct()->getStoreId())
                 ->load();
             if ($valuesCollection->count() != count($value)) {
                 $this->setIsValid(false);
-                Mage::throwException(Mage::helper('catalog')->__('Please specify the product required option(s)'));
+                Mage::throwException(Mage::helper('catalog')->__('Please specify the product required option(s).'));
             }
         }
         return $this;
@@ -123,7 +123,7 @@ class Mage_Catalog_Model_Product_Option_Type_Select extends Mage_Catalog_Model_P
                         $this->getListener()
                                 ->setHasError(true)
                                 ->setMessage(
-                                    Mage::helper('catalog')->__('Some of the products below don\'t have all the required options. Please remove them and add again with all the required options.')
+                                    Mage::helper('catalog')->__('Some of the products below do not have all the required options. Please remove them and add again with all the required options.')
                                 );
                         $result = '';
                         break;
@@ -139,7 +139,7 @@ class Mage_Catalog_Model_Product_Option_Type_Select extends Mage_Catalog_Model_P
                     $this->getListener()
                             ->setHasError(true)
                             ->setMessage(
-                                Mage::helper('catalog')->__('Some of the products below don\'t have all the required options. Please remove them and add again with all the required options.')
+                                Mage::helper('catalog')->__('Some of the products below do not have all the required options. Please remove them and add again with all the required options.')
                             );
                 }
                 $result = '';
@@ -215,7 +215,7 @@ class Mage_Catalog_Model_Product_Option_Type_Select extends Mage_Catalog_Model_P
                         $this->getListener()
                                 ->setHasError(true)
                                 ->setMessage(
-                                    Mage::helper('catalog')->__('Some of the products below don\'t have all the required options. Please remove them and add again with all the required options.')
+                                    Mage::helper('catalog')->__('Some of the products below do not have all the required options. Please remove them and add again with all the required options.')
                                 );
                         break;
                     }
@@ -233,7 +233,7 @@ class Mage_Catalog_Model_Product_Option_Type_Select extends Mage_Catalog_Model_P
                     $this->getListener()
                             ->setHasError(true)
                             ->setMessage(
-                                Mage::helper('catalog')->__('Some of the products below don\'t have all the required options. Please remove them and add again with all the required options.')
+                                Mage::helper('catalog')->__('Some of the products below do not have all the required options. Please remove them and add again with all the required options.')
                             );
                 }
             }
@@ -263,7 +263,7 @@ class Mage_Catalog_Model_Product_Option_Type_Select extends Mage_Catalog_Model_P
                         $this->getListener()
                                 ->setHasError(true)
                                 ->setMessage(
-                                    Mage::helper('catalog')->__('Some of the products below don\'t have all the required options. Please remove them and add again with all the required options.')
+                                    Mage::helper('catalog')->__('Some of the products below do not have all the required options. Please remove them and add again with all the required options.')
                                 );
                         break;
                     }
@@ -278,7 +278,7 @@ class Mage_Catalog_Model_Product_Option_Type_Select extends Mage_Catalog_Model_P
                     $this->getListener()
                             ->setHasError(true)
                             ->setMessage(
-                                Mage::helper('catalog')->__('Some of the products below don\'t have all the required options. Please remove them and add again with all the required options.')
+                                Mage::helper('catalog')->__('Some of the products below do not have all the required options. Please remove them and add again with all the required options.')
                             );
                 }
                 return '';

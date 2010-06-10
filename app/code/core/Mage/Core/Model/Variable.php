@@ -117,7 +117,7 @@ class Mage_Core_Model_Variable extends Mage_Core_Model_Abstract
             }
             return true;
         }
-        return Mage::helper('core')->__('Validation failed.');
+        return Mage::helper('core')->__('Validation has failed.');
     }
 
     /**

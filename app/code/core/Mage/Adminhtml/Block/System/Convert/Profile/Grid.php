@@ -90,21 +90,6 @@ class Mage_Adminhtml_Block_System_Convert_Profile_Grid extends Mage_Adminhtml_Bl
             )
         ));
 
-//        $this->addColumn('action', array(
-//            'header'    =>Mage::helper('adminhtml')->__('Action'),
-//            'width'     =>'60px',
-//            'sortable'  =>false,
-//            'filter'    => false,
-//            'type' => 'action',
-//            'actions' => array(
-//                array(
-//                    'url' => $this->getUrl('*/*/run').'id/$profile_id',
-//                    'caption' => Mage::helper('adminhtml')->__('Run in popup'),
-//                    'target' => '_blank',
-//                ),
-//            )
-//        ));
-
         return parent::_prepareColumns();
     }
 

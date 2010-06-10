@@ -101,7 +101,7 @@ class Mage_Adminhtml_Block_Catalog_Search_Grid extends Mage_Adminhtml_Block_Widg
         ));
 
         $this->addColumn('synonym_for', array(
-            'header'    => Mage::helper('catalog')->__('Synonym for'),
+            'header'    => Mage::helper('catalog')->__('Synonym For'),
             'align'     => 'left',
             'index'     => 'synonym_for',
             'width'     => '160px'

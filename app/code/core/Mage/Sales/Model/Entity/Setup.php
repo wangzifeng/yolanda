@@ -438,6 +438,7 @@ class Mage_Sales_Model_Entity_Setup extends Mage_Eav_Model_Entity_Setup
                     'original_price'    => array('type'=>'decimal'),
                     'price'             => array('type'=>'decimal'),
                     'cost'              => array('type'=>'decimal'),
+                    'is_nominal'        => array('type'=>'int'),
 
                     'discount_percent'  => array('type'=>'decimal'),
                     'discount_amount'   => array('type'=>'decimal'),

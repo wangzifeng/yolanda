@@ -38,7 +38,7 @@ class Mage_Paypal_Helper_Data extends Mage_Core_Helper_Abstract
      * the items discount should go as separate cart line item with negative amount
      * the shipping_discount is outlined in PayPal API docs, but ignored for some reason. Hence commented out.
      *
-     * @param Mage_Sales_Model_Quote|Mage_Sales_Model_Order $salesEntity
+     * @param Mage_Sales_Model_Order $salesEntity
      * @return array (array of $items, array of totals, $discountTotal, $shippingTotal)
      */
     public function prepareLineItems(Mage_Core_Model_Abstract $salesEntity, $discountTotalAsItem = true, $shippingTotalAsItem = false)
@@ -58,6 +58,7 @@ class Mage_Paypal_Helper_Data extends Mage_Core_Helper_Abstract
                 'subtotal' => $salesEntity->getBaseSubtotal() - $discountAmount,
                 'tax'      => $salesEntity->getBaseTaxAmount(),
                 'shipping' => $salesEntity->getBaseShippingAmount(),
+                'discount' => $discountAmount,
 //                'shipping_discount' => -1 * abs($salesEntity->getBaseShippingDiscountAmount()),
             );
         } else {
@@ -72,6 +73,7 @@ class Mage_Paypal_Helper_Data extends Mage_Core_Helper_Abstract
 //                'shipping_discount' => -1 * abs($address->getBaseShippingDiscountAmount()),
             );
         }
+
         // discount total as line item (negative)
         if ($discountTotalAsItem && $discountAmount) {
             $items[] = new Varien_Object(array(
@@ -89,36 +91,86 @@ class Mage_Paypal_Helper_Data extends Mage_Core_Helper_Abstract
                 'amount' => (float)$totals['shipping'],
             ));
         }
+
+        $hiddenTax = (float) $salesEntity->getBaseHiddenTaxAmount();
+        if ($hiddenTax) {
+            $items[] = new Varien_Object(array(
+                'name'   => Mage::helper('paypal')->__('Discount Tax'),
+                'qty'    => 1,
+                'amount' => (float)$hiddenTax,
+            ));
+        }
+
         return array($items, $totals, $discountAmount, $totals['shipping']);
     }
 
     /**
-     * Compare order total amount with cart's items cost sum
+     * Get shipping options from shipping address
+     * if last parameter is true will added noRate if there are not other options
      *
-     * @param Mage_Sales_Model_Quote|Mage_Sales_Model_Order $salesEntity
-     * @param float $orderAmount
+     * @param Mage_Sales_Model_Quote_Address $address
+     * @param bool $_addNotChosenOption
+     * @return array
+     */
+    public function prepareShippingOptions($address, $_addNotChosenOption = false)
+    {
+        $options = array();
+
+        $i = 0;
+        foreach ($address->getGroupedAllShippingRates() as $_group) {
+            foreach ($_group as $_rate) {
+                $data = array(
+                    'is_default' => $address->getShippingMethod() === $_rate->getCode(),
+                    'name'       => $_rate->getCarrierTitle() . ' ' . $_rate->getMethodTitle(),
+                    'code'       => $_rate->getCode(),
+                    'amount'     => (float)$_rate->getPrice()
+                );
+                $options[$i] = new Varien_Object($data);
+                $i++;
+            }
+        }
+
+        if (empty($options)) {
+            $data = array(
+                'is_default' => true,
+                'name'       => 'N/A',
+                'code'       => 'no_rate',
+                'amount'     => 0.00,
+            );
+            $options[] = new Varien_Object($data);
+        }
+
+        return $options;
+    }
+
+    /**
+     * Check whether cart line items are eligible for exporting to PayPal API
+     *
+     * Requires data returned by self::prepareLineItems()
+     *
+     * @param array $items
+     * @param array $totals
+     * @param float $referenceAmount
      * @return bool
+     */
+    public function areCartLineItemsValid($items, $totals, $referenceAmount)
+    {
+        $sum = 0;
+        foreach ($items as $i) {
+            $sum = $sum + $i['qty'] * $i['amount'];
+        }
+        /**
+         * numbers are intentionally converted to strings because of possible comparison error
+         * see http://php.net/float
+         */
+        return sprintf('%.4F', ($sum + $totals['shipping'] + $totals['tax'])) == sprintf('%.4F', $referenceAmount);
+    }
+
+    /**
+     * @deprecated after 1.4.0.1
      */
     public function doLineItemsMatchAmount(Mage_Core_Model_Abstract $salesEntity, $orderAmount)
     {
-        $total = 0;
-        foreach ($salesEntity->getAllItems() as $item) {
-            if ($salesEntity instanceof Mage_Sales_Model_Order) {
-                $qty = $item->getQtyOrdered();
-                $amount = $item->getBasePrice();
-                $shipping = $salesEntity->getBaseShippingAmount();
-            } else {
-                $address = $salesEntity->getIsVirtual() ? $salesEntity->getBillingAddress() : $salesEntity->getShippingAddress();
-                $qty = $item->getTotalQty();
-                $amount = $item->getBaseCalculationPrice();
-                $shipping = $address->getBaseShippingAmount();
-            }
-            $total += (float)$amount*$qty;
-        }
-
-        if ($total == $orderAmount || $total+$shipping == $orderAmount) {
-            return true;
-        }
         return false;
     }
 
@@ -134,9 +186,10 @@ class Mage_Paypal_Helper_Data extends Mage_Core_Helper_Abstract
         if ($salesEntity instanceof Mage_Sales_Model_Order) {
             $qty = $item->getQtyOrdered();
             $amount = $item->getBasePrice();
+            // TODO: nominal item for order
         } else {
             $qty = $item->getTotalQty();
-            $amount = $item->getBaseCalculationPrice();
+            $amount = $item->isNominal() ? 0 : $item->getBaseCalculationPrice();
         }
         // workaround in case if item subtotal precision is not compatible with PayPal (.2)
         $subAggregatedLabel = '';

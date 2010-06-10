@@ -152,4 +152,32 @@ abstract class Mage_Reports_Model_Mysql4_Product_Index_Abstract extends Mage_Cor
         }
         return $this;
     }
+
+    /**
+     * Add information about product ids to visitor/customer
+     *
+     * @param $object
+     * @param $productIds
+     */
+    public function registerIds($object, $productIds)
+    {
+        $row = array(
+            'visitor_id'    => $object->getVisitorId(),
+            'customer_id'   => $object->getCustomerId(),
+            'store_id'      => $object->getStoreId(),
+            'added_at'      => now(),
+        );
+        $data = array();
+        foreach ($productIds as $productId) {
+            $productId = (int) $productId;
+            if ($productId) {
+                $row['product_id'] = $productId;
+                $data[] = $row;
+            }
+        }
+        if (!empty($data)) {
+            $this->_getWriteAdapter()->insertOnDuplicate($this->getMainTable(), $data, array('product_id'));
+        }
+        return $this;
+    }
 }

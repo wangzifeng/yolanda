@@ -89,14 +89,14 @@ class Mage_Eav_Model_Entity_Type extends Mage_Core_Model_Abstract
         if (is_null($setId)) {
             if (is_null($this->_attributes)) {
                 $this->_attributes = $this->_getAttributeCollection()
-                    ->setEntityTypeFilter($this->getId());
+                    ->setEntityTypeFilter($this);
             }
             $collection = $this->_attributes;
         }
         else {
             if (!isset($this->_attributesBySet[$setId])) {
                 $this->_attributesBySet[$setId] = $this->_getAttributeCollection()
-                    ->setEntityTypeFilter($this->getId())
+                    ->setEntityTypeFilter($this)
                     ->setAttributeSetFilter($setId);
             }
             $collection = $this->_attributesBySet[$setId];
@@ -152,7 +152,7 @@ class Mage_Eav_Model_Entity_Type extends Mage_Core_Model_Abstract
              * store_id null we can have for entity from removed store
              */
             $storeId = 0;
-            //throw Mage::exception('Mage_Eav', Mage::helper('eav')->__('Valid store_id is expected!'));
+            //throw Mage::exception('Mage_Eav', Mage::helper('eav')->__('Valid store_id is expected.'));
         }
 
         // Start transaction to run SELECT ... FOR UPDATE

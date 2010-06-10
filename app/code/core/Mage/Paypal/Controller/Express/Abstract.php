@@ -40,6 +40,11 @@ abstract class Mage_Paypal_Controller_Express_Abstract extends Mage_Core_Control
     protected $_config = null;
 
     /**
+     * @var Mage_Sales_Model_Quote
+     */
+    protected $_quote = false;
+
+    /**
      * Instantiate config
      */
     protected function _construct()
@@ -76,6 +81,24 @@ abstract class Mage_Paypal_Controller_Express_Abstract extends Mage_Core_Control
     }
 
     /**
+     * Return shipping options items for shipping address from request
+     */
+    public function callbackShippingOptionsAction()
+    {
+        try {
+            $quoteId = $this->getRequest()->getParam('quote_id');
+            $this->_quote = Mage::getModel('sales/quote')->load($quoteId);
+            $this->_initCheckout();
+            $response = $this->_checkout->getCallbackShippingoptionsResponse($this->getRequest()->getParams());
+            $this->getResponse()->setBody($response);
+            return;
+        }
+        catch (Exception $e) {
+            Mage::logException($e);
+        }
+    }
+
+    /**
      * Cancel Express Checkout
      */
     public function cancelAction()
@@ -92,11 +115,11 @@ abstract class Mage_Paypal_Controller_Express_Abstract extends Mage_Core_Control
                         ->unsLastSuccessQuoteId()
                         ->unsLastOrderId()
                         ->unsLastRealOrderId()
-                        ->addSuccess($this->__('Express Checkout and Order have been cancelled.'))
+                        ->addSuccess($this->__('Express Checkout and Order have been canceled.'))
                     ;
                 }
             } else {
-                $this->_getCheckoutSession()->addSuccess($this->__('Express Checkout has been cancelled.'));
+                $this->_getCheckoutSession()->addSuccess($this->__('Express Checkout has been canceled.'));
             }
         } catch (Mage_Core_Exception $e) {
             $this->_getCheckoutSession()->addError($e->getMessage());
@@ -310,6 +333,9 @@ abstract class Mage_Paypal_Controller_Express_Abstract extends Mage_Core_Control
      */
     private function _getQuote()
     {
-        return $this->_getCheckoutSession()->getQuote();
+        if (!$this->_quote) {
+            $this->_quote = $this->_getCheckoutSession()->getQuote();
+        }
+        return $this->_quote;
     }
 }

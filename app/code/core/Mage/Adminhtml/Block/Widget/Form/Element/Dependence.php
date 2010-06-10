@@ -51,6 +51,13 @@ class Mage_Adminhtml_Block_Widget_Form_Element_Dependence extends Mage_Adminhtml
     protected $_depends = array();
 
     /**
+     * Additional configuration options for the dependencies javascript controller
+     *
+     * @var array
+     */
+    protected $_configOptions = array();
+
+    /**
      * Add name => id mapping
      *
      * @param string $fieldId - element ID in DOM
@@ -83,6 +90,18 @@ class Mage_Adminhtml_Block_Widget_Form_Element_Dependence extends Mage_Adminhtml
     }
 
     /**
+     * Add misc configuration options to the javascript dependencies controller
+     *
+     * @param array $options
+     * @return Mage_Adminhtml_Block_Widget_Form_Element_Dependence
+     */
+    public function addConfigOptions(array $options)
+    {
+        $this->_configOptions = array_merge($this->_configOptions, $options);
+        return $this;
+    }
+
+    /**
      * HTML output getter
      * @return string
      */
@@ -92,7 +111,9 @@ class Mage_Adminhtml_Block_Widget_Form_Element_Dependence extends Mage_Adminhtml
             return '';
         }
         return '<script type="text/javascript"> new FormElementDependenceController('
-            . $this->_getDependsJson() . '); </script>';
+            . $this->_getDependsJson()
+            . ($this->_configOptions ? ', ' . Mage::helper('core')->jsonEncode($this->_configOptions) : '')
+            . '); </script>';
     }
 
     /**

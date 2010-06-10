@@ -37,7 +37,7 @@ class Mage_Adminhtml_Block_Report_Sales_Invoiced extends Mage_Adminhtml_Block_Wi
     public function __construct()
     {
         $this->_controller = 'report_sales_invoiced';
-        $this->_headerText = Mage::helper('reports')->__('Total Invoiced VS Paid Report');
+        $this->_headerText = Mage::helper('reports')->__('Total Invoiced vs. Paid Report');
         parent::__construct();
         $this->setTemplate('report/grid/container.phtml');
         $this->_removeButton('add');

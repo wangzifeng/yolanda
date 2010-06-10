@@ -48,7 +48,7 @@ class Mage_Tax_Model_Mysql4_Class extends Mage_Core_Model_Mysql4_Abstract
     {
         $this->_uniqueFields = array(array(
             'field' => array('class_type', 'class_name'),
-            'title' => Mage::helper('tax')->__('Error while saving this tax class. Class with the same name '),
+            'title' => Mage::helper('tax')->__('An error occurred while saving this tax class. A class with the same name already exists.'),
         ));
         return $this;
     }

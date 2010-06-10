@@ -40,6 +40,20 @@ abstract class Mage_Sales_Model_Abstract extends Mage_Core_Model_Abstract
     abstract public function getStore();
 
     /**
+     * Processing object after save data
+     * Updates relevant grid table records.
+     *
+     * @return Mage_Core_Model_Abstract
+     */
+    protected function _afterSave()
+    {
+        if (!$this->getForceUpdateGridRecords()) {
+            $this->_getResource()->updateGridRecords($this->getId());
+        }
+        return parent::_afterSave();
+    }
+
+    /**
      * Get object created at date affected current active store timezone
      *
      * @return Zend_Date

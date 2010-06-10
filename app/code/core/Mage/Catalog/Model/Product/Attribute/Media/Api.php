@@ -119,7 +119,7 @@ class Mage_Catalog_Model_Product_Attribute_Media_Api extends Mage_Catalog_Model_
         $gallery = $this->_getGalleryAttribute($product);
 
         if (!isset($data['file']) || !isset($data['file']['mime']) || !isset($data['file']['content'])) {
-            $this->_fault('data_invalid', Mage::helper('catalog')->__('Image not specified.'));
+            $this->_fault('data_invalid', Mage::helper('catalog')->__('The image is not specified.'));
         }
 
         if (!isset($this->_mimeTypes[$data['file']['mime']])) {
@@ -128,7 +128,7 @@ class Mage_Catalog_Model_Product_Attribute_Media_Api extends Mage_Catalog_Model_
 
         $fileContent = @base64_decode($data['file']['content'], true);
         if (!$fileContent) {
-            $this->_fault('data_invalid', Mage::helper('catalog')->__('Image content is not valid base64 data.'));
+            $this->_fault('data_invalid', Mage::helper('catalog')->__('The image contents is not valid base64 data.'));
         }
 
         unset($data['file']['content']);
@@ -172,7 +172,7 @@ class Mage_Catalog_Model_Product_Attribute_Media_Api extends Mage_Catalog_Model_
         } catch (Mage_Core_Exception $e) {
             $this->_fault('not_created', $e->getMessage());
         } catch (Exception $e) {
-            $this->_fault('not_created', Mage::helper('catalog')->__('Can\'t create image.'));
+            $this->_fault('not_created', Mage::helper('catalog')->__('Cannot create image.'));
         }
 
         return $gallery->getBackend()->getRenamedImage($file);

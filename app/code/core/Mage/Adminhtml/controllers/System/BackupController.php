@@ -79,10 +79,10 @@ class Mage_Adminhtml_System_BackupController extends Mage_Adminhtml_Controller_A
             Mage::register('backup_model', $backup);
 
             $backupDb->createBackup($backup);
-            $this->_getSession()->addSuccess(Mage::helper('adminhtml')->__('Backup successfully created'));
+            $this->_getSession()->addSuccess(Mage::helper('adminhtml')->__('The backup has been created.'));
         }
         catch (Exception  $e) {
-            $this->_getSession()->addException($e, Mage::helper('adminhtml')->__('Error while create backup. Please try again later'));
+            $this->_getSession()->addException($e, Mage::helper('adminhtml')->__('An error occurred while creating the backup.'));
         }
         $this->_redirect('*/*');
     }
@@ -126,7 +126,7 @@ class Mage_Adminhtml_System_BackupController extends Mage_Adminhtml_Controller_A
 
             Mage::register('backup_model', $backup);
 
-            $this->_getSession()->addSuccess(Mage::helper('adminhtml')->__('Backup record was deleted'));
+            $this->_getSession()->addSuccess(Mage::helper('adminhtml')->__('Backup record was deleted.'));
         }
         catch (Exception $e) {
                 // Nothing

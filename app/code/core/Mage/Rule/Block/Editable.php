@@ -45,7 +45,7 @@ class Mage_Rule_Block_Editable extends Mage_Core_Block_Abstract
 
             $html.= '<a href="javascript:void(0)" class="label">';
 
-            $html.= htmlspecialchars($valueName);
+            $html.= htmlspecialchars(Mage::helper('core/string')->truncate($valueName, 33, '...'));
 
             $html.= '</a><span class="element"> ';
 

@@ -30,7 +30,7 @@ class Mage_Adminhtml_Model_System_Config_Source_Dev_Dbautoup
         $hlp = Mage::helper('adminhtml');
         return array(
             array('value'=>Mage_Core_Model_Resource::AUTO_UPDATE_ALWAYS, 'label'=>$hlp->__('Always (during development)')),
-            array('value'=>Mage_Core_Model_Resource::AUTO_UPDATE_ONCE, 'label'=>$hlp->__('Only once (version upgrade)')),
+            array('value'=>Mage_Core_Model_Resource::AUTO_UPDATE_ONCE, 'label'=>$hlp->__('Only Once (version upgrade)')),
             array('value'=>Mage_Core_Model_Resource::AUTO_UPDATE_NEVER, 'label'=>$hlp->__('Never (production)')),
         );
     }

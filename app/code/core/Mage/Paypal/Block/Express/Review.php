@@ -182,4 +182,16 @@ class Mage_Paypal_Block_Express_Review extends Mage_Core_Block_Template
     {
         $this->_paypalActionPrefix = $prefix;
     }
+
+    /**
+     * Retrieve payment method and assign additional template values
+     *
+     * @return string
+     */
+    protected function _toHtml()
+    {
+        $methodInstance = $this->_quote->getPayment()->getMethodInstance();
+        $this->setPaymentMethodTitle($methodInstance->getTitle());
+        return parent::_toHtml();
+    }
 }

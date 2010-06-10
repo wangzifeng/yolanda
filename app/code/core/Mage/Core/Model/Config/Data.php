@@ -86,12 +86,25 @@ class Mage_Core_Model_Config_Data extends Mage_Core_Model_Abstract
         $storeCode   = $this->getStoreCode();
         $websiteCode = $this->getWebsiteCode();
         $path        = $this->getPath();
-        if ($websiteCode) {
-            return Mage::app()->getWebsite($websiteCode)->getConfig($path);
-        }
+
         if ($storeCode) {
             return Mage::app()->getStore($storeCode)->getConfig($path);
         }
+        if ($websiteCode) {
+            return Mage::app()->getWebsite($websiteCode)->getConfig($path);
+        }
         return (string) Mage::getConfig()->getNode('default/' . $path);
+    }
+    
+
+     /**
+     * Get value by key for new user data from <section>/groups/<group>/fields/<field>
+     * 
+     * @return string
+     */
+    public function getFieldsetDataValue($key)
+    {
+        $data = $this->_getData('fieldset_data');
+        return (is_array($data) && isset($data[$key])) ? $data[$key] : null;
     }
 }

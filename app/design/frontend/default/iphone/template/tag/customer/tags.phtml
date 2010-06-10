@@ -43,5 +43,5 @@
     <p><?php echo $this->__('You have not tagged any products yet.') ?></p>
 <?php endif; ?>
 <div class="button-set">
-    <a href="<?php echo $this->getBackUrl() ?>" class="left">&laquo; <?php echo $this->__('Back') ?></a>
+    <a href="<?php echo $this->escapeUrl($this->getBackUrl()) ?>" class="left">&laquo; <?php echo $this->__('Back') ?></a>
 </div>

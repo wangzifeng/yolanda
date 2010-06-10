@@ -139,7 +139,7 @@ class Mage_Tax_Model_Mysql4_Report_Updatedat_Collection extends Mage_Sales_Model
 
         $select = $this->getSelect()
             ->from(array('e' => $mainTable), $columns)
-            ->joinInner(array('tax'=> $this->getTable('sales/order_tax')), 'e.entity_id = tax.order_id', array());
+            ->joinInner(array('tax'=> $this->getTable('tax/sales_order_tax')), 'e.entity_id = tax.order_id', array());
 
         $this->_applyStoresFilter();
         $this->_applyOrderStatusFilter();

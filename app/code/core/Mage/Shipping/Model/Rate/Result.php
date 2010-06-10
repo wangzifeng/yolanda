@@ -56,6 +56,9 @@ class Mage_Shipping_Model_Rate_Result
      */
     public function append($result)
     {
+        if ($result instanceof Mage_Shipping_Model_Rate_Result_Error) {
+            $this->setError(true);
+        }
         if ($result instanceof Mage_Shipping_Model_Rate_Result_Abstract) {
             $this->_rates[] = $result;
         }

@@ -39,7 +39,8 @@ class Mage_CatalogSearch_Model_Layer extends Mage_Catalog_Model_Layer
             $collection = $this->_productCollections[$this->getCurrentCategory()->getId()];
         }
         else {
-            $collection = Mage::getResourceModel('catalogsearch/fulltext_collection');
+            $engine = Mage::helper('catalogsearch')->getEngine();
+            $collection = $engine->getResultCollection();
             $this->prepareProductCollection($collection);
             $this->_productCollections[$this->getCurrentCategory()->getId()] = $collection;
         }

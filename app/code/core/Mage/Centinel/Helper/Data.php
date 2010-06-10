@@ -140,10 +140,10 @@ class Mage_Centinel_Helper_Data extends Mage_Core_Helper_Abstract
     }
 
     /**
-     * Enter description here...
+     * Return centinel block for payment form with logos
      *
-     * @param unknown_type $method
-     * @return unknown
+     * @param Mage_Payment_Model_Method_Abstract $method
+     * @return Mage_Centinel_Block_Logo
      */
     public function getMethodFormBlock($method)
     {

@@ -134,7 +134,7 @@ class Mage_Bundle_Block_Catalog_Product_View_Type_Bundle extends Mage_Catalog_Bl
     public function getOptionHtml($option)
     {
         if (!isset($this->_optionRenderers[$option->getType()])) {
-            return $this->__('There is no defined renderer for "%s" option type', $option->getType());
+            return $this->__('There is no defined renderer for "%s" option type.', $option->getType());
         }
         return $this->getLayout()->createBlock($this->_optionRenderers[$option->getType()])
             ->setOption($option)->toHtml();

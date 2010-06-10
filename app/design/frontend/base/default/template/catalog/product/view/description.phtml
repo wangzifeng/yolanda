@@ -35,7 +35,7 @@
 <div class="box-collateral box-description">
     <h2><?php echo $this->__('Product Description') ?></h2>
     <div class="std">
-        <?php echo $this->helper('catalog/output')->productAttribute($this->getProduct(), nl2br($_description), 'description') ?>
+        <?php echo $this->helper('catalog/output')->productAttribute($this->getProduct(), $_description, 'description') ?>
     </div>
 </div>
 <?php endif; ?>

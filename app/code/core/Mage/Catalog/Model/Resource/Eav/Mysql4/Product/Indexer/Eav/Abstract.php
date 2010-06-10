@@ -42,8 +42,8 @@ abstract class Mage_Catalog_Model_Resource_Eav_Mysql4_Product_Indexer_Eav_Abstra
      */
     public function reindexAll()
     {
-        $this->cloneIndexTable(true);
-
+        $this->useIdxTable(true);
+        $this->clearTemporaryIndexTable();
         $this->_prepareIndex();
         $this->_prepareRelationIndex();
         $this->_removeNotVisibleEntityFromIndex();
@@ -63,7 +63,7 @@ abstract class Mage_Catalog_Model_Resource_Eav_Mysql4_Product_Indexer_Eav_Abstra
     {
         $adapter = $this->_getWriteAdapter();
 
-        $this->cloneIndexTable(true);
+        $this->clearTemporaryIndexTable();
 
         if (!is_array($processIds)) {
             $processIds = array($processIds);
@@ -113,7 +113,7 @@ abstract class Mage_Catalog_Model_Resource_Eav_Mysql4_Product_Indexer_Eav_Abstra
         if (!$isIndexable) {
             $this->_removeAttributeIndexData($attributeId);
         } else {
-            $this->cloneIndexTable(true);
+            $this->clearTemporaryIndexTable();
 
             $this->_prepareIndex(null, $attributeId);
             $this->_prepareRelationIndex();

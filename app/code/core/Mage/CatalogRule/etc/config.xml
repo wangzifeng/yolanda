@@ -28,7 +28,7 @@
 <config>
     <modules>
         <Mage_CatalogRule>
-            <version>0.7.8</version>
+            <version>0.7.10</version>
         </Mage_CatalogRule>
     </modules>
     <global>
@@ -70,6 +70,11 @@
                 </observers>
             </prepare_catalog_product_price_index_table>
         </events>
+        <catalogrule>
+            <related_cache_types>
+                <block_html/>
+            </related_cache_types>
+        </catalogrule>
     </global>
     <frontend>
         <events>

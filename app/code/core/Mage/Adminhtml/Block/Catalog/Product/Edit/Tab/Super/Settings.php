@@ -121,7 +121,7 @@ class Mage_Adminhtml_Block_Catalog_Product_Edit_Tab_Super_Settings extends Mage_
         }
         else {
             $fieldset->addField('note_text', 'note', array(
-                'text' => $this->__('This attribute set don\'t have attributes which we can use for configurable product')
+                'text' => $this->__('This attribute set does not have attributes which we can use for configurable product')
             ));
             $fieldset->addField('back_button', 'note', array(
                 'text' => $this->getChildHtml('back_button'),

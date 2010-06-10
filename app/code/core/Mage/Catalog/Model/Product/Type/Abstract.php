@@ -284,6 +284,7 @@ abstract class Mage_Catalog_Model_Product_Type_Abstract
         // try to add custom options
         try {
             $options = $this->_prepareOptionsForCart($buyRequest, $product);
+            $recurringProfileOptions = $this->_prepareRecurringProfileOptions($buyRequest, $product);
         } catch (Mage_Core_Exception $e) {
             return $e->getMessage();
         }
@@ -327,6 +328,10 @@ abstract class Mage_Catalog_Model_Product_Type_Abstract
                 $product->addCustomOption('option_'.$optionId, $optionValue);
             }
         }
+        if ($recurringProfileOptions) {
+            $product->addCustomOption('recurring_profile_options', serialize($recurringProfileOptions));
+        }
+
         // set quantity in cart
         $product->setCartQty($buyRequest->getQty());
 
@@ -340,7 +345,7 @@ abstract class Mage_Catalog_Model_Product_Type_Abstract
      */
     public function getSpecifyOptionMessage()
     {
-        return Mage::helper('catalog')->__('Please specify the product required option(s)');
+        return Mage::helper('catalog')->__('Please specify the product\'s required option(s).');
     }
 
     /**
@@ -370,6 +375,34 @@ abstract class Mage_Catalog_Model_Product_Type_Abstract
     }
 
     /**
+     * Validate and process options for recurring profile
+     *
+     * @param Varien_Object $buyRequest
+     * @param Mage_Catalog_Model_Product $product
+     * @return  array || string
+     */
+    protected function _prepareRecurringProfileOptions(Varien_Object $buyRequest, $product = null)
+    {
+        $options = array();
+        $startDate = $buyRequest->getData('recurring_start_date');
+        if ($startDate) {
+            $format = Mage::app()->getLocale()->getDateFormat(Mage_Core_Model_Locale::FORMAT_TYPE_SHORT);
+            $locale = Mage::app()->getLocale()->getLocaleCode();
+            if (Zend_Date::isDate($startDate, $format, $locale)) {
+                $date = new Zend_Date($startDate, $format, $locale);
+                $options['start_date'] = $date->toString(Varien_Date::DATETIME_INTERNAL_FORMAT);
+            } else {
+                Mage::throwException(Mage::helper('catalog') ->__('Start date for recurring period should be provided in valid format.'));
+            }
+        }
+        $subscriberName = $buyRequest->getData('recurring_subscriber_name');
+        if ($subscriberName) {
+            $options['subscriber_name'] = $subscriberName;
+        }
+        return $options;
+    }
+
+    /**
      * Check if product can be bought
      *
      * @param Mage_Catalog_Model_Product $product
@@ -383,7 +416,7 @@ abstract class Mage_Catalog_Model_Product_Type_Abstract
                 if ($option->getIsRequire() && (!$this->getProduct($product)->getCustomOption('option_'.$option->getId())
                 || strlen($this->getProduct($product)->getCustomOption('option_'.$option->getId())->getValue()) == 0)) {
                     Mage::throwException(
-                        Mage::helper('catalog')->__('Product has required options')
+                        Mage::helper('catalog')->__('The product has required options')
                     );
                     break;
                 }
@@ -674,11 +707,29 @@ abstract class Mage_Catalog_Model_Product_Type_Abstract
      */
     public function getSearchableData($product = null)
     {
-        $product = $this->getProduct($product);
-
-        $searchData = Mage::getSingleton('catalog/product_option')
-            ->getSearchableData($product->getId(), $product->getStoreId());
+        $product    = $this->getProduct($product);
+        $searchData = array();
+        if ($product->getHasOptions()){
+            $searchData = Mage::getSingleton('catalog/product_option')
+                ->getSearchableData($product->getId(), $product->getStoreId());
+        }
 
         return $searchData;
+    }
+
+    /**
+     * Retrieve products divided into groups required to purchase
+     * At least one product in each group has to be purchased
+     *
+     * @param Mage_Catalog_Model_Product $product
+     * @return array
+     */
+    public function getProductsToPurchaseByReqGroups($product = null)
+    {
+        $product = $this->getProduct($product);
+        if ($this->isComposite($product)) {
+            return array();
+        }
+        return array(array($product));
     }
 }

@@ -99,7 +99,7 @@ class Mage_GoogleBase_Block_Adminhtml_Types_Edit_Form extends Mage_Adminhtml_Blo
         }
 
         $fieldset->addField('attributes_box', 'note', array(
-            'label'     => $this->__('Attributes mapping'),
+            'label'     => $this->__('Attributes Mapping'),
             'text'      => '<div id="attributes_details">' . $attributesBlock->toHtml() . '</div>',
         ));
 

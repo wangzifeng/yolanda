@@ -225,6 +225,8 @@ class Mage_Usa_Model_Shipping_Carrier_Usps
             $request = $xml->asXML();
         }
 
+        $debugData = array('request' => $request);
+
         try {
             $url = $this->getConfigData('gateway_url');
             if (!$url) {
@@ -237,10 +239,14 @@ class Mage_Usa_Model_Shipping_Carrier_Usps
             $client->setParameterGet('XML', $request);
             $response = $client->request();
             $responseBody = $response->getBody();
-        } catch (Exception $e) {
+            $debugData['result'] = $responseBody;
+        }
+        catch (Exception $e) {
+            $debugData['result'] = array('error' => $e->getMessage(), 'code' => $e->getCode());
             $responseBody = '';
         }
 
+        $this->_debug($debugData);
         return $this->_parseXmlResponse($responseBody);;
     }
 
@@ -500,6 +506,7 @@ class Mage_Usa_Model_Shipping_Carrier_Usps
 
              $api = 'TrackV2';
              $request = $xml->asXML();
+             $debugData = array('request' => $request);
 
              try {
                 $url = $this->getConfigData('gateway_url');
@@ -513,10 +520,14 @@ class Mage_Usa_Model_Shipping_Carrier_Usps
                 $client->setParameterGet('XML', $request);
                 $response = $client->request();
                 $responseBody = $response->getBody();
-            } catch (Exception $e) {
+                $debugData['result'] = $responseBody;
+            }
+            catch (Exception $e) {
+                $debugData['result'] = array('error' => $e->getMessage(), 'code' => $e->getCode());
                 $responseBody = '';
             }
 
+            $this->_debug($debugData);
             $this->_parseXmlTrackingResponse($tracking, $responseBody);
          }
     }

@@ -25,11 +25,7 @@
  */
 
 /**
- * Html page block
- *
- * @category   Mage
- * @package    Mage_Page
- * @author      Magento Core Team <core@magentocommerce.com>
+ * @deprecated after 1.4.0.1
  */
 class Mage_Page_Block_Html_Toplinks extends Mage_Core_Block_Template
 {

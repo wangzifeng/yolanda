@@ -43,7 +43,7 @@ class Mage_Adminhtml_Model_System_Config_Source_Email_Method
             ),
             array(
                 'value' => 'copy',
-                'label' => Mage::helper('adminhtml')->__('Separate email')
+                'label' => Mage::helper('adminhtml')->__('Separate Email')
             ),
         );
         return $options;

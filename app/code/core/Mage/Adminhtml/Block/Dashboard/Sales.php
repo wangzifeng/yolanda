@@ -50,20 +50,19 @@ class Mage_Adminhtml_Block_Dashboard_Sales extends Mage_Adminhtml_Block_Dashboar
             ->calculateSales($isFilter);
 
         if ($this->getRequest()->getParam('store')) {
-            $collection->addAttributeToFilter('store_id', $this->getRequest()->getParam('store'));
+            $collection->addFieldToFilter('store_id', $this->getRequest()->getParam('store'));
         } else if ($this->getRequest()->getParam('website')){
             $storeIds = Mage::app()->getWebsite($this->getRequest()->getParam('website'))->getStoreIds();
-            $collection->addAttributeToFilter('store_id', array('in' => $storeIds));
+            $collection->addFieldToFilter('store_id', array('in' => $storeIds));
         } else if ($this->getRequest()->getParam('group')){
             $storeIds = Mage::app()->getGroup($this->getRequest()->getParam('group'))->getStoreIds();
-            $collection->addAttributeToFilter('store_id', array('in' => $storeIds));
+            $collection->addFieldToFilter('store_id', array('in' => $storeIds));
         }
 
         $collection->load();
-        $collectionArray = $collection->toArray();
-        $sales = array_pop($collectionArray);
+        $sales = $collection->getFirstItem();
 
-        $this->addTotal($this->__('Lifetime Sales'), $sales['lifetime']);
-        $this->addTotal($this->__('Average Orders'), $sales['average']);
+        $this->addTotal($this->__('Lifetime Sales'), $sales->getLifetime());
+        $this->addTotal($this->__('Average Orders'), $sales->getAverage());
     }
 }

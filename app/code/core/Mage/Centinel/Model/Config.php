@@ -137,4 +137,14 @@ class Mage_Centinel_Model_Config
     {
         return Mage::getStoreConfig($this->_serviceConfigPath . '/' . $key, $this->getStore());
     }
+
+    /**
+     * Define if debugging is enabled
+     *
+     * @return bool
+     */
+    public function getDebugFlag()
+    {
+        return $this->_getServiceConfigValue('debug');
+    }
 }

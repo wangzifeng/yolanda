@@ -83,9 +83,9 @@ class Mage_Adminhtml_Block_Sales_Items_Column_Default extends Mage_Adminhtml_Blo
 
     public function getSku()
     {
-        if ($this->getItem()->getProductType() == Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE) {
+        /*if ($this->getItem()->getProductType() == Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE) {
             return $this->getItem()->getProductOptionByCode('simple_sku');
-        }
+        }*/
         return $this->getItem()->getSku();
     }
 

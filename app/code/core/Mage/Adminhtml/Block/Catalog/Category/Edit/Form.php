@@ -180,7 +180,7 @@ class Mage_Adminhtml_Block_Catalog_Category_Edit_Form extends Mage_Adminhtml_Blo
         if ($this->hasStoreRootCategory()) {
             return $this->getCategoryId() ? $this->getCategoryName() : Mage::helper('catalog')->__('New Category');
         }
-        return Mage::helper('catalog')->__('Set Root Category For Store');
+        return Mage::helper('catalog')->__('Set Root Category for Store');
     }
 
     public function getDeleteUrl(array $args = array())

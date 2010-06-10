@@ -142,12 +142,12 @@ class Mage_Adminhtml_Catalog_Product_Action_AttributeController extends Mage_Adm
                 ));
 
                 $this->_getSession()->addNotice(
-                    $this->__('Please refresh "Catalog Url Rewrites" and "Product Attributes" in System -> <a href="%s">Index Management</a>', $this->getUrl('adminhtml/process/list'))
+                    $this->__('Please refresh "Catalog URL Rewrites" and "Product Attributes" in System -> <a href="%s">Index Management</a>', $this->getUrl('adminhtml/process/list'))
                 );
             }
 
             $this->_getSession()->addSuccess(
-                $this->__('Total of %d record(s) were successfully updated',
+                $this->__('Total of %d record(s) were updated',
                 count($this->_getHelper()->getProductIds()))
             );
         }
@@ -155,7 +155,7 @@ class Mage_Adminhtml_Catalog_Product_Action_AttributeController extends Mage_Adm
             $this->_getSession()->addError($e->getMessage());
         }
         catch (Exception $e) {
-            $this->_getSession()->addException($e, $this->__('There was an error while updating product(s) attributes'));
+            $this->_getSession()->addException($e, $this->__('An error occurred while updating the product(s) attributes.'));
         }
 
         $this->_redirect('*/catalog_product/', array('store'=>$this->_getHelper()->getSelectedStoreId()));

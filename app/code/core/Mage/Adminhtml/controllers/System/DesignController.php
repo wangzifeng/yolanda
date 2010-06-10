@@ -89,7 +89,7 @@ class Mage_Adminhtml_System_DesignController extends Mage_Adminhtml_Controller_A
             try {
                 $design->save();
 
-                Mage::getSingleton('adminhtml/session')->addSuccess($this->__('Design change saved'));
+                Mage::getSingleton('adminhtml/session')->addSuccess($this->__('The design change has been saved.'));
             } catch (Exception $e){
                 Mage::getSingleton('adminhtml/session')
                     ->addError($e->getMessage())
@@ -111,13 +111,13 @@ class Mage_Adminhtml_System_DesignController extends Mage_Adminhtml_Controller_A
                 $design->delete();
 
                 Mage::getSingleton('adminhtml/session')
-                    ->addSuccess($this->__('Design change deleted'));
+                    ->addSuccess($this->__('The design change has been deleted.'));
             } catch (Mage_Exception $e) {
                 Mage::getSingleton('adminhtml/session')
                     ->addError($e->getMessage());
             } catch (Exception $e) {
                 Mage::getSingleton('adminhtml/session')
-                    ->addException($e, $this->__("Can't delete design change"));
+                    ->addException($e, $this->__("Cannot delete the design change."));
             }
         }
         $this->getResponse()->setRedirect($this->getUrl('*/*/'));

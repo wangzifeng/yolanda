@@ -26,12 +26,11 @@
 
 /**
  * Order shipping address backend
- *
+ * @deprecated after 1.4, no more EAV for sales
  * @category   Mage
  * @package    Mage_Sales
  * @author      Magento Core Team <core@magentocommerce.com>
  */
-
 class Mage_Sales_Model_Mysql4_Order_Attribute_Backend_Shipping extends Mage_Eav_Model_Entity_Attribute_Backend_Abstract
 {
 

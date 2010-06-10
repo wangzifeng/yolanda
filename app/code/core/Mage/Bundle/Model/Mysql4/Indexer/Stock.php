@@ -41,6 +41,7 @@ class Mage_Bundle_Model_Mysql4_Indexer_Stock extends Mage_CatalogInventory_Model
      */
     public function reindexAll()
     {
+        $this->useIdxTable(true);
         $this->_prepareIndexTable();
         return $this;
     }

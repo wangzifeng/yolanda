@@ -144,7 +144,7 @@ class Mage_Checkout_OnepageController extends Mage_Checkout_Controller_Action
     public function indexAction()
     {
         if (!Mage::helper('checkout')->canOnepageCheckout()) {
-            Mage::getSingleton('checkout/session')->addError($this->__('Sorry, Onepage Checkout is disabled.'));
+            Mage::getSingleton('checkout/session')->addError($this->__('The onepage checkout is disabled.'));
             $this->_redirect('checkout/cart');
             return;
         }
@@ -439,7 +439,7 @@ class Mage_Checkout_OnepageController extends Mage_Checkout_Controller_Action
                 if ($diff = array_diff($requiredAgreements, $postedAgreements)) {
                     $result['success'] = false;
                     $result['error'] = true;
-                    $result['error_messages'] = $this->__('Please agree to all Terms and Conditions before placing the order.');
+                    $result['error_messages'] = $this->__('Please agree to all the terms and conditions before placing the order.');
                     $this->getResponse()->setBody(Mage::helper('core')->jsonEncode($result));
                     return;
                 }

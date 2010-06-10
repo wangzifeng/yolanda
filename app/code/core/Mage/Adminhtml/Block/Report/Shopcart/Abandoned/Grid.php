@@ -133,7 +133,7 @@ class Mage_Adminhtml_Block_Report_Shopcart_Abandoned_Grid extends Mage_Adminhtml
         ));
 
         $this->addColumn('created_at', array(
-            'header'    =>Mage::helper('reports')->__('Created at'),
+            'header'    =>Mage::helper('reports')->__('Created At'),
             'width'     =>'170px',
             'type'      =>'datetime',
             'index'     =>'created_at',
@@ -142,11 +142,18 @@ class Mage_Adminhtml_Block_Report_Shopcart_Abandoned_Grid extends Mage_Adminhtml
         ));
 
         $this->addColumn('updated_at', array(
-            'header'    =>Mage::helper('reports')->__('Updated at'),
+            'header'    =>Mage::helper('reports')->__('Updated At'),
             'width'     =>'170px',
             'type'      =>'datetime',
             'index'     =>'updated_at',
             'filter_index'=>'main_table.updated_at',
+            'sortable'  =>false
+        ));
+
+        $this->addColumn('remote_ip', array(
+            'header'    =>Mage::helper('reports')->__('IP Address'),
+            'width'     =>'80px',
+            'index'     =>'remote_ip',
             'sortable'  =>false
         ));
 

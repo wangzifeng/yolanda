@@ -222,4 +222,29 @@ class Mage_Catalog_Model_Resource_Eav_Mysql4_Product_Compare_Item extends Mage_C
         return $this;
     }
 
+    /**
+     * Clear compare items by visitor and/or customer
+     *
+     * @param int $visitor_id
+     * @param int $customer_id
+     * @return Mage_Catalog_Model_Resource_Eav_Mysql4_Product_Compare_Item
+     */
+    public function clearItems($visitor_id = null, $customer_id = null)
+    {
+        $where = array();
+        if ($customer_id) {
+            $customer_id = (int)$customer_id;
+            $where[] = $this->_getWriteAdapter()->quoteInto('customer_id=?', $customer_id);
+        }
+        if ($visitor_id) {
+            $visitor_id = (int)$visitor_id;
+            $where[] = $this->_getWriteAdapter()->quoteInto('visitor_id=?', $visitor_id);
+        }
+        if (!$where) {
+            return $this;
+        }
+        $this->_getWriteAdapter()->delete($this->getMainTable(), $where);
+        return $this;
+    }
+
 }

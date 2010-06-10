@@ -272,4 +272,12 @@ class Mage_Rule_Model_Condition_Combine extends Mage_Rule_Model_Condition_Abstra
     {
         return $this->getData($this->getPrefix());
     }
+
+    /**
+     * Getter for "Conditions Combination" select option for recursive combines
+     */
+    protected function _getRecursiveChildSelectOption()
+    {
+        return array('value' => $this->getType(), 'label' => Mage::helper('rule')->__('Conditions Combination'));
+    }
 }

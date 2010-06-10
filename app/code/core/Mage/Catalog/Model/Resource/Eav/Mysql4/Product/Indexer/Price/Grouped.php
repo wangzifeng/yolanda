@@ -42,6 +42,7 @@ class Mage_Catalog_Model_Resource_Eav_Mysql4_Product_Indexer_Price_Grouped
      */
     public function reindexAll()
     {
+        $this->useIdxTable(true);
         $this->_prepareGroupedProductPriceData();
         return $this;
     }

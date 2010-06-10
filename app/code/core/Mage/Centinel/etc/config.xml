@@ -36,12 +36,19 @@
             <sales_convert_quote_to_order>
                 <observers>
                     <centinel>
-                        <type>model</type>
                         <class>centinel/observer</class>
                         <method>salesEventConvertQuoteToOrder</method>
                     </centinel>
                 </observers>
             </sales_convert_quote_to_order>
+            <sales_order_payment_place_end>
+                <observers>
+                    <centinel>
+                        <class>centinel/observer</class>
+                        <method>salesOrderPaymentPlaceEnd</method>
+                    </centinel>
+                </observers>
+            </sales_order_payment_place_end>
         </events>
     </global>
     <frontend>
@@ -143,6 +150,20 @@
                             </centinel>
                         </validator>
                     </MC>
+                    <JCB>
+                        <validator>
+                            <centinel>
+                                <state>centinel/state_jcb</state>
+                            </centinel>
+                        </validator>
+                    </JCB>
+                    <MCI>
+                        <validator>
+                            <centinel>
+                                <state>centinel/state_mastercard</state>
+                            </centinel>
+                        </validator>
+                    </MCI>
                 </types>
             </cc>
         </payment>

@@ -174,6 +174,7 @@ class Mage_Adminhtml_Block_Cache_Grid extends Mage_Adminhtml_Block_Widget_Grid
         $this->getMassactionBlock()->addItem('refresh', array(
             'label'    => Mage::helper('index')->__('Refresh'),
             'url'      => $this->getUrl('*/*/massRefresh'),
+            'selected' => true,
         ));
 
         return $this;

@@ -149,7 +149,7 @@ class Mage_Sales_Block_Order_Totals extends Mage_Core_Block_Template
             $this->_totals['base_grandtotal'] = new Varien_Object(array(
                 'code'  => 'base_grandtotal',
                 'value' => $this->getOrder()->formatBasePrice($source->getBaseGrandTotal()),
-                'label' => $this->__('Grand Total to be charged'),
+                'label' => $this->__('Grand Total to be Charged'),
                 'is_formated' => true,
             ));
         }

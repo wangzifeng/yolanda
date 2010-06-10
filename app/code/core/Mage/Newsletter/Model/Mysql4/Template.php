@@ -124,7 +124,7 @@ class Mage_Newsletter_Model_Mysql4_Template extends Mage_Core_Model_Mysql4_Abstr
     protected function _beforeSave(Mage_Core_Model_Abstract $object)
     {
         if ($this->checkCodeUsage($object)) {
-            Mage::throwException(Mage::helper('newsletter')->__('Duplicate of template code'));
+            Mage::throwException(Mage::helper('newsletter')->__('Duplicate template code.'));
         }
 
         if (!$object->hasTemplateActual()) {

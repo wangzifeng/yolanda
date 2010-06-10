@@ -118,7 +118,7 @@ class Mage_Adminhtml_Newsletter_SubscriberController extends Mage_Adminhtml_Cont
                 }
                 Mage::getSingleton('adminhtml/session')->addSuccess(
                     Mage::helper('adminhtml')->__(
-                        'Total of %d record(s) were successfully updated', count($subscribersIds)
+                        'Total of %d record(s) were updated', count($subscribersIds)
                     )
                 );
             } catch (Exception $e) {

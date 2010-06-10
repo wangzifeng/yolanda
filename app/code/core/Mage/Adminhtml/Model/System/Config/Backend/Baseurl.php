@@ -52,26 +52,11 @@ class Mage_Adminhtml_Model_System_Config_Backend_Baseurl extends Mage_Core_Model
     }
 
     /**
-     * Clean compiled JS/CSS when updating base url configuration settings
+     * Clean compiled JS/CSS when updating url configuration settings
      */
     protected function _afterSave()
     {
-        $unsecureUrl = $this->getData('groups/unsecure/fields/base_url/value');
-        $secureUrl = $this->getData('groups/secure/fields/base_url/value');
-
-        $oldUnsecureUrl = Mage::getConfig()->getNode(
-            Mage_Core_Model_Url::XML_PATH_UNSECURE_URL,
-            $this->getScope(),
-            $this->getScopeId()
-        );
-
-        $oldSecureUrl = Mage::getConfig()->getNode(
-            Mage_Core_Model_Url::XML_PATH_SECURE_URL,
-            $this->getScope(),
-            $this->getScopeId()
-        );
-
-        if ($unsecureUrl != $oldUnsecureUrl || $secureUrl != $oldSecureUrl) {
+        if ($this->isValueChanged()) {
             Mage::getModel('core/design_package')->cleanMergedJsCss();
         }
     }

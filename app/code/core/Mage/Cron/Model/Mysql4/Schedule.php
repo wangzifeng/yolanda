@@ -50,13 +50,12 @@ class Mage_Cron_Model_Mysql4_Schedule extends Mage_Core_Model_Mysql4_Abstract
     public function trySetJobStatusAtomic($scheduleId, $newStatus, $currentStatus)
     {
         $write = $this->_getWriteAdapter();
-        $sql = 'UPDATE ' . $this->getTable('cron/schedule')
-                . ' SET status = ' . $write->quote($newStatus)
-                . ' WHERE schedule_id =' . $write->quote($scheduleId)
-                . ' AND status =  ' . $write->quote($currentStatus);
-        $result = $write->query($sql);
-
-        if ($result->rowCount() == 1) {
+        $result = $write->update(
+            $this->getTable('cron/schedule'),
+            array('status' => $newStatus),
+            array('schedule_id = ?' => $scheduleId, 'status = ?' => $currentStatus)
+        );
+        if ($result == 1) {
             return true;
         }
         return false;

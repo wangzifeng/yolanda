@@ -197,9 +197,6 @@ class Mage_Cron_Model_Schedule extends Mage_Core_Model_Abstract
      */
     public function tryLockJob()
     {
-        return ($this->_getResource()->trySetJobStatusAtomic(
-                $this->getId(),
-                self::STATUS_RUNNING,
-                self::STATUS_PENDING));
+        return $this->_getResource()->trySetJobStatusAtomic($this->getId(), self::STATUS_RUNNING,self::STATUS_PENDING);
     }
 }

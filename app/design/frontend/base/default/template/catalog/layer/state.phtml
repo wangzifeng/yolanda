@@ -33,11 +33,11 @@
 ?>
 <?php $_filters = $this->getActiveFilters() ?>
 <?php if(!empty($_filters)): ?>
-    <p class="block-subtitle"><?php echo $this->__('Currently Shopping by') ?></p>
+    <p class="block-subtitle"><?php echo $this->__('Currently Shopping By') ?></p>
     <ol class="currently">
     <?php foreach ($_filters as $_filter): ?>
         <li>
-            <a href="<?php echo $_filter->getRemoveUrl() ?>" class="btn-remove" title="<?php echo $this->__('Remove This Item') ?>"><?php echo $this->__('Remove This Item') ?></a>
+            <a href="<?php echo $_filter->getRemoveUrl() ?>" title="<?php echo $this->__('Remove This Item') ?>" class="btn-remove"><?php echo $this->__('Remove This Item') ?></a>
             <span class="label"><?php echo $this->__($_filter->getName()) ?>:</span> <?php echo $_filter->getLabel() ?>
         </li>
     <?php endforeach; ?>

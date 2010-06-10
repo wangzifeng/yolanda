@@ -98,7 +98,7 @@ class Mage_Eav_Model_Entity_Attribute extends Mage_Eav_Model_Entity_Attribute_Ab
         // prevent overriding product data
         if (isset($this->_data['attribute_code'])
             && Mage::getModel('catalog/product')->isReservedAttribute($this)) {
-            Mage::throwException(Mage::helper('eav')->__('The attribute code \'%s\' is reserved by system. Please, try another attribute code.', $this->_data['attribute_code']));
+            Mage::throwException(Mage::helper('eav')->__('The attribute code \'%s\' is reserved by system. Please try another attribute code.', $this->_data['attribute_code']));
         }
 
         if ($this->getBackendType() == 'datetime') {
@@ -117,7 +117,7 @@ class Mage_Eav_Model_Entity_Attribute extends Mage_Eav_Model_Entity_Attribute_Ab
                     $defaultValue = Mage::app()->getLocale()->date($defaultValue, $format, null, false)->toValue();
                     $this->setDefaultValue($defaultValue);
                 } catch (Exception $e) {
-                    throw new Exception("Invalid default date.");
+                    throw new Exception('Invalid default date.');
                 }
             }
         }
@@ -141,7 +141,7 @@ class Mage_Eav_Model_Entity_Attribute extends Mage_Eav_Model_Entity_Attribute_Ab
     protected function _beforeDelete()
     {
         if ($this->_getResource()->isUsedBySuperProducts($this)) {
-            Mage::throwException(Mage::helper('eav')->__('Attribute used in configurable products.'));
+            Mage::throwException(Mage::helper('eav')->__('This attribute is used in configurable products.'));
         }
         return parent::_beforeDelete();
     }

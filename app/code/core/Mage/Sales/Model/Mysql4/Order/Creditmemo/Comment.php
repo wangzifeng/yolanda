@@ -25,21 +25,15 @@
  */
 
 /**
- * Creditmemo comment resource model
+ * Flat sales order creditmemo comment resource
  *
- * @category   Mage
- * @package    Mage_Sales
- * @author      Magento Core Team <core@magentocommerce.com>
  */
-class Mage_Sales_Model_Mysql4_Order_Creditmemo_Comment extends Mage_Eav_Model_Entity_Abstract
+class Mage_Sales_Model_Mysql4_Order_Creditmemo_Comment extends Mage_Sales_Model_Mysql4_Order_Abstract
 {
-    public function __construct()
-    {
-        $resource = Mage::getSingleton('core/resource');
-        $this->setType('creditmemo_comment')->setConnection(
-            $resource->getConnection('sales_read'),
-            $resource->getConnection('sales_write')
-        );
-    }
+    protected $_eventPrefix = 'sales_order_creditmemo_comment_resource';
 
+    protected function _construct()
+    {
+        $this->_init('sales/creditmemo_comment', 'entity_id');
+    }
 }

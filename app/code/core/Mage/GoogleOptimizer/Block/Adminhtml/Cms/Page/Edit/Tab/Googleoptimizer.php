@@ -83,7 +83,7 @@ class Mage_GoogleOptimizer_Block_Adminhtml_Cms_Page_Edit_Tab_Googleoptimizer
                     'class' => 'input-text',
                     'readonly' => 'readonly',
                     'required' => false,
-                    'note' => Mage::helper('googleoptimizer')->__('Please copy and paste this value to experiment edit form'),
+                    'note' => Mage::helper('googleoptimizer')->__('Please copy and paste this value to experiment edit form.'),
                     'disabled'  => $isElementDisabled
                 )
             );

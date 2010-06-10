@@ -67,12 +67,12 @@ class Mage_Adminhtml_Block_System_Convert_Profile_Edit_Tab_History extends Mage_
         ));
 
         $this->addColumn('firstname', array(
-            'header'    => Mage::helper('adminhtml')->__('Firstname'),
+            'header'    => Mage::helper('adminhtml')->__('First Name'),
             'index'     => 'firstname',
         ));
 
         $this->addColumn('lastname', array(
-            'header'    => Mage::helper('adminhtml')->__('Lastname'),
+            'header'    => Mage::helper('adminhtml')->__('Last Name'),
             'index'     => 'lastname',
         ));
 

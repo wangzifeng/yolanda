@@ -36,5 +36,5 @@
 <?php else: ?>
     <p><?php echo $this->__('Availability: Out of stock.') ?></p>
 <?php endif; ?>
-
+<?php echo $this->getChildHtml('product_type_data_extra') ?>
 <?php echo $this->getPriceHtml($_product) ?>

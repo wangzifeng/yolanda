@@ -25,38 +25,32 @@
  */
 
 /**
- * Orders collection
+ * Flat sales order collection
  *
- * @category   Mage
- * @package    Mage_Sales
- * @author      Magento Core Team <core@magentocommerce.com>
  */
-class Mage_Sales_Model_Mysql4_Order_Collection extends Mage_Eav_Model_Entity_Collection_Abstract
+class Mage_Sales_Model_Mysql4_Order_Collection extends Mage_Sales_Model_Mysql4_Collection_Abstract
 {
-    /**
-     * Initialize orders collection
-     *
-     */
+    protected $_eventPrefix = 'sales_order_collection';
+    protected $_eventObject = 'order_collection';
+
     protected function _construct()
     {
         $this->_init('sales/order');
     }
 
     /**
-     * Add order items count expression
+     * Add items count expr to collection select, backward capability with eav structure
      *
      * @return Mage_Sales_Model_Mysql4_Order_Collection
      */
     public function addItemCountExpr()
     {
-        $orderTable = $this->getEntity()->getEntityTable();
-        $orderItemEntityTypeId = Mage::getResourceSingleton('sales/order_item')->getTypeId();
-        $this->getSelect()->join(
-                array('items'=>$orderTable),
-                'items.parent_id=e.entity_id and items.entity_type_id='.$orderItemEntityTypeId,
-                array('items_count'=>new Zend_Db_Expr('COUNT(items.entity_id)'))
-            )
-            ->group('e.entity_id');
+        if (is_null($this->_fieldsToSelect)) { // If we select all fields from table,
+                                               // we need to add column alias
+            $this->getSelect()->columns(array('items_count'=>'total_item_count'));
+        } else {
+            $this->addFieldToSelect('total_item_count', 'items_count');
+        }
         return $this;
     }
 
@@ -67,7 +61,9 @@ class Mage_Sales_Model_Mysql4_Order_Collection extends Mage_Eav_Model_Entity_Col
      */
     public function getSelectCountSql()
     {
+        /* @var $countSelect Varien_Db_Select */
         $countSelect = parent::getSelectCountSql();
+
         $countSelect->resetJoinLeft();
         return $countSelect;
     }
@@ -77,11 +73,87 @@ class Mage_Sales_Model_Mysql4_Order_Collection extends Mage_Eav_Model_Entity_Col
      *
      * @return Mage_Eav_Model_Entity_Collection_Abstract
      */
-    protected function _getAllIdsSelect($limit=null, $offset=null)
+    protected function _getAllIdsSelect($limit = null, $offset = null)
     {
-        $idsSelect = parent::_getAllIdsSelect($limit, $offset);
+        $idsSelect = parent::getAllIds($limit, $offset);
         $idsSelect->resetJoinLeft();
         return $idsSelect;
     }
 
+
+
+    /**
+     * Joins table sales_flat_order_address to select for billing and shipping orders addresses.
+     * Creates corillation map
+     * 
+     * @return Mage_Sales_Model_Mysql4_Collection_Abstract
+     */
+    protected function _addAddressFields()
+    {
+        $billingAliasName = 'billing_o_a';
+        $shippingAliasName = 'shipping_o_a';
+        $joinTable = $this->getTable('sales/order_address');
+
+        $this->_map = array('fields' => array(
+            'billing_firstname' => $billingAliasName . '.firstname',
+            'billing_lastname' => $billingAliasName . '.lastname',
+            'billing_telephone' => $billingAliasName . '.telephone',
+            'billing_postcode' => $billingAliasName . '.postcode',
+
+            'shipping_firstname' => $shippingAliasName . '.firstname',
+            'shipping_lastname' => $shippingAliasName . '.lastname',
+            'shipping_telephone' => $shippingAliasName . '.telephone',
+            'shipping_postcode' => $shippingAliasName . '.postcode'
+        ));
+
+        $this
+            ->getSelect()
+            ->joinLeft(
+                array($billingAliasName => $joinTable),
+                "(main_table.entity_id = $billingAliasName.parent_id AND $billingAliasName.address_type = 'billing')",
+                array(
+                    $billingAliasName . '.firstname',
+                    $billingAliasName . '.lastname',
+                    $billingAliasName . '.telephone',
+                    $billingAliasName . '.postcode'
+                )
+            )
+            ->joinLeft(
+                array($shippingAliasName => $joinTable),
+                "(main_table.entity_id = $shippingAliasName.parent_id AND $shippingAliasName.address_type = 'shipping')",
+                array(
+                    $shippingAliasName . '.firstname',
+                    $shippingAliasName . '.lastname',
+                    $shippingAliasName . '.telephone',
+                    $shippingAliasName . '.postcode'
+                )
+            );
+
+        return $this;
+    }
+
+    /**
+     * Specify collection select filter by attribute value
+     *
+     * @param array|string|Mage_Eav_Model_Entity_Attribute $attribute
+     * @param array|integer|string|null $condition
+     * @return Mage_Sales_Model_Mysql4_Collection_Abstract
+     */
+    public function addAttributeToFilter($attributes, $condition = null)
+    {
+        if (is_array($attributes)){
+            if (!empty($attributes)){
+                $this->_addAddressFields();
+
+                foreach ($attributes as $attribute) {
+                    parent::addAttributeToFilter($attribute['attribute'], $attribute);
+                }
+            }
+        }
+        else {
+            return parent::addAttributeToFilter($attributes, $condition);
+        }
+
+        return $this;
+    }
 }

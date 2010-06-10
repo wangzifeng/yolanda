@@ -43,6 +43,16 @@ varienForm.prototype = {
             elm.setHasError(false, this);
     },
 
+    validate : function(){
+        if(this.validator && this.validator.validate()){
+            if(this.validationUrl){
+                this._validate();
+            }
+            return true;
+        }
+        return false;
+    },
+
     submit : function(url){
         if (typeof varienGlobalEvents != undefined) {
             varienGlobalEvents.fireEvent('formSubmit', this.formId);
@@ -387,15 +397,27 @@ FormElementDependenceController.prototype = {
      *     }
      * }
      * @param object elementsMap
+     * @param object config
      */
-    initialize : function (elementsMap)
+    initialize : function (elementsMap, config)
     {
+        if (config) {
+            this._config = config;
+        }
         for (var idTo in elementsMap) {
             for (var idFrom in elementsMap[idTo]) {
                 Event.observe($(idFrom), 'change', this.trackChange.bindAsEventListener(this, idTo, elementsMap[idTo]));
                 this.trackChange(null, idTo, elementsMap[idTo]);
             }
         }
+    },
+
+    /**
+     * Misc. config options
+     * Keys are underscored intentionally
+     */
+    _config : {
+        levels_up : 1 // how many levels up to travel when toggling element
     },
 
     /**
@@ -418,19 +440,19 @@ FormElementDependenceController.prototype = {
 
         // toggle target row
         if (shouldShowUp) {
-            $(idTo).up(1).select('input', 'select').each(function (item) {
+            $(idTo).up(this._config.levels_up).select('input', 'select').each(function (item) {
                 if (!item.type || item.type != 'hidden') { // don't touch hidden inputs, bc they may have custom logic
                     item.disabled = false;
                 }
             });
-            $(idTo).up(1).show();
+            $(idTo).up(this._config.levels_up).show();
         } else {
-            $(idTo).up(1).select('input', 'select').each(function (item){
+            $(idTo).up(this._config.levels_up).select('input', 'select').each(function (item){
                 if (!item.type || item.type != 'hidden') { // don't touch hidden inputs, bc they may have custom logic
                     item.disabled = true;
                 }
             });
-            $(idTo).up(1).hide();
+            $(idTo).up(this._config.levels_up).hide();
         }
     }
 }

@@ -112,8 +112,8 @@ class Mage_Adminhtml_Block_Promo_Catalog_Edit_Tab_Conditions
         $fieldset = $form->addFieldset('options_fieldset', array('legend'=>Mage::helper('catalogrule')->__('Options')));
 
         $fieldset->addField('stop_rules_processing', 'select', array(
-            'label'     => Mage::helper('catalogrule')->__('Stop further rules processing'),
-            'title'     => Mage::helper('catalogrule')->__('Stop further rules processing'),
+            'label'     => Mage::helper('catalogrule')->__('Stop Further Rules Processing'),
+            'title'     => Mage::helper('catalogrule')->__('Stop Further Rules Processing'),
             'name'      => 'stop_rules_processing',
             'required' => true,
             'options'    => array(

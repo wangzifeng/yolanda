@@ -53,8 +53,7 @@ class Mage_SalesRule_Model_Quote_Freeshipping extends Mage_Sales_Model_Quote_Add
         $store = Mage::app()->getStore($quote->getStoreId());
 
         $address->setFreeShipping(0);
-        $items = $address->getAllItems();
-
+        $items = $this->_getAddressItems($address);
         if (!count($items)) {
             return $this;
         }

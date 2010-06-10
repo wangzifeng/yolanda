@@ -69,7 +69,7 @@
                     </VI>
                     <MC>
                         <code>MC</code>
-                        <name>Master Card</name>
+                        <name>MasterCard</name>
                         <order>20</order>
                     </MC>
                     <DI>
@@ -82,6 +82,16 @@
                         <name>Maestro/Solo</name>
                         <order>40</order>
                     </SS>
+                    <JCB>
+                        <code>JCB</code>
+                        <name>JCB</name>
+                        <order>50</order>
+                    </JCB>
+                    <MCI>
+                        <code>MCI</code>
+                        <name>Maestro (International)</name>
+                        <order>53</order>
+                    </MCI>
                     <OT>
                         <code>OT</code>
                         <name>Other</name>

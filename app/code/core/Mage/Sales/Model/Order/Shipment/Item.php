@@ -136,4 +136,20 @@ class Mage_Sales_Model_Order_Shipment_Item extends Mage_Core_Model_Abstract
         return $this;
     }
 
+    /**
+     * Before object save
+     *
+     * @return Mage_Sales_Model_Order_Shipment_Item
+     */
+    protected function _beforeSave()
+    {
+        parent::_beforeSave();
+
+        if (!$this->getParentId() && $this->getShipment()) {
+            $this->setParentId($this->getShipment()->getId());
+        }
+
+        return $this;
+    }
+
 }

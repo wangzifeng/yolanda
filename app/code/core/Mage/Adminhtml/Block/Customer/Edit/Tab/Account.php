@@ -128,7 +128,7 @@ class Mage_Adminhtml_Block_Customer_Edit_Tab_Account extends Mage_Adminhtml_Bloc
 
             // prepare send welcome email checkbox
             $fieldset->addField('sendemail', 'checkbox', array(
-                'label' => Mage::helper('customer')->__('Send welcome email'),
+                'label' => Mage::helper('customer')->__('Send Welcome Email'),
                 'name'  => 'sendemail',
                 'id'    => 'sendemail',
             ));

@@ -34,7 +34,7 @@
         <?php echo $this->getExcludeTaxLabel() ?>
     </td>
     <td style="<?php echo $this->getStyle() ?>" class="a-right">
-        <?php echo $this->helper('checkout')->formatPrice($this->getShippingExcludeTax()) ?>
+        <?php echo $this->formatPrice($this->getShippingExcludeTax()) ?>
     </td>
 </tr>
 <tr>
@@ -42,7 +42,7 @@
         <?php echo $this->getIncludeTaxLabel() ?>
     </td>
     <td style="<?php echo $this->getStyle() ?>" class="a-right">
-        <?php echo $this->helper('checkout')->formatPrice($this->getShippingIncludeTax()) ?>
+        <?php echo $this->formatPrice($this->getShippingIncludeTax()) ?>
     </td>
 </tr>
 <?php elseif($this->displayIncludeTax()) : ?>
@@ -51,7 +51,7 @@
         <?php echo $this->getTotal()->getTitle() ?>
     </td>
     <td style="<?php echo $this->getStyle() ?>" class="a-right">
-        <?php echo $this->helper('checkout')->formatPrice($this->getShippingIncludeTax()) ?>
+        <?php echo $this->formatPrice($this->getShippingIncludeTax()) ?>
     </td>
 </tr>
 <?php else:?>
@@ -60,7 +60,7 @@
         <?php echo $this->getTotal()->getTitle() ?>
     </td>
     <td style="<?php echo $this->getStyle() ?>" class="a-right">
-        <?php echo $this->helper('checkout')->formatPrice($this->getShippingExcludeTax()) ?>
+        <?php echo $this->formatPrice($this->getShippingExcludeTax()) ?>
     </td>
 </tr>
 <?php endif;?>

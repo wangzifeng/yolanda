@@ -25,25 +25,16 @@
  */
 
 /**
- * Order status history collection
+ * Flat sales order status history collection
  *
- * @category   Mage
- * @package    Mage_Sales
- * @author      Magento Core Team <core@magentocommerce.com>
  */
-
-class Mage_Sales_Model_Mysql4_Order_Status_History_Collection extends Mage_Eav_Model_Entity_Collection_Abstract
+class Mage_Sales_Model_Mysql4_Order_Status_History_Collection extends Mage_Sales_Model_Mysql4_Order_Collection_Abstract
 {
+    protected $_eventPrefix = 'sales_order_status_history_collection';
+    protected $_eventObject = 'order_status_history_collection';
 
     protected function _construct()
     {
         $this->_init('sales/order_status_history');
     }
-
-    public function setOrderFilter($orderId)
-    {
-        $this->addAttributeToFilter('parent_id', $orderId);
-        return $this;
-    }
-
 }

@@ -44,7 +44,6 @@ Customer account home dashboard layout
 
         <!-- Mage_Review -->
         <reference name="customer_account_dashboard">
-            <action method="unsetChild"><name>customer_account_dashboard_info1</name></action>
             <block type="review/customer_recent" name="customer_account_dashboard_info1" as="info1" template="review/customer/recent.phtml"/>
         </reference>
 

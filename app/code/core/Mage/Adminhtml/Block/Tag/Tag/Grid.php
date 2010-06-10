@@ -74,14 +74,6 @@ class Mage_Adminhtml_Block_Tag_Tag_Grid extends Mage_Adminhtml_Block_Widget_Grid
             'index'     => 'name',
         ));
 
-        $this->addColumn('total_used', array(
-            'header'    => Mage::helper('tag')->__('Uses'),
-            'width'     => 140,
-            'align'     => 'right',
-            'index'     => 'uses',
-            'type'      => 'number',
-        ));
-
         $this->addColumn('products', array(
             'header'    => Mage::helper('tag')->__('Products'),
             'width'     => 140,
@@ -98,14 +90,6 @@ class Mage_Adminhtml_Block_Tag_Tag_Grid extends Mage_Adminhtml_Block_Widget_Grid
             'type'      => 'number',
         ));
 
-        $this->addColumn('popularity', array(
-            'header'    => Mage::helper('tag')->__('Popularity'),
-            'width'     => 140,
-            'align'     => 'right',
-            'index'     => 'popularity',
-            'type'      => 'number',
-        ));
-
         $this->addColumn('status', array(
             'header'    => Mage::helper('tag')->__('Status'),
             'width'     => 90,
@@ -116,7 +100,7 @@ class Mage_Adminhtml_Block_Tag_Tag_Grid extends Mage_Adminhtml_Block_Widget_Grid
 
         if (!Mage::app()->isSingleStoreMode()) {
             $this->addColumn('visible_in', array(
-                'header'                => Mage::helper('tag')->__('Visible In'),
+                'header'                => Mage::helper('tag')->__('Store View'),
                 'type'                  => 'store',
                 'skipAllStoresLabel'    => true,
                 'index'                 => 'stores',

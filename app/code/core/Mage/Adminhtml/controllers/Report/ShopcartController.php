@@ -124,7 +124,7 @@ class Mage_Adminhtml_Report_ShopcartController extends Mage_Adminhtml_Controller
 
         $this->_initAction()
             ->_setActiveMenu('report/shopcart/abandoned')
-            ->_addBreadcrumb(Mage::helper('reports')->__('Abandoned carts'), Mage::helper('reports')->__('Abandoned carts'))
+            ->_addBreadcrumb(Mage::helper('reports')->__('Abandoned Carts'), Mage::helper('reports')->__('Abandoned Carts'))
             ->_addContent($this->getLayout()->createBlock('adminhtml/report_shopcart_abandoned'))
             ->renderLayout();
     }

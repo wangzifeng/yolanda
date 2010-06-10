@@ -105,8 +105,8 @@ class Mage_Adminhtml_Block_Promo_Quote_Edit_Tab_Conditions
 
         $fieldset->addField('actions', 'text', array(
             'name' => 'actions',
-            'label' => Mage::helper('salesrule')->__('Apply to'),
-            'title' => Mage::helper('salesrule')->__('Apply to'),
+            'label' => Mage::helper('salesrule')->__('Apply To'),
+            'title' => Mage::helper('salesrule')->__('Apply To'),
             'required' => true,
         ))->setRule($model)->setRenderer(Mage::getBlockSingleton('rule/actions'));
 */

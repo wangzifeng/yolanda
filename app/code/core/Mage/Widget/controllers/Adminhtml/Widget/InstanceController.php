@@ -165,7 +165,7 @@ class Mage_Widget_Adminhtml_Widget_InstanceController extends Mage_Adminhtml_Con
         try {
             $widgetInstance->save();
             $this->_getSession()->addSuccess(
-                Mage::helper('widget')->__('Widget instance has been successfully saved.')
+                Mage::helper('widget')->__('The widget instance has been saved.')
             );
             if ($this->getRequest()->getParam('back', false)) {
                     $this->_redirect('*/*/edit', array(
@@ -196,7 +196,7 @@ class Mage_Widget_Adminhtml_Widget_InstanceController extends Mage_Adminhtml_Con
             try {
                 $widgetInstance->delete();
                 $this->_getSession()->addSuccess(
-                    Mage::helper('widget')->__('Widget instance has been successfully deleted.')
+                    Mage::helper('widget')->__('The widget instance has been deleted.')
                 );
             } catch (Exception $e) {
                 $this->_getSession()->addError($e->getMessage());

@@ -113,7 +113,9 @@ class Mage_Adminhtml_Block_Catalog_Category_Widget_Chooser extends Mage_Adminhtm
         if ($this->getUseMassaction()) {
             $js = '
                 function (node, e) {
-                    node.ui.toggleCheck(true);
+                    if (node.ui.toggleCheck) {
+                        node.ui.toggleCheck(true);
+                    }
                 }
             ';
         } else {

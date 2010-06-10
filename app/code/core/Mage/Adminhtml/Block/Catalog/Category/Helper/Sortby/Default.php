@@ -54,7 +54,7 @@ class Mage_Adminhtml_Block_Catalog_Category_Helper_Sortby_Default
         if ($this->getReadonly()) {
             $html .= ' disabled="disabled"';
         }
-        $html .= 'onclick="toggleValueElements(this, this.parentNode);" class="checkbox" type="checkbox">';
+        $html .= ' onclick="toggleValueElements(this, this.parentNode);" class="checkbox" type="checkbox" />';
 
 
 

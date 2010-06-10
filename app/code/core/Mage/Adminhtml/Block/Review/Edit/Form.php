@@ -121,7 +121,7 @@ class Mage_Adminhtml_Block_Review_Edit_Form extends Mage_Adminhtml_Block_Widget_
         ));
 
         $fieldset->addField('title', 'text', array(
-            'label'     => Mage::helper('review')->__('Summary of review'),
+            'label'     => Mage::helper('review')->__('Summary of Review'),
             'required'  => true,
             'name'      => 'title',
         ));

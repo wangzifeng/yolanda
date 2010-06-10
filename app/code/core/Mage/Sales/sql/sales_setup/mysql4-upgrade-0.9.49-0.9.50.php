@@ -29,8 +29,8 @@
 $installer = $this;
 
 $tablePaymentTransaction = $this->getTable('sales/payment_transaction');
-$tableOrders = $this->getTable('sales/order');
-$tableOrderPayment = $this->getTable('sales/order_entity');
+$tableOrders = $this->getTable('sales_order');
+$tableOrderPayment = $this->getTable('sales_order_entity');
 
 $installer->run("
 CREATE TABLE `{$tablePaymentTransaction}` (

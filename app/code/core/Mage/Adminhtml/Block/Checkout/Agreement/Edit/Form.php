@@ -117,8 +117,8 @@ class Mage_Adminhtml_Block_Checkout_Agreement_Edit_Form extends Mage_Adminhtml_B
 
         $fieldset->addField('checkbox_text', 'editor', array(
             'name'      => 'checkbox_text',
-            'label'     => Mage::helper('checkout')->__('Checkbox text'),
-            'title'     => Mage::helper('checkout')->__('Checkbox text'),
+            'label'     => Mage::helper('checkout')->__('Checkbox Text'),
+            'title'     => Mage::helper('checkout')->__('Checkbox Text'),
             'rows'      => '5',
             'cols'      => '30',
             'wysiwyg'   => false,

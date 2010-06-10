@@ -241,8 +241,11 @@ function mageCoreErrorHandler($errno, $errstr, $errfile, $errline){
     }
 
     $errorMessage .= ": {$errstr}  in {$errfile} on line {$errline}";
-
-    throw new Exception($errorMessage);
+    if (Mage::getIsDeveloperMode()) {
+        throw new Exception($errorMessage);
+    } else {
+        Mage::log($errorMessage, Zend_Log::ERR);
+    }
 }
 
 function mageDebugBacktrace($return=false, $html=true, $showFirst=false)

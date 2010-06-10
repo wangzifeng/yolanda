@@ -58,6 +58,14 @@ class Mage_Core_Controller_Request_Http extends Zend_Controller_Request_Http
     protected $_controllerModule = null;
 
     /**
+     * Streight request flag.
+     * If flag is determined no additional logic is applicable
+     *
+     * @var $_isStraight bool
+     */
+    protected $_isStraight = false;
+
+    /**
      * Request's original information before forward.
      *
      * @var array
@@ -436,5 +444,19 @@ class Mage_Core_Controller_Request_Http extends Zend_Controller_Request_Http
         }
 
         return null;
+    }
+
+    /**
+     * Specify/get _isStraight flag value
+     *
+     * @param bool $flag
+     * @return bool
+     */
+    public function isStraight($flag = null)
+    {
+        if ($flag !== null) {
+            $this->_isStraight = $flag;
+        }
+        return $this->_isStraight;
     }
 }

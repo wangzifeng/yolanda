@@ -29,7 +29,7 @@
  */
 class Mage_PaypalUk_Model_Direct extends Mage_Paypal_Model_Direct
 {
-    protected $_code  = 'paypaluk_direct';
+    protected $_code  = Mage_Paypal_Model_Config::METHOD_WPP_PE_DIRECT;
 
     /**
      * Website Payments Pro instance type
@@ -46,6 +46,33 @@ class Mage_PaypalUk_Model_Direct extends Mage_Paypal_Model_Direct
     protected $_notifyAction = 'paypaluk/ipn/direct';
 
     /**
+     * Return available CC types for gateway based on merchant country
+     *
+     * @return string
+     */
+    public function getAllowedCcTypes()
+    {
+        return $this->_pro->getConfig()->cctypes;
+    }
+
+    /**
+     * Merchant country limitation for 3d secure feature, rewrite for parent implementation
+     *
+     * @return bool
+     */
+    public function getIsCentinelValidationEnabled()
+    {
+        if (!parent::getIsCentinelValidationEnabled()) {
+            return false;
+        }
+        // available only for US and UK merchants
+        if (in_array($this->_pro->getConfig()->getMerchantCountry(), array('US', 'GB'))) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * Import direct payment results to payment
      *
      * @param Mage_Paypal_Model_Api_Nvp
@@ -59,5 +86,18 @@ class Mage_PaypalUk_Model_Direct extends Mage_Paypal_Model_Direct
             ;
         $payment->setPreparedMessage(Mage::helper('paypaluk')->__('Payflow PNREF: #%s.', $api->getTransactionId()));
         Mage::getModel($this->_infoType)->importToPayment($api, $payment);
+    }
+
+    /**
+     * Format credit card expiration date based on month and year values
+     * Format: mmyy
+     *
+     * @param string|int $month
+     * @param string|int $year
+     * @return string
+     */
+    protected function _getFormattedCcExpirationDate($month, $year)
+    {
+        return sprintf('%02d', $month) . sprintf('%02d', substr($year, -2, 2));
     }
 }

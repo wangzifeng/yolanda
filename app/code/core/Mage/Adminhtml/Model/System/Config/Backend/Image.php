@@ -53,7 +53,7 @@ class Mage_Adminhtml_Model_System_Config_Backend_Image extends Mage_Core_Model_C
             /* @var $fieldConfig Varien_Simplexml_Element */
 
             if (empty($fieldConfig->upload_dir)) {
-                Mage::throwException(Mage::helper('catalog')->__('Base directory to upload image file is not specified'));
+                Mage::throwException(Mage::helper('catalog')->__('The base directory to upload image file is not specified.'));
             }
 
             $uploadDir =  (string)$fieldConfig->upload_dir;

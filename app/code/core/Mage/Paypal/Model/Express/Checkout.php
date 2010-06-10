@@ -164,6 +164,7 @@ class Mage_Paypal_Model_Express_Checkout
      */
     public function start($returnUrl, $cancelUrl)
     {
+        $this->_quote->collectTotals();
         $this->_quote->reserveOrderId()->save();
         // prepare API
         $this->_getApi();
@@ -200,10 +201,36 @@ class Mage_Paypal_Model_Express_Checkout
             $this->_quote->getPayment()->save();
         }
         // add line items
-        if ($this->_config->lineItemsEnabled && Mage::helper('paypal')->doLineItemsMatchAmount($this->_quote, $this->_quote->getBaseGrandTotal())) {//For transfering line items order amount must be equal to cart total amount
+        if ($this->_config->lineItemsEnabled) {
             list($items, $totals) = Mage::helper('paypal')->prepareLineItems($this->_quote);
-            $this->_api->setLineItems($items)->setLineItemTotals($totals);
+            if (Mage::helper('paypal')->areCartLineItemsValid($items, $totals, $this->_quote->getBaseGrandTotal())) {
+                $this->_api->setLineItems($items)->setLineItemTotals($totals);
+            }
         }
+
+        // add shipping options
+        if (!$this->_quote->getIsVirtual() && $this->_config->lineItemsEnabled && $this->_config->transferShippingOptions) {
+            $options = Mage::helper('paypal')->prepareShippingOptions($address, true);
+            if (!empty($options)) { // PayPal must fix bug with empty shipping rates
+                $url = Mage::getUrl('*/*/callbackshippingoptions', array('quote_id' => $this->_quote->getId()));
+                $this->_api
+                    ->setCallbackUrl($url)
+                    ->setShippingOptions($options);
+            }
+        }
+
+        // add recurring payment profiles information
+        if ($profiles = $this->_quote->prepareRecurringPaymentProfiles()) {
+            foreach ($profiles as $profile) {
+                $profile->setMethodCode(Mage_Paypal_Model_Config::METHOD_WPP_EXPRESS);
+                if (!$profile->isValid()) {
+                    Mage::throwException($profile->getValidationErrors(true, true));
+                }
+            }
+            $this->_api->addRecurringPaymentProfiles($profiles);
+        }
+
+        $this->_api->setBusinessAccount($this->_config->businessAccount);
 
         $this->_config->exportExpressCheckoutStyleSettings($this->_api);
 
@@ -221,7 +248,9 @@ class Mage_Paypal_Model_Express_Checkout
     public function returnFromPaypal($token)
     {
         $this->_getApi();
-        $this->_api->setToken($token)->callGetExpressCheckoutDetails();
+        $this->_api->setToken($token)
+            ->setBusinessAccount($this->_config->businessAccount)
+            ->callGetExpressCheckoutDetails();
 
         // import addresses
         $billingAddress = $this->_quote->getBillingAddress();
@@ -238,6 +267,20 @@ class Mage_Paypal_Model_Express_Checkout
             $shippingAddress->setCollectShippingRates(true);
         }
         $this->_ignoreAddressValidation();
+
+        // import shipping rate
+        if ((!$this->_quote->getIsVirtual()) &&
+            $this->_api->getShippingRateCode() &&
+            $this->_quote->getShippingAddress()) {
+
+            $address = $this->_quote->getShippingAddress();
+            $options = Mage::helper('paypal')->prepareShippingOptions($address);
+            foreach ($options as $option) {
+               if ($option->getName() == $this->_api->getShippingRateCode()) {
+                   $address->setShippingMethod($option->getCode());
+               }
+            }
+        }
 
         // import payment info
         $payment = $this->_quote->getPayment();
@@ -263,6 +306,46 @@ class Mage_Paypal_Model_Express_Checkout
         }
         $this->_ignoreAddressValidation();
         $this->_quote->collectTotals()->save();
+    }
+
+    /**
+     * Return callback response with shipping options
+     *
+     * @param array $request
+     * @return string
+     */
+    public function getCallbackShippingOptionsResponse($request)
+    {
+        $logger = Mage::getModel('core/log_adapter', 'payment_' . $this->_methodType . '.log');
+        $debugData = array('request' => $request, 'response' => array());
+
+        try {
+            $this->_getApi()->importCallbackRequest($request);
+            $callbackRequestShippingAddress = $this->_getApi()->getCallbackRequestShippingAddress();
+            $quoteShippingAddress = $this->_quote->getShippingAddress();
+
+            $options = array();
+            if ((!$this->_quote->getIsVirtual()) && $callbackRequestShippingAddress && $quoteShippingAddress) {
+                foreach ($callbackRequestShippingAddress->getExportedKeys() as $key) {
+                    $quoteShippingAddress->setDataUsingMethod($key, $callbackRequestShippingAddress->getData($key));
+                }
+                $quoteShippingAddress->setCollectShippingRates(true);
+                $quoteShippingAddress->collectShippingRates();
+                $options = Mage::helper('paypal')->prepareShippingOptions($quoteShippingAddress);
+            }
+
+            $response = $this->_getApi()
+                ->setShippingOptions($options)
+                ->getCallbackResponse();
+
+            parse_str($response, $debugData['response']);
+            $logger->log($debugData);
+        } catch (Exception $e) {
+            $logger->log($debugData);
+            throw $e;
+        }
+
+        return $response;
     }
 
     /**
@@ -301,6 +384,7 @@ class Mage_Paypal_Model_Express_Checkout
         }
 
         $this->_ignoreAddressValidation();
+        $this->_quote->collectTotals();
         $order = Mage::getModel('sales/service_quote', $this->_quote)->submit();
         $this->_quote->save();
 

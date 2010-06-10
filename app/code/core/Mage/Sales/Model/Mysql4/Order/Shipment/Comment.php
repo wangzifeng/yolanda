@@ -25,21 +25,15 @@
  */
 
 /**
- * Shipment comment resource model
+ * Flat sales order shipment comment resource
  *
- * @category   Mage
- * @package    Mage_Sales
- * @author      Magento Core Team <core@magentocommerce.com>
  */
-class Mage_Sales_Model_Mysql4_Order_Shipment_Comment extends Mage_Eav_Model_Entity_Abstract
+class Mage_Sales_Model_Mysql4_Order_Shipment_Comment extends Mage_Sales_Model_Mysql4_Order_Abstract
 {
-    public function __construct()
-    {
-        $resource = Mage::getSingleton('core/resource');
-        $this->setType('shipment_comment')->setConnection(
-            $resource->getConnection('sales_read'),
-            $resource->getConnection('sales_write')
-        );
-    }
+    protected $_eventPrefix = 'sales_order_shipment_comment_resource';
 
+    protected function _construct()
+    {
+        $this->_init('sales/shipment_comment', 'entity_id');
+    }
 }

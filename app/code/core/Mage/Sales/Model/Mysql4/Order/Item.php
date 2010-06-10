@@ -25,18 +25,13 @@
  */
 
 /**
- * Order item mysql4 resource model
+ * Flat sales order item resource
  *
- * @category    Mage
- * @package     Mage_Sales
- * @author      Magento Core Team <core@magentocommerce.com>
  */
-
-class Mage_Sales_Model_Mysql4_Order_Item extends Mage_Sales_Model_Mysql4_Abstract
+class Mage_Sales_Model_Mysql4_Order_Item extends Mage_Sales_Model_Mysql4_Order_Abstract
 {
-    /**
-     * Initialize table and PK name
-     */
+    protected $_eventPrefix = 'sales_order_item_resource';
+
     protected function _construct()
     {
         $this->_init('sales/order_item', 'item_id');

@@ -87,7 +87,7 @@ class Mage_Rss_Block_Order_New extends Mage_Core_Block_Template
         $rssObj = $args['rssObj'];
         $order = $args['order'];
         $detailBlock = $args['detailBlock'];
-        $order->unsetData()->load($args['row']['entity_id']);
+        $order->reset()->load($args['row']['entity_id']);
         if ($order && $order->getId()) {
             $title = Mage::helper('rss')->__('Order #%s created at %s', $order->getIncrementId(), $this->formatDate($order->getCreatedAt()));
             $url = Mage::helper('adminhtml')->getUrl('adminhtml/sales_order/view', array('_secure' => true, 'order_id' => $order->getId(), '_nosecret' => true));

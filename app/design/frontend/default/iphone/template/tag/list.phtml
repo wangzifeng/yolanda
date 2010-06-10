@@ -27,11 +27,6 @@
 <?php if( $this->getCount() ): ?>
 <br /><div class="head"><h4><?php echo $this->__('Product Tags') ?></h4></div>
     <div class="tags-list">
-        <?php $_iterator = 0; ?>
-        <?php foreach( $this->getTags() as $_tag ): ?>
-            <?php $_iterator += 1; ?>
-            <a href="<?php echo $_tag->getTaggedProductsUrl() ?>"><?php echo $this->htmlEscape($_tag->getName()) ?></a> (<?php echo $_tag->getPopularity() ?>)
-            <?php if($_iterator != $this->getCount()): ?>, <?php endif; ?>
-        <?php endforeach; ?>
+        <?php echo $this->renderTags('<a href="%1$s">%2$s</a> (%3$s)', ' ,') ?>
     </div>
 <?php endif; ?>

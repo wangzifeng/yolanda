@@ -95,8 +95,8 @@ class Mage_Adminhtml_Block_Catalog_Product_Edit_Tab_Crosssell extends Mage_Admin
         $collection = Mage::getModel('catalog/product_link')->useCrossSellLinks()
             ->getProductCollection()
             ->setProduct($this->_getProduct())
+            ->setPositionOrder()
             ->addAttributeToSelect('*');
-
         if ($this->isReadonly()) {
             $productIds = $this->_getSelectedProducts();
             if (empty($productIds)) {
@@ -104,6 +104,7 @@ class Mage_Adminhtml_Block_Catalog_Product_Edit_Tab_Crosssell extends Mage_Admin
             }
             $collection->addFieldToFilter('entity_id', array('in'=>$productIds));
         }
+
 
         $this->setCollection($collection);
 

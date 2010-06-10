@@ -46,7 +46,7 @@ class Mage_Adminhtml_Block_Sales_Order_Create_Sidebar_Reorder extends Mage_Admin
 
     public function getHeaderText()
     {
-        return Mage::helper('sales')->__('Last ordered items');
+        return Mage::helper('sales')->__('Last Ordered Items');
     }
 
     /**
@@ -58,11 +58,10 @@ class Mage_Adminhtml_Block_Sales_Order_Create_Sidebar_Reorder extends Mage_Admin
     {
         $storeIds = $this->getQuote()->getStore()->getWebsite()->getStoreIds();
         $collection = Mage::getResourceModel('sales/order_collection')
-            ->addAttributeToSelect('*')
-            ->addAttributeToFilter('customer_id', $this->getCustomerId())
-            ->addAttributeToFilter('store_id', array('in' => $storeIds))
-            ->addAttributeToSort('created_at', 'desc')
-            ->setPage(1, 1)
+            ->addFieldToFilter('customer_id', $this->getCustomerId())
+            ->addFieldToFilter('store_id', array('in' => $storeIds))
+            ->setOrder('created_at', 'desc')
+            ->setPageSize(1)
             ->load();
         foreach ($collection as $order) {
             return $order;

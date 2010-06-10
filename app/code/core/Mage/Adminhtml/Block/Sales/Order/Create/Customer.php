@@ -43,7 +43,7 @@ class Mage_Adminhtml_Block_Sales_Order_Create_Customer extends Mage_Adminhtml_Bl
 
     public function getHeaderText()
     {
-        return Mage::helper('sales')->__('Please select a customer');
+        return Mage::helper('sales')->__('Please Select a Customer');
     }
 
     public function getButtonsHtml()

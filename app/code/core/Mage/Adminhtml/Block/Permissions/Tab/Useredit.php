@@ -131,9 +131,9 @@ class Mage_Adminhtml_Block_Permissions_Tab_Useredit extends Mage_Adminhtml_Block
         $fieldset->addField('is_active', 'select',
             array(
                 'name'  	=> 'is_active',
-                'label' 	=> Mage::helper('adminhtml')->__('This account is'),
+                'label' 	=> Mage::helper('adminhtml')->__('This Account is'),
                 'id'    	=> 'is_active',
-                'title' 	=> Mage::helper('adminhtml')->__('Account status'),
+                'title' 	=> Mage::helper('adminhtml')->__('Account Status'),
                 'class' 	=> 'input-select',
                 'required' 	=> false,
                 'style'		=> 'width: 80px',

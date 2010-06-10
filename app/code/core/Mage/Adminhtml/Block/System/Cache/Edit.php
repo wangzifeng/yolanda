@@ -45,7 +45,7 @@ class Mage_Adminhtml_Block_System_Cache_Edit extends Mage_Adminhtml_Block_Widget
         $this->setChild('save_button',
             $this->getLayout()->createBlock('adminhtml/widget_button')
                 ->setData(array(
-                    'label'     => Mage::helper('adminhtml')->__('Save cache settings'),
+                    'label'     => Mage::helper('adminhtml')->__('Save Cache Settings'),
                     'onclick'   => 'configForm.submit()',
                     'class' => 'save',
                 ))
@@ -130,7 +130,7 @@ class Mage_Adminhtml_Block_System_Cache_Edit extends Mage_Adminhtml_Block_Widget
                     array(
                         'name'      => 'refresh_layered_navigation_now',
                         'action'    => Mage::helper('adminhtml')->__('Refresh Now*'),
-                        'comment'   => Mage::helper('adminhtml')->__('* - If indexing is in progress, it will be killed and new indexing process will start'),
+                        'comment'   => Mage::helper('adminhtml')->__('* - If indexing is in progress, it will be killed and new indexing process will start.'),
                         'warning'   => $warning,
                         )
                 ),

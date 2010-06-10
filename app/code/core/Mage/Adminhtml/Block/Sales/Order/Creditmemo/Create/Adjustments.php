@@ -50,4 +50,38 @@ class Mage_Adminhtml_Block_Sales_Order_Creditmemo_Create_Adjustments extends Mag
     {
         return $this->_source;
     }
+
+    /**
+     * Get credit memo shipping amount depend on configuration settings
+     * @return float
+     */
+    public function getShippingAmount()
+    {
+        $config = Mage::getSingleton('tax/config');
+        $source = $this->getSource();
+        if ($config->displaySalesShippingInclTax($source->getOrder()->getStoreId())) {
+            $shipping = $source->getBaseShippingInclTax();
+        } else {
+            $shipping = $source->getBaseShippingAmount();
+        }
+        return $shipping*1;
+    }
+
+    /**
+     * Get label for shipping total based on configuration settings
+     * @return string
+     */
+    public function getShippingLabel()
+    {
+        $config = Mage::getSingleton('tax/config');
+        $source = $this->getSource();
+        if ($config->displaySalesShippingInclTax($source->getOrder()->getStoreId())) {
+            $label = $this->helper('sales')->__('Refund Shipping (Incl. Tax)');
+        } elseif ($config->displaySalesShippingBoth($source->getOrder()->getStoreId())) {
+            $label = $this->helper('sales')->__('Refund Shipping (Excl. Tax)');
+        } else {
+            $label = $this->helper('sales')->__('Refund Shipping');
+        }
+        return $label;
+    }
 }

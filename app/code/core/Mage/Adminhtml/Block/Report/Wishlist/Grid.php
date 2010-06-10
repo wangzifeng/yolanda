@@ -94,7 +94,7 @@ class Mage_Adminhtml_Block_Report_Wishlist_Grid extends Mage_Adminhtml_Block_Wid
         ));
 
         $this->addColumn('num_deleted', array(
-            'header'    =>Mage::helper('reports')->__('Number of times deleted'),
+            'header'    =>Mage::helper('reports')->__('Number of Times Deleted'),
             'width'     =>'50px',
             'align'     =>'right',
             'sortable'  =>false,

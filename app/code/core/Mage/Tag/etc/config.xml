@@ -28,7 +28,7 @@
 <config>
     <modules>
         <Mage_Tag>
-            <version>0.7.5</version>
+            <version>0.7.7</version>
         </Mage_Tag>
     </modules>
     <global>
@@ -56,6 +56,9 @@
                     <summary>
                         <table>tag_summary</table>
                     </summary>
+                    <properties>
+                        <table>tag_properties</table>
+                    </properties>
                 </entities>
             </tag_mysql4>
         </models>
@@ -69,6 +72,13 @@
         <blocks>
             <tag><class>Mage_Tag_Block</class></tag>
         </blocks>
+        <index>
+            <indexer>
+                <tag_summary>
+                    <model>tag/indexer_summary</model>
+                </tag_summary>
+            </indexer>
+        </index>
     </global>
     <frontend>
         <routers>

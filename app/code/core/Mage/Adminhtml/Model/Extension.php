@@ -143,7 +143,7 @@ class Mage_Adminhtml_Model_Extension extends Varien_Object
 
                     case 'subpackage':
                         if ($type==='conflicts') {
-                            Mage::throwException(Mage::helper('adminhtml')->__("Subpackage can't be conflicting"));
+                            Mage::throwException(Mage::helper('adminhtml')->__("Subpackage cannot be conflicting."));
                         }
                         $pfm->addSubpackageDepWithChannel(
                             $type, $name, $channel, $min, $max, $recommended, $exclude);

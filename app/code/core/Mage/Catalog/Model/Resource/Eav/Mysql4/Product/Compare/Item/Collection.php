@@ -312,21 +312,8 @@ class Mage_Catalog_Model_Resource_Eav_Mysql4_Product_Compare_Item_Collection ext
      */
     public function clear()
     {
-        $where = array();
-        if ($this->getCustomerId()) {
-            $where[] = $this->getConnection()->quoteInto('customer_id=?', $this->getCustomerId());
-        }
-        if ($this->getVisitorId()) {
-            $where[] = $this->getConnection()->quoteInto('visitor_id=?', $this->getVisitorId());
-        }
-        if (!$where) {
-            return $this;
-        }
-
-        $this->getConnection()->delete($this->getTable('catalog/compare_item'), $where);
-
+        Mage::getResourceSingleton('catalog/product_compare_item')->clearItems($this->getVisitorId(), $this->getCustomerId());
         Mage::dispatchEvent('catalog_product_compare_item_collection_clear');
-
         return $this;
     }
 

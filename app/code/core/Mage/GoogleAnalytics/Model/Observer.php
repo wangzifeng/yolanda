@@ -56,7 +56,11 @@ class Mage_GoogleAnalytics_Model_Observer
         $analyticsBlock = Mage::app()->getFrontController()->getAction()->getLayout()->getBlock('google_analytics');
         if ($quoteId && ($analyticsBlock instanceof Mage_Core_Block_Abstract)) {
             $quote = Mage::getModel('sales/quote')->load($quoteId);
-            $analyticsBlock->setQuote($quote);
+            if ($quoteId == $quote->getId()) {
+                $analyticsBlock->setQuote($quote);
+            } else {
+                $analyticsBlock->setQuote($quoteId);
+            }
         }
     }
 }

@@ -27,11 +27,8 @@
 /**
  * Products Ordered (Bestsellers) Report collection
  *
- * @category   Mage
- * @package    Mage_Reports
- * @author      Magento Core Team <core@magentocommerce.com>
+ * @deprecated after 1.4.0.1
  */
-
 class Mage_Reports_Model_Mysql4_Product_Ordered_Collection extends Mage_Reports_Model_Mysql4_Product_Collection
 {
     protected function _joinFields($from = '', $to = '')

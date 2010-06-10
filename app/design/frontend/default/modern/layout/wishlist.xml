@@ -100,7 +100,7 @@ Wishlist pages
     <wishlist_shared_index translate="label">
         <label>Customer Shared Wishlist View</label>
         <!-- Mage_Wishlist -->
-        <reference name="my.account.wrapper">
+        <reference name="content">
             <block type="wishlist/share_wishlist" name="customer.wishlist" template="wishlist/shared.phtml"/>
         </reference>
     </wishlist_shared_index>

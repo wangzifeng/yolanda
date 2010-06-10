@@ -31,6 +31,7 @@ class Mage_Shipping_Model_Carrier_Tablerate
 {
 
     protected $_code = 'tablerate';
+    protected $_isFixed = true;
     protected $_default_condition_name = 'package_weight';
 
     protected $_conditionNames = array();

@@ -37,7 +37,7 @@ class Mage_Centinel_IndexController extends Mage_Core_Controller_Front_Action
     public function authenticationStartAction()
     {
         if ($validator = $this->_getValidator()) {
-            Mage::register('centinel_validator', $validator);
+            Mage::register('current_centinel_validator', $validator);
         }
         $this->loadLayout()->renderLayout();
     }
@@ -48,15 +48,19 @@ class Mage_Centinel_IndexController extends Mage_Core_Controller_Front_Action
      */
     public function authenticationCompleteAction()
     {
-        if ($validator = $this->_getValidator()) {
-            $request = $this->getRequest();
+        try {
+           if ($validator = $this->_getValidator()) {
+                $request = $this->getRequest();
 
-            $data = new Varien_Object();
-            $data->setTransactionId($request->getParam('MD'));
-            $data->setPaResPayload($request->getParam('PaRes'));
+                $data = new Varien_Object();
+                $data->setTransactionId($request->getParam('MD'));
+                $data->setPaResPayload($request->getParam('PaRes'));
 
-            $validator->authenticate($data);
-            Mage::register('centinel_validator', $validator);
+                $validator->authenticate($data);
+                Mage::register('current_centinel_validator', $validator);
+            }
+        } catch (Exception $e) {
+            Mage::register('current_centinel_validator', false);
         }
         $this->loadLayout()->renderLayout();
     }

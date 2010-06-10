@@ -58,7 +58,7 @@ class Mage_Adminhtml_Block_System_Convert_Profile_Edit_Tab_Run extends Mage_Admi
         */
 
         $html .= $this->getLayout()->createBlock('adminhtml/widget_button')->setType('button')
-            ->setClass('save')->setLabel($this->__('Run Profile In Popup'))
+            ->setClass('save')->setLabel($this->__('Run Profile in Popup'))
             ->setOnClick('runProfile(true)')
             ->toHtml();
 

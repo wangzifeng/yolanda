@@ -109,7 +109,7 @@ class Mage_Adminhtml_Block_Catalog_Category_Tab_Attributes extends Mage_Adminhtm
                 ));
             }
         }
-
+        
         $this->_setFieldset($attributes, $fieldset);
 
         foreach ($attributes as $attribute) {
@@ -121,6 +121,10 @@ class Mage_Adminhtml_Block_Catalog_Category_Tab_Attributes extends Mage_Adminhtm
                         'name'  => 'url_key',
                         'value' => $this->getCategory()->getUrlKey()
                     ));
+                } else {
+                    $form->getElement('url_key')->setRenderer(
+                        $this->getLayout()->createBlock('adminhtml/catalog_form_renderer_attribute_urlkey')
+                    );
                 }
             }
         }
@@ -131,6 +135,10 @@ class Mage_Adminhtml_Block_Catalog_Category_Tab_Attributes extends Mage_Adminhtm
                     $element->setReadonly(true, true);
                 }
             }
+        }
+
+        if (!$this->getCategory()->getId()){
+            $this->getCategory()->setIncludeInMenu(1);
         }
 
         $form->addValues($this->getCategory()->getData());

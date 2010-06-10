@@ -27,8 +27,8 @@
 $installer = $this;
 /* @var $installer Mage_Sales_Model_Mysql4_Setup */
 
-$tableOrder       = $this->getTable('sales/order');
-$tableOrderEntity = $this->getTable('sales/order_entity');
+$tableOrder       = $this->getTable('sales_order');
+$tableOrderEntity = $this->getTable('sales_order_entity');
 
 $cleanTables = array(
     $tableOrder . '_datetime',

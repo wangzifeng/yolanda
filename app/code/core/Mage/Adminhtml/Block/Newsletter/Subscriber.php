@@ -89,7 +89,7 @@ class Mage_Adminhtml_Block_Newsletter_Subscriber extends Mage_Adminhtml_Block_Te
      *
      * @return array
      */
-    public function getQueueAsOptions( )
+    public function getQueueAsOptions()
     {
         return $this->getQueueCollection()->toOptionArray();
     }

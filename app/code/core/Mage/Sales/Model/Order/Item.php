@@ -75,7 +75,7 @@ class Mage_Sales_Model_Order_Item extends Mage_Core_Model_Abstract
     protected function _beforeSave()
     {
         parent::_beforeSave();
-        if (!$this->getOrderId()) {
+        if (!$this->getOrderId() && $this->getOrder()) {
             $this->setOrderId($this->getOrder()->getId());
         }
         if ($this->getParentItem()) {

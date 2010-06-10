@@ -41,6 +41,6 @@ class Mage_PaypalUk_Model_Express_Checkout extends Mage_Paypal_Model_Express_Che
      * Payment method tpye
      * @var unknown_type
      */
-    protected $_methodType = Mage_PaypalUk_Model_Config::METHOD_WPP_PE_EXPRESS;
+    protected $_methodType = Mage_Paypal_Model_Config::METHOD_WPP_PE_EXPRESS;
 
 }

@@ -27,7 +27,8 @@
 
 /**
  * Order Tax Collection
- *
+ * 
+ * @deprecated after 1.4 - moved to Tax module
  * @author Magento Core Team <core@magentocommerce.com>
  */
 class Mage_Sales_Model_Mysql4_Order_Tax_Collection extends Mage_Core_Model_Mysql4_Collection_Abstract

@@ -33,10 +33,11 @@ MediabrowserUtility = {
             resizable:    false,
             draggable:    true,
             className:    'magento',
+            windowClassName:    'popup-window',
             title:        title || 'Insert File...',
             top:          50,
             width:        width || 950,
-            height:       height || 800,
+            height:       height || 600,
             zIndex:       1000,
             recenterAuto: false,
             hideEffect:   Element.hide,
@@ -69,6 +70,7 @@ Mediabrowser.prototype = {
     headerText: null,
     tree: null,
     currentNode: null,
+    storeId: null,
     initialize: function (setup) {
         this.newFolderPrompt = setup.newFolderPrompt;
         this.deleteFolderConfirmationMessage = setup.deleteFolderConfirmationMessage;
@@ -183,7 +185,8 @@ Mediabrowser.prototype = {
             return;
         }
 
-        var params = {filename:div.id, node:this.currentNode.id};
+        var params = {filename:div.id, node:this.currentNode.id, store:this.storeId};
+
         if (targetEl.tagName.toLowerCase() == 'textarea') {
             params.as_is = 1;
         }

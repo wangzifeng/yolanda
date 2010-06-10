@@ -45,7 +45,7 @@ class Mage_Adminhtml_Block_Report_Tag_Customer_Grid extends Mage_Adminhtml_Block
 
         $collection = Mage::getResourceModel('reports/tag_customer_collection');
 
-        $collection->addStatusFilter(Mage::getModel('tag/tag')->getApprovedStatus())
+        $collection->addStatusFilter(Mage_Tag_Model_Tag::STATUS_APPROVED)
             ->addGroupByCustomer()
             ->addTagedCount();
 

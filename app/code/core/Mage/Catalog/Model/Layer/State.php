@@ -56,7 +56,7 @@ class Mage_Catalog_Model_Layer_State extends Varien_Object
     public function setFilters($filters)
     {
         if (!is_array($filters)) {
-            Mage::throwException(Mage::helper('catalog')->__('Filters must be as array'));
+            Mage::throwException(Mage::helper('catalog')->__('The filters must be an array.'));
         }
         $this->setData('filters', $filters);
         return $this;

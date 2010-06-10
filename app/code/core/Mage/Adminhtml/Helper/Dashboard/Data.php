@@ -69,8 +69,8 @@ class Mage_Adminhtml_Helper_Dashboard_Data extends Mage_Core_Helper_Data
     public function getDatePeriods()
     {
         return array(
-            '24h'=>$this->__('Last 24 hours'),
-            '7d'=>$this->__('Last 7 days'),
+            '24h'=>$this->__('Last 24 Hours'),
+            '7d'=>$this->__('Last 7 Days'),
             '1m'=>$this->__('Current Month'),
             '1y'=>$this->__('YTD'),
             '2y'=>$this->__('2YTD')

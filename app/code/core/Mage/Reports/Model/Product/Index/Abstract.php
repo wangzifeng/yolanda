@@ -209,4 +209,16 @@ abstract class Mage_Reports_Model_Product_Index_Abstract extends Mage_Core_Model
         $this->_getResource()->clean($this);
         return $this;
     }
+
+    /**
+     * Add product ids to current visitor/customer log
+     * @param array $productIds
+     * @return Mage_Reports_Model_Product_Index_Abstract
+     */
+    public function registerIds($productIds)
+    {
+        $this->_getResource()->registerIds($this, $productIds);
+        $this->_getSession()->unsData($this->_countCacheKey);
+        return $this;
+    }
 }

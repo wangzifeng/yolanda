@@ -84,13 +84,20 @@ class Mage_Eav_Model_Mysql4_Entity_Attribute_Collection extends Mage_Core_Model_
     /**
      * Specify attribute entity type filter
      *
-     * @param   int $typeId
+     * @param   Mage_Eav_Model_Entity_Type | int $type
      * @return  Mage_Eav_Model_Mysql4_Entity_Attribute_Collection
      */
-    public function setEntityTypeFilter($typeId)
+    public function setEntityTypeFilter($type)
     {
-        $this->getSelect()->where('main_table.entity_type_id=?', $typeId);
-        if ($additionalTable = $this->getResource()->getAdditionalAttributeTable($typeId)) {
+        if ($type instanceof Mage_Eav_Model_Entity_Type) {
+            $additionalTable = $type->getAdditionalAttributeTable();
+            $id = $type->getId();
+        } else {
+            $additionalTable = $this->getResource()->getAdditionalAttributeTable($type);
+            $id = $type;
+        }
+        $this->getSelect()->where('main_table.entity_type_id=?', $id);
+        if ($additionalTable) {
             $this->getSelect()->join(
                 array('additional_table' => $this->getTable($additionalTable)),
                 'additional_table.attribute_id=main_table.attribute_id'

@@ -25,21 +25,17 @@
  */
 
 /**
- * Invoice comment resource model
+ * Flat sales order invoice comment resource
  *
- * @category   Mage
- * @package    Mage_Sales
- * @author      Magento Core Team <core@magentocommerce.com>
  */
-class Mage_Sales_Model_Mysql4_Order_Invoice_Comment extends Mage_Eav_Model_Entity_Abstract
+class Mage_Sales_Model_Mysql4_Order_Invoice_Comment extends Mage_Sales_Model_Mysql4_Order_Abstract
 {
-    public function __construct()
+    protected $_eventPrefix = 'sales_order_invoice_comment_resource';
+
+
+    protected function _construct()
     {
-        $resource = Mage::getSingleton('core/resource');
-        $this->setType('invoice_comment')->setConnection(
-            $resource->getConnection('sales_read'),
-            $resource->getConnection('sales_write')
-        );
+        $this->_init('sales/invoice_comment', 'entity_id');
     }
 
 }

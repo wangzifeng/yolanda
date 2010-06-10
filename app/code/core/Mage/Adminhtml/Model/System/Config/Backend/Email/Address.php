@@ -38,7 +38,7 @@ class Mage_Adminhtml_Model_System_Config_Backend_Email_Address extends Mage_Core
     {
         $value = $this->getValue();
         if (!Zend_Validate::is($value, 'EmailAddress')) {
-            Mage::throwException(Mage::helper('adminhtml')->__('Invalid email address "%s"', $value));
+            Mage::throwException(Mage::helper('adminhtml')->__('Invalid email address "%s".', $value));
         }
         return $this;
     }

@@ -41,7 +41,7 @@ class Mage_CatalogSearch_Model_Mysql4_Fulltext_Collection
     /**
      * Add search query filter
      *
-     * @param   Mage_CatalogSearch_Model_Query $query
+     * @param   string $query
      * @return  Mage_CatalogSearch_Model_Mysql4_Search_Collection
      */
     public function addSearchFilter($query)
@@ -67,7 +67,7 @@ class Mage_CatalogSearch_Model_Mysql4_Fulltext_Collection
      * @param string $dir
      * @return Mage_CatalogSearch_Model_Mysql4_Fulltext_Collection
      */
-    public function setOrder($attribute, $dir='desc')
+    public function setOrder($attribute, $dir = 'desc')
     {
         if ($attribute == 'relevance') {
             $this->getSelect()->order("relevance {$dir}");

@@ -24,7 +24,9 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-
+/**
+ * @deprecated after 1.4, no more EAV for sales
+ */
 class Mage_Sales_Model_Mysql4_Order_Creditmemo_Attribute_Backend_Child
     extends Mage_Eav_Model_Entity_Attribute_Backend_Abstract
 {

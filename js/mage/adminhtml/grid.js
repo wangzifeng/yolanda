@@ -323,6 +323,7 @@ varienGridMassaction.prototype = {
     errorText:'',
     items: {},
     gridIds: [],
+    useSelectAll: false,
     currentItem: false,
     fieldTemplate: new Template('<input type="hidden" name="#{name}" value="#{value}" />'),
     initialize: function (containerId, grid, checkedValues, formFieldNameInternal, formFieldName) {
@@ -349,6 +350,9 @@ varienGridMassaction.prototype = {
     },
     setUseAjax: function(flag) {
         this.useAjax = flag;
+    },
+    setUseSelectAll: function(flag) {
+        this.useSelectAll = flag;
     },
     initMassactionElements: function() {
         this.container      = $(this.containerId);
@@ -467,7 +471,7 @@ varienGridMassaction.prototype = {
         }.bind(this));
     },
     selectAll: function() {
-        this.setCheckedValues(this.getGridIds());
+        this.setCheckedValues((this.useSelectAll ? this.getGridIds() : this.getCheckboxesValuesAsString()));
         this.checkCheckboxes();
         this.updateCount();
         return false;
@@ -583,7 +587,7 @@ varienGridMassaction.prototype = {
         if(this.currentItem.complete) {
             try {
                 var listener = this.getListener(this.currentItem.complete) || Prototype.emptyFunction;
-                listener(grid, this, transport);
+                listener(this.grid, this, transport);
             } catch (e) {}
        }
     },

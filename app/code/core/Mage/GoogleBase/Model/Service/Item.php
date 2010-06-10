@@ -217,7 +217,7 @@ class Mage_GoogleBase_Model_Service_Item extends Mage_GoogleBase_Model_Service
     {
         $object = $this->getObject();
         if (!($object instanceof Varien_Object)) {
-            Mage::throwException(Mage::helper('googlebase')->__('Object model is not specified to save Google Base entry'));
+            Mage::throwException(Mage::helper('googlebase')->__('Object model is not specified to save Google Base entry.'));
         }
 
         $this->_setUniversalData();
@@ -385,7 +385,7 @@ class Mage_GoogleBase_Model_Service_Item extends Mage_GoogleBase_Model_Service
     protected function _checkItem()
     {
         if (!($this->getItem() instanceof Mage_GoogleBase_Model_Item)) {
-            Mage::throwException(Mage::helper('googlebase')->__('Item model is not specified to delete Google Base entry'));
+            Mage::throwException(Mage::helper('googlebase')->__('Item model is not specified to delete Google Base entry.'));
         }
     }
 

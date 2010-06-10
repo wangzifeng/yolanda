@@ -33,9 +33,28 @@ class Mage_Catalog_Helper_Output extends Mage_Core_Helper_Abstract
      */
     protected $_handlers;
 
+    /**
+     * Template processor instance
+     *
+     * @var Varien_Filter_Template
+     */
+    protected $_templateProcessor = null;
+
+    /**
+     * Constructor
+     */
     public function __construct()
     {
         Mage::dispatchEvent('catalog_helper_output_construct', array('helper'=>$this));
+    }
+
+    protected function _getTemplateProcessor()
+    {
+        if (null === $this->_templateProcessor) {
+            $this->_templateProcessor = Mage::helper('catalog')->getPageTemplateProcessor();
+        }
+
+        return $this->_templateProcessor;
     }
 
     /**
@@ -100,12 +119,18 @@ class Mage_Catalog_Helper_Output extends Mage_Core_Helper_Abstract
      */
     public function productAttribute($product, $attributeHtml, $attributeName)
     {
-        $attributes = $product->getAttributes();
-        $attribute  = (isset($attributes[$attributeName])) ? $attributes[$attributeName] : null;
-
-        if ($attribute && ($attribute->getFrontendInput() != 'media_image')
+        $attribute = Mage::getSingleton('eav/config')->getAttribute('catalog_product', $attributeName);
+        if ($attribute && $attribute->getId() && ($attribute->getFrontendInput() != 'media_image')
             && (!$attribute->getIsHtmlAllowedOnFront() && !$attribute->getIsWysiwygEnabled())) {
                 $attributeHtml = $this->htmlEscape($attributeHtml);
+                if ($attribute->getFrontendInput() == 'textarea') {
+                    $attributeHtml = nl2br($attributeHtml);
+                }
+        }
+        if ($attribute->getIsHtmlAllowedOnFront() && $attribute->getIsWysiwygEnabled()) {
+            if (Mage::helper('catalog')->isUrlDirectivesParsingAllowed()) {
+                $attributeHtml = $this->_getTemplateProcessor()->filter($attributeHtml);
+            }
         }
         $attributeHtml = $this->process('productAttribute', $attributeHtml, array(
             'product'   => $product,
@@ -129,6 +154,11 @@ class Mage_Catalog_Helper_Output extends Mage_Core_Helper_Abstract
         if ($attribute && ($attribute->getFrontendInput() != 'image')
             && (!$attribute->getIsHtmlAllowedOnFront() && !$attribute->getIsWysiwygEnabled())) {
             $attributeHtml = $this->htmlEscape($attributeHtml);
+        }
+        if ($attribute->getIsHtmlAllowedOnFront() && $attribute->getIsWysiwygEnabled()) {
+            if (Mage::helper('catalog')->isUrlDirectivesParsingAllowed()) {
+                $attributeHtml = $this->_getTemplateProcessor()->filter($attributeHtml);
+            }
         }
         $attributeHtml = $this->process('categoryAttribute', $attributeHtml, array(
             'category'  => $category,

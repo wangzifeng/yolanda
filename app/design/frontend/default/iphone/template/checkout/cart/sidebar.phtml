@@ -31,7 +31,7 @@
  * @see Mage_Checkout_Block_Cart_Sidebar
  */
 ?>
-<?php if($this->getCanDisplayCart()): ?>
+<?php if($this->getCanDisplayCart() && $this->getIsNeedToDisplaySideBar()): ?>
 <div class="box base-mini mini-cart">
     <div class="head">
         <?php $_cartQty = $this->getSummaryCount() ?>

@@ -89,4 +89,18 @@ class Mage_Customer_Helper_Address extends Mage_Core_Helper_Abstract
         $format = Mage::getSingleton('customer/address_config')->getFormatByCode($code);
         return $format->getRenderer() ? $format->getRenderer()->getFormat() : '';
     }
+
+    /**
+     * Determine if specified address config value can show
+     *
+     * @return bool
+     */
+    public function canShowConfig($key)
+    {
+        $value = $this->getConfig($key);
+        if (empty($value)) {
+            return false;
+        }
+        return true;
+    }
 }

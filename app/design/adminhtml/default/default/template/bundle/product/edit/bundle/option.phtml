@@ -124,6 +124,9 @@ Bundle.Option.prototype = {
                 if (option.value==data.required) option.selected = true;
             });
         }
+        // rebind change notifications
+        varienWindowOnload(true);
+
         return data.index;
     },
 

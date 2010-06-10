@@ -61,8 +61,8 @@ class Mage_Adminhtml_Block_Customer_Group_Edit_Form extends Mage_Adminhtml_Block
         $fieldset->addField('tax_class_id', 'select',
             array(
                 'name'  => 'tax_class',
-                'label' => Mage::helper('customer')->__('Tax class'),
-                'title' => Mage::helper('customer')->__('Tax class'),
+                'label' => Mage::helper('customer')->__('Tax Class'),
+                'title' => Mage::helper('customer')->__('Tax Class'),
                 'class' => 'required-entry',
                 'required' => true,
                 'values' => Mage::getSingleton('tax/class_source_customer')->toOptionArray()

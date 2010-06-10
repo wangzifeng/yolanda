@@ -136,6 +136,9 @@ class Mage_Catalog_Block_Product_List extends Mage_Catalog_Block_Product_Abstrac
         if ($sort = $this->getSortBy()) {
             $toolbar->setDefaultOrder($sort);
         }
+        if ($dir = $this->getDefaultDirection()) {
+            $toolbar->setDefaultDirection($dir);
+        }
         if ($modes = $this->getModes()) {
             $toolbar->setModes($modes);
         }

@@ -74,7 +74,7 @@ class Mage_Adminhtml_Newsletter_ProblemController extends Mage_Adminhtml_Control
             }
 
             Mage::getSingleton('adminhtml/session')
-                ->addSuccess(Mage::helper('newsletter')->__('Selected problem subscribers successfully unsubscribed'));
+                ->addSuccess(Mage::helper('newsletter')->__('Selected problem subscribers have been unsubscribed.'));
         }
 
         if($this->getRequest()->getParam('_delete')) {
@@ -89,7 +89,7 @@ class Mage_Adminhtml_Newsletter_ProblemController extends Mage_Adminhtml_Control
             }
 
             Mage::getSingleton('adminhtml/session')
-                ->addSuccess(Mage::helper('newsletter')->__('Selected problems successfully deleted'));
+                ->addSuccess(Mage::helper('newsletter')->__('Selected problems have been deleted.'));
         }
                 $this->getLayout()->getMessagesBlock()->setMessages(Mage::getSingleton('adminhtml/session')->getMessages(true));
 

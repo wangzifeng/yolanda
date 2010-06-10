@@ -64,7 +64,8 @@ class Mage_Sales_Model_Mysql4_Report_Shipping_Collection_Order extends Mage_Sale
                 'period'                => $this->_periodFormat,
                 'shipping_description'  => 'shipping_description',
                 'orders_count'          => 'sum(orders_count)',
-                'total_shipping'        => 'sum(total_shipping)'
+                'total_shipping'        => 'sum(total_shipping)',
+                'total_shipping_actual' => 'sum(total_shipping_actual)',
             );
         }
 

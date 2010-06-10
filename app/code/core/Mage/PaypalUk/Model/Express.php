@@ -29,7 +29,7 @@
  */
 class Mage_PaypalUk_Model_Express extends Mage_Paypal_Model_Express
 {
-    protected $_code = Mage_PaypalUk_Model_Config::METHOD_WPP_PE_EXPRESS;
+    protected $_code = Mage_Paypal_Model_Config::METHOD_WPP_PE_EXPRESS;
     protected $_formBlockType = 'paypaluk/express_form';
 
     /**
@@ -45,6 +45,24 @@ class Mage_PaypalUk_Model_Express extends Mage_Paypal_Model_Express
      * @var string
      */
     protected $_ipnAction = 'paypaluk/ipn/express';
+
+    /**
+     * Custom getter for payment configuration
+     *
+     * @param string $field
+     * @param int $storeId
+     * @return mixed
+     */
+    public function getConfigData($field, $storeId = null)
+    {
+        $value = parent::getConfigData($field, $storeId);
+        if ($field == 'visible_on_cart' || $field == 'visible_on_product') {
+            $wppExpressShortcut = Mage::getStoreConfigFlag('payment/'.Mage_Paypal_Model_Config::METHOD_WPP_EXPRESS.'/'.$field, $storeId)
+                && $this->_pro->getConfig()->isMethodAvailable(Mage_Paypal_Model_Config::METHOD_WPP_EXPRESS);
+            $value = (bool)$value && !$wppExpressShortcut;
+        }
+        return $value;
+    }
 
     /**
      * Import payment info to payment

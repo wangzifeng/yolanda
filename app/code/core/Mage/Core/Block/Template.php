@@ -83,7 +83,7 @@ class Mage_Core_Block_Template extends Mage_Core_Block_Abstract
     }
 
     /**
-     * Retrieve path to template used for generating block's output.
+     * Get relevant path to template
      *
      * @return string
      */
@@ -101,10 +101,29 @@ class Mage_Core_Block_Template extends Mage_Core_Block_Abstract
     public function setTemplate($template)
     {
         $this->_template = $template;
-
         return $this;
     }
 
+    /**
+     * Get absolute path to template
+     *
+     * @return string
+     */
+    public function getTemplateFile()
+    {
+        $params = array('_relative'=>true);
+        $area = $this->getArea();
+        if ($area) {
+            $params['_area'] = $area;
+        }
+        $templateName = Mage::getDesign()->getTemplateFilename($this->getTemplate(), $params);
+        return $templateName;
+    }
+
+    /**
+     * Get design area
+     * @return string
+     */
     public function getArea()
     {
         return $this->_getData('area');
@@ -142,6 +161,10 @@ class Mage_Core_Block_Template extends Mage_Core_Block_Abstract
         return $this;
     }
 
+    /**
+     * Check if dirrect output is allowed for block
+     * @return bool
+     */
     public function getDirectOutput()
     {
         if ($this->getLayout()) {
@@ -212,20 +235,8 @@ class Mage_Core_Block_Template extends Mage_Core_Block_Abstract
      */
     public function renderView()
     {
-        Varien_Profiler::start(__METHOD__);
-
         $this->setScriptPath(Mage::getBaseDir('design'));
-        $params = array('_relative'=>true);
-        if ($area = $this->getArea()) {
-            $params['_area'] = $area;
-        }
-
-        $templateName = Mage::getDesign()->getTemplateFilename($this->getTemplate(), $params);
-
-        $html = $this->fetchView($templateName);
-
-        Varien_Profiler::stop(__METHOD__);
-
+        $html = $this->fetchView($this->getTemplateFile());
         return $html;
     }
 
@@ -272,4 +283,21 @@ class Mage_Core_Block_Template extends Mage_Core_Block_Abstract
         return $this->_jsUrl.$fileName;
     }
 
+    /**
+     * Get Key for caching block content
+     *
+     * @return string
+     */
+    public function getCacheKey()
+    {
+        if (!$this->hasData('cache_key')) {
+            $key = array(
+                'BLOCK_TPL',
+                Mage::app()->getStore()->getCode(),
+                $this->getTemplateFile()
+            );
+            $this->setCacheKey(implode(':', $key));
+        }
+        return $this->getData('cache_key');
+    }
 }

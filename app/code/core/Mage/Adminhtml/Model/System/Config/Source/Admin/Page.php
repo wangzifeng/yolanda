@@ -64,7 +64,10 @@ class Mage_Adminhtml_Model_System_Config_Source_Admin_Page
             }
             else {
                 $children = array();
-                $this->_createOptions($children, $menu['children']);
+
+                if(isset($menu['children'])) {
+                    $this->_createOptions($optionArray, $menu['children']);
+                }
 
                 $optionArray[] = array(
                     'label' => str_repeat($nonEscapableNbspChar, ($menu['level'] * 4)) . $menu['label'],

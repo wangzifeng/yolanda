@@ -218,4 +218,17 @@ class Mage_Catalog_Model_Observer
         }
         return $this;
     }
+
+    /**
+     * Checking whether the using static urls in WYSIWYG allowed event
+     *
+     * @param Varien_Event_Observer $observer
+     * @return Mage_Catalog_Model_Observer
+     */
+    public function catalogCheckIsUsingStaticUrlsAllowed(Varien_Event_Observer $observer)
+    {
+        $storeId = $observer->getEvent()->getData('store_id');
+        $result  = $observer->getEvent()->getData('result');
+        $result->isAllowed = Mage::helper('catalog')->setStoreId($storeId)->isUsingStaticUrlsAllowed();
+    }
 }

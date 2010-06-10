@@ -230,6 +230,19 @@ class Mage_Sales_Model_Quote extends Mage_Core_Model_Abstract
     }
 
     /**
+     * Loading only active quote
+     *
+     * @param int $quoteId
+     * @return Mage_Sales_Model_Quote
+     */
+    public function loadActive($quoteId)
+    {
+        $this->_getResource()->loadActive($this, $quoteId);
+        $this->_afterLoad();
+        return $this;
+    }
+
+    /**
      * Assign customer model object data to quote
      *
      * @param   Mage_Customer_Model_Customer $customer
@@ -642,7 +655,7 @@ class Mage_Sales_Model_Quote extends Mage_Core_Model_Abstract
             $request = new Varien_Object(array('qty'=>$request));
         }
         if (!($request instanceof Varien_Object)) {
-            Mage::throwException(Mage::helper('sales')->__('Invalid request for adding product to quote'));
+            Mage::throwException(Mage::helper('sales')->__('Invalid request for adding product to quote.'));
         }
 
         $cartCandidates = $product->getTypeInstance(true)
@@ -731,6 +744,7 @@ class Mage_Sales_Model_Quote extends Mage_Core_Model_Abstract
 
         $item->setOptions($product->getCustomOptions())
             ->setProduct($product);
+
 
         $this->addItem($item);
 
@@ -1192,6 +1206,83 @@ class Mage_Sales_Model_Quote extends Mage_Core_Model_Abstract
         );
 
         return $this;
+    }
+
+    /**
+     * Whether there are recurring items
+     *
+     * @return bool
+     */
+    public function hasRecurringItems()
+    {
+        foreach ($this->getAllVisibleItems() as $item) {
+            if ($item->getProduct() && $item->getProduct()->isRecurring()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Getter whether quote has nominal items
+     * Can bypass treating virtual items as nominal
+     *
+     * @param bool $countVirtual
+     * @return bool
+     */
+    public function hasNominalItems($countVirtual = true)
+    {
+        foreach ($this->getAllVisibleItems() as $item) {
+            if ($item->isNominal()) {
+                if ((!$countVirtual) && $item->getProduct()->isVirtual()) {
+                    continue;
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Whether quote has nominal items only
+     *
+     * @return bool
+     */
+    public function isNominal()
+    {
+        foreach ($this->getAllVisibleItems() as $item) {
+            if (!$item->isNominal()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Create recurring payment profiles basing on the current items
+     *
+     * @return array
+     */
+    public function prepareRecurringPaymentProfiles()
+    {
+        if (!$this->getTotalsCollectedFlag()) {
+            // Whoops! Make sure nominal totals must be calculated here.
+            throw new Exception('Quote totals must be collected before this operation.');
+        }
+
+        $result = array();
+        foreach ($this->getAllVisibleItems() as $item) {
+            $product = $item->getProduct();
+            if (is_object($product) && $profile = Mage::getModel('sales/recurring_profile')->importProduct($product)) {
+                /* @var $profile Mage_Sales_Model_Recurring_Profile */
+                if ($this->getPayment() && $this->getPayment()->getMethod()) {
+                    $profile->setMethodInstance($this->getPayment()->getMethodInstance());
+                }
+                $profile->importQuoteItem($item)->setCurrencyCode($this->getBaseCurrencyCode());
+                $result[] = $profile;
+            }
+        }
+        return $result;
     }
 
     protected function _validateCouponCode()

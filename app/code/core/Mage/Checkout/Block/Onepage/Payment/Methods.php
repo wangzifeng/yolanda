@@ -75,6 +75,20 @@ class Mage_Checkout_Block_Onepage_Payment_Methods extends Mage_Payment_Block_For
     }
 
     /**
+     * Return method title for payment selection page
+     *
+     * @param Mage_Payment_Model_Method_Abstract $method
+     */
+    public function getMethodTitle(Mage_Payment_Model_Method_Abstract $method)
+    {
+        $form = $this->getChild('payment.method.' . $method->getCode());
+        if ($form && $form->hasMethodTitle()) {
+            return $form->getMethodTitle();
+        }
+        return $method->getTitle();
+    }
+
+    /**
      * Payment method additional label part getter
      * @param Mage_Payment_Model_Method_Abstract $method
      */

@@ -83,19 +83,6 @@ Product view
         </reference>
     </cms_page>
 
-    <cms_page>
-        <reference name="head">
-            <block type="googleoptimizer/code_page" before="-" name="googleoptimizer.control.script">
-                <action method="setScriptType"><scriptType>control_script</scriptType></action>
-            </block>
-        </reference>
-        <reference name="before_body_end">
-            <block type="googleoptimizer/code_page" after="-" name="googleoptimizer.tracking.script">
-                <action method="setScriptType"><scriptType>tracking_script</scriptType></action>
-            </block>
-        </reference>
-    </cms_page>
-
     <checkout_cart_index>
         <reference name="before_body_end">
             <block type="googleoptimizer/code_conversion" after="-" name="googleoptimizer.conversion.script">

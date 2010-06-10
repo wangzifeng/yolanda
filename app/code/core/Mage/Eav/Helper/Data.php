@@ -59,7 +59,7 @@ class Mage_Eav_Helper_Data extends Mage_Core_Helper_Abstract
             ),
             array(
                 'value' => 'validate-url',
-                'label' => Mage::helper('eav')->__('Url')
+                'label' => Mage::helper('eav')->__('URL')
             ),
             array(
                 'value' => 'validate-alpha',
@@ -67,7 +67,7 @@ class Mage_Eav_Helper_Data extends Mage_Core_Helper_Abstract
             ),
             array(
                 'value' => 'validate-alphanum',
-                'label' => Mage::helper('eav')->__('Letters(a-zA-Z) or Numbers(0-9)')
+                'label' => Mage::helper('eav')->__('Letters (a-z, A-Z) or Numbers (0-9)')
             )
         );
     }

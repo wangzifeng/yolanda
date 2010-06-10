@@ -47,15 +47,14 @@ class Mage_Sales_Model_Mysql4_Quote_Item_Option_Collection extends Mage_Core_Mod
     public function addItemFilter($item)
     {
         if (empty($item)) {
-            $this->addFieldToFilter('item_id', '');
-        }
-        elseif (is_array($item)) {
+            $this->_totalRecords = 0;
+            $this->_setIsLoaded(true);
+            //$this->addFieldToFilter('item_id', '');
+        } elseif (is_array($item)) {
             $this->addFieldToFilter('item_id', array('in'=>$item));
-        }
-        elseif ($item instanceof Mage_Sales_Model_Quote_Item) {
+        } elseif ($item instanceof Mage_Sales_Model_Quote_Item) {
             $this->addFieldToFilter('item_id', $item->getId());
-        }
-        else {
+        } else {
             $this->addFieldToFilter('item_id', $item);
         }
         return $this;

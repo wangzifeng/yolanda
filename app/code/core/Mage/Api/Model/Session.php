@@ -92,9 +92,9 @@ class Mage_Api_Model_Session extends Mage_Core_Model_Session_Abstract
             ->login($username, $apiKey);
 
         if ( $user->getId() && $user->getIsActive() != '1' ) {
-            Mage::throwException(Mage::helper('api')->__('Your Account has been deactivated.'));
+            Mage::throwException(Mage::helper('api')->__('Your account has been deactivated.'));
         } elseif (!Mage::getModel('api/user')->hasAssigned2Role($user->getId())) {
-            Mage::throwException(Mage::helper('api')->__('Access Denied.'));
+            Mage::throwException(Mage::helper('api')->__('Access denied.'));
         } else {
             if ($user->getId()) {
                 $this->setUser($user);

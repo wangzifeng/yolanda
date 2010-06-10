@@ -216,7 +216,7 @@ class Mage_Adminhtml_Model_Config extends Varien_Simplexml_Config
                 $fieldNode = $this->_sections->xpath($path);
             }
             else {
-                Mage::throwException(Mage::helper('adminhtml')->__('Group node name should be specified with field node name.'));
+                Mage::throwException(Mage::helper('adminhtml')->__('The group node name must be specified with field node name.'));
             }
         }
         $moduleName = $this->getAttributeModule($sectionNode, $groupNode, $fieldNode);

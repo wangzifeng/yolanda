@@ -50,9 +50,11 @@ class Mage_Tax_Model_Calculation_Rate extends Mage_Core_Model_Abstract
     protected function _beforeSave()
     {
         if ($this->getZipIsRange()) {
-            $this->setTaxPostcode("{$this->getZipFrom()}-{$this->getZipTo()}");
-        }
-        else {
+            $zipFrom = (strlen($this->getZipFrom()) > 10) ? substr($this->getZipFrom(), 0, 10) : $this->getZipFrom();
+            $zipTo   = (strlen($this->getZipTo()) > 10) ? substr($this->getZipTo(), 0, 10) : $this->getZipTo();
+
+            $this->setTaxPostcode("{$zipFrom}-{$zipTo}");
+        } else {
             $taxPostCode = $this->getTaxPostcode();
 
             // postcode must be not longer than 10 symbols
@@ -60,8 +62,7 @@ class Mage_Tax_Model_Calculation_Rate extends Mage_Core_Model_Abstract
                 $taxPostCode = substr($taxPostCode, 0, 10);
             }
 
-            $this
-                ->setTaxPostcode($taxPostCode)
+            $this->setTaxPostcode($taxPostCode)
                 ->setZipIsRange(null)
                 ->setZipFrom(null)
                 ->setZipTo(null);

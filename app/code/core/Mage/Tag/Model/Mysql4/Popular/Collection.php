@@ -54,7 +54,7 @@ class Mage_Tag_Model_Mysql4_Popular_Collection extends Mage_Core_Model_Mysql4_Co
                 array('tag_summary' => $this->getTable('tag/summary')),
                 array(
                     'tag_id',
-                    'popularity' => '(tag_summary.popularity + tag_summary.base_popularity)'
+                    'popularity'
                 )
             )
             ->joinInner(
@@ -64,6 +64,18 @@ class Mage_Tag_Model_Mysql4_Popular_Collection extends Mage_Core_Model_Mysql4_Co
             ->where('tag_summary.store_id = ?', $storeId)
             ->where('tag_summary.products > 0')
             ->order('popularity desc');
+        return $this;
+    }
+
+    /**
+     * Add filter by specified tag status
+     *
+     * @param string $statusCode
+     * @return Mage_Tag_Model_Mysql4_Popular_Collection
+     */
+    public function addStatusFilter($statusCode)
+    {
+        $this->getSelect()->where('main_table.status = ?', $statusCode);
         return $this;
     }
 

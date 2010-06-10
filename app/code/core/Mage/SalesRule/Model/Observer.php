@@ -100,6 +100,18 @@ class Mage_SalesRule_Model_Observer
                 }
             }
         }
+
+        $coupon = Mage::getModel('salesrule/coupon');
+        /** @var Mage_SalesRule_Model_Coupon */
+        $coupon->load($order->getCouponCode(), 'code');
+        if ($coupon->getId()) {
+            $coupon->setTimesUsed($coupon->getTimesUsed() + 1);
+            $coupon->save();
+            if ($customerId) {
+                $couponUsage = Mage::getResourceModel('salesrule/coupon_usage');
+                $couponUsage->updateCustomerCouponTimesUsed($customerId, $coupon->getId());
+            }
+        }
     }
 
     /**
@@ -113,7 +125,7 @@ class Mage_SalesRule_Model_Observer
         Mage::app()->getLocale()->emulate(0);
         $currentDate = Mage::app()->getLocale()->date();
         $date = $currentDate->subHour(25);
-        Mage::getResourceModel('salesrule/rule')->aggregate($date);
+        Mage::getResourceModel('salesrule/report_rule')->aggregate($date);
         Mage::app()->getLocale()->revert();
         return $this;
     }

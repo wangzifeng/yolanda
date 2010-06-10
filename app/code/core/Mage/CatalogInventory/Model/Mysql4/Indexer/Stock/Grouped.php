@@ -42,6 +42,7 @@ class Mage_CatalogInventory_Model_Mysql4_Indexer_Stock_Grouped
      */
     public function reindexAll()
     {
+        $this->useIdxTable(true);
         $this->_prepareIndexTable();
         return $this;
     }

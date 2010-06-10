@@ -53,11 +53,11 @@ class Mage_Core_Model_Mysql4_Url_Rewrite extends Mage_Core_Model_Mysql4_Abstract
         $this->_uniqueFields = array(
             array(
                 'field' => array('id_path','store_id','is_system'),
-                'title' => Mage::helper('core')->__('Id path for specified store')
+                'title' => Mage::helper('core')->__('ID Path for Specified Store')
             ),
             array(
                  'field' => array('request_path','store_id'),
-                 'title' => Mage::helper('core')->__('Request path for specified store'),
+                 'title' => Mage::helper('core')->__('Request Path for Specified Store'),
             )
         );
         return $this;

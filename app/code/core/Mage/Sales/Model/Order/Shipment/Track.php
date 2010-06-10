@@ -116,4 +116,20 @@ class Mage_Sales_Model_Order_Shipment_Track extends Mage_Sales_Model_Abstract
         }
         return Mage::app()->getStore();
     }
+
+    /**
+     * Before object save
+     *
+     * @return Mage_Sales_Model_Order_Shipment_Track
+     */
+    protected function _beforeSave()
+    {
+        parent::_beforeSave();
+
+        if (!$this->getParentId() && $this->getShipment()) {
+            $this->setParentId($this->getShipment()->getId());
+        }
+
+        return $this;
+    }
 }

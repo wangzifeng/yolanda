@@ -65,7 +65,7 @@ class Mage_Adminhtml_Block_Backup_Grid extends Mage_Adminhtml_Block_Widget_Grid
         ));
 
         $this->addColumn('size', array(
-            'header'    => Mage::helper('backup')->__('Size, byte'),
+            'header'    => Mage::helper('backup')->__('Size, Bytes'),
             'index'     => 'size',
             'type'      => 'number',
             'sortable'  => false,

@@ -118,7 +118,7 @@ foreach ($groups as $k => $groupProp) {
 $installer->addAttribute($entityTypeId, 'available_sort_by', array(
     'input'         => 'multiselect',
     'type'          => 'text',
-    'label'         => 'Available Product Listing Sort by',
+    'label'         => 'Available Product Listing Sort By',
     'source'        => 'catalog/category_attribute_source_sortby',
     'backend'       => 'catalog/category_attribute_backend_sortby',
     'required'      => 1,
@@ -128,7 +128,7 @@ $installer->addAttribute($entityTypeId, 'available_sort_by', array(
 ));
 $installer->addAttribute($entityTypeId, 'default_sort_by', array(
     'input'         => 'select',
-    'label'         => 'Default Product Listing Sort by',
+    'label'         => 'Default Product Listing Sort By',
     'source'        => 'catalog/category_attribute_source_sortby',
     'backend'       => 'catalog/category_attribute_backend_sortby',
     'required'      => 1,

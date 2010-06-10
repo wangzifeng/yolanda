@@ -180,6 +180,13 @@
                         <before>tax,discount</before>
                     </weee>
                 </totals>
+                <nominal_totals>
+                    <nominal_weee>
+                        <class>weee/total_quote_nominal_weee</class>
+                        <after>nominal_discount</after>
+                        <before>nominal_tax</before>
+                    </nominal_weee>
+                </nominal_totals>
             </quote>
             <order_invoice>
                 <totals>

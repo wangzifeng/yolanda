@@ -47,7 +47,7 @@ class Mage_Reports_Helper_Data extends Mage_Core_Helper_Abstract
             return $intervals;
         }
 
-        $start = Mage::app()->getLocale()->date($from, Varien_Date::DATE_INTERNAL_FORMAT);
+        $start = new Zend_Date($from, Varien_Date::DATE_INTERNAL_FORMAT);
 
         if ($period == self::REPORT_PERIOD_TYPE_DAY) {
             $dateStart = $start;
@@ -61,7 +61,7 @@ class Mage_Reports_Helper_Data extends Mage_Core_Helper_Abstract
             $dateStart = new Zend_Date(date("Y", $start->getTimestamp()), Varien_Date::DATE_INTERNAL_FORMAT);
         }
 
-        $dateEnd = Mage::app()->getLocale()->date($to, Varien_Date::DATE_INTERNAL_FORMAT);
+        $dateEnd = new Zend_Date($to, Varien_Date::DATE_INTERNAL_FORMAT);
 
         while ($dateStart->compare($dateEnd) <= 0) {
             switch ($period) {

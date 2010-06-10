@@ -48,7 +48,7 @@ class Mage_Adminhtml_Model_System_Config_Source_Checktype
             ),
             array(
                 'value' => Mage_Sendfriend_Helper_Data::CHECK_COOKIE,
-                'label' => Mage::helper('adminhtml')->__('Cookie (Unsafe)')
+                'label' => Mage::helper('adminhtml')->__('Cookie (unsafe)')
             ),
         );
     }

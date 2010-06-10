@@ -49,6 +49,7 @@ class Mage_Paypal_Model_Direct extends Mage_Payment_Model_Method_Cc
     protected $_canUseCheckout          = true;
     protected $_canUseForMultishipping  = true;
     protected $_canSaveCc = false;
+    protected $_canFetchTransactionInfo = true;
 
     /**
      * Website Payments Pro instance
@@ -122,6 +123,57 @@ class Mage_Paypal_Model_Direct extends Mage_Payment_Model_Method_Cc
     public function getConfigPaymentAction()
     {
         return $this->_pro->getConfig()->getPaymentAction();
+    }
+
+    /**
+     * Return available CC types for gateway based on merchant country
+     *
+     * @return string
+     */
+    public function getAllowedCcTypes()
+    {
+        $ccTypes = explode(',', $this->_pro->getConfig()->cctypes);
+        $country = $this->_pro->getConfig()->getMerchantCountry();
+        if ($country == 'GB') {
+            $ccTypes = array_intersect(array('SS', 'MC', 'DI', 'VI'), $ccTypes);
+        } elseif ($country == 'CA') {
+            $ccTypes = array_intersect(array('MC', 'VI'), $ccTypes);
+        }
+        return implode(',', $ccTypes);
+    }
+
+    /**
+     * Check whether payment method can be used
+     * @param Mage_Sales_Model_Quote
+     * @return bool
+     */
+    public function isAvailable($quote = null)
+    {
+        if ($this->_pro->getConfig()->isMethodAvailable() && parent::isAvailable($quote)) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Custom getter for payment configuration
+     *
+     * @param string $field
+     * @param int $storeId
+     * @return mixed
+     */
+    public function getConfigData($field, $storeId = null)
+    {
+        $value = null;
+        switch ($field)
+        {
+            case 'cctypes':
+                $value = $this->getAllowedCcTypes();
+                break;
+            default:
+                $value = $this->_pro->getConfig()->$field;
+        }
+        return $value;
     }
 
     /**
@@ -200,6 +252,17 @@ class Mage_Paypal_Model_Direct extends Mage_Payment_Model_Method_Cc
     }
 
     /**
+     * Fetch transaction details info
+     *
+     * @param string $transactionId
+     * @return array
+     */
+    public function fetchTransactionInfo($transactionId)
+    {
+        return $this->_pro->fetchTransactionInfo($transactionId);
+    }
+
+    /**
      * Place an order with authorization or capture action
      *
      * @param Mage_Sales_Model_Order_Payment $payment
@@ -219,12 +282,17 @@ class Mage_Paypal_Model_Direct extends Mage_Payment_Model_Method_Cc
             ->setNotifyUrl(Mage::getUrl($this->_notifyAction))
             ->setCreditCardType($payment->getCcType())
             ->setCreditCardNumber($payment->getCcNumber())
-            ->setCreditCardExpirationDate(sprintf('%02d%02d', $payment->getCcExpMonth(), $payment->getCcExpYear()))
+            ->setCreditCardExpirationDate(
+                $this->_getFormattedCcExpirationDate($payment->getCcExpMonth(), $payment->getCcExpYear())
+            )
             ->setCreditCardCvv2($payment->getCcCid())
             ->setMaestroSoloIssueNumber($payment->getCcSsIssue())
         ;
         if ($payment->getCcSsStartMonth() && $payment->getCcSsStartYear()) {
-            $api->setMaestroSoloIssueDate(sprintf('%02d%02d', $payment->getCcSsStartMonth(), preg_replace('~\d\d(\d\d)~','$1', $payment->getCcSsStartYear())));
+            $year = sprintf('%02d', substr($payment->getCcSsStartYear(), -2, 2));
+            $api->setMaestroSoloIssueDate(
+                $this->_getFormattedCcExpirationDate($payment->getCcSsStartMonth(), $year)
+            );
         }
         if ($this->getIsCentinelValidationEnabled()) {
             $this->getCentinelValidator()->exportCmpiData($api);
@@ -238,15 +306,30 @@ class Mage_Paypal_Model_Direct extends Mage_Payment_Model_Method_Cc
         }
 
         // add line items
-        if ($this->_pro->getConfig()->lineItemsEnabled && Mage::helper('paypal')->doLineItemsMatchAmount($order, $amount)) {//For transfering line items order amount must be equal to cart total amount
+        if ($this->_pro->getConfig()->lineItemsEnabled) {
             list($items, $totals) = Mage::helper('paypal')->prepareLineItems($order);
-            $api->setLineItems($items)->setLineItemTotals($totals);
+            if (Mage::helper('paypal')->areCartLineItemsValid($items, $totals, $amount)) {
+                $api->setLineItems($items)->setLineItemTotals($totals);
+            }
         }
 
         // call api and import transaction and other payment information
         $api->callDoDirectPayment();
         $this->_importResultToPayment($api, $payment);
         return $this;
+    }
+
+    /**
+     * Format credit card expiration date based on month and year values
+     * Format: mmyyyy
+     *
+     * @param string|int $month
+     * @param string|int $year
+     * @return string
+     */
+    protected function _getFormattedCcExpirationDate($month, $year)
+    {
+        return sprintf('%02d%02d', $month, $year);
     }
 
     /**

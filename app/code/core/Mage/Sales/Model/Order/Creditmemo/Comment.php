@@ -76,4 +76,20 @@ class Mage_Sales_Model_Order_Creditmemo_Comment extends Mage_Sales_Model_Abstrac
         }
         return Mage::app()->getStore();
     }
+
+    /**
+     * Before object save
+     *
+     * @return Mage_Sales_Model_Order_Creditmemo_Comment
+     */
+    protected function _beforeSave()
+    {
+        parent::_beforeSave();
+
+        if (!$this->getParentId() && $this->getCreditmemo()) {
+            $this->setParentId($this->getCreditmemo()->getId());
+        }
+
+        return $this;
+    }
 }

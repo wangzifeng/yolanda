@@ -28,7 +28,7 @@
  * PayPal Website Payments Pro implementation for payment method instaces
  * This model was created because right now PayPal Direct and PayPal Express payment methods cannot have same abstract
  */
-class Mage_Paypal_Model_Pro
+class Mage_Paypal_Model_Pro implements Mage_Payment_Model_Recurring_Profile_MethodInterface
 {
     /**
      * Config instance
@@ -59,6 +59,13 @@ class Mage_Paypal_Model_Pro
     protected $_configType = 'paypal/config';
 
     /**
+     * Keys for passthrough variables in  sales/order_payment
+     * Uses additional_information as storage
+     * @var string
+     */
+    const CAN_REVIEW_PAYMENT = 'can_review_payment';
+
+    /**
      * Payment method code setter. Also instantiates/updates config
      *
      * @param string $code
@@ -71,7 +78,7 @@ class Mage_Paypal_Model_Pro
             if (null !== $storeId) {
                 $params[] = $storeId;
             }
-            $this->_config = $this->_config = Mage::getModel($this->_configType, $params);
+            $this->_config = Mage::getModel($this->_configType, $params);
         } else {
             $this->_config->setMethod($code);
             if (null !== $storeId) {
@@ -157,6 +164,7 @@ class Mage_Paypal_Model_Pro
         $api = $this->getApi()
             ->setTransactionId($authTransactionId);
         if (!$this->_isCaptureNeeded()) {
+            Mage::getModel('paypal/info')->importToPayment($api, $payment);
             return;
         }
 
@@ -201,7 +209,7 @@ class Mage_Paypal_Model_Pro
             $api->callRefundTransaction();
             $this->_importRefundResultToPayment($api, $payment, $canRefundMore);
         } else {
-            Mage::throwException(Mage::helper('paypal')->__('Impossible to issue a refund transaction, because capture transaction does not exist.'));
+            Mage::throwException(Mage::helper('paypal')->__('Impossible to issue a refund transaction because the capture transaction does not exist.'));
         }
     }
 
@@ -215,6 +223,168 @@ class Mage_Paypal_Model_Pro
         if (!$payment->getOrder()->getInvoiceCollection()->count()) {
             $this->void($payment);
         }
+    }
+
+    /**
+     * Accept payment
+     *
+     * @param Varien_Object $payment
+     */
+    public function accept(Varien_Object $payment)
+    {
+        $captureTxnId = $payment->getLastTransId();
+        if ($captureTxnId) {
+            $api = $this->getApi();
+            $api->setPayment($payment)
+                ->setTransactionId($captureTxnId)
+                ->setAction(Mage_Paypal_Model_Api_Nvp::PENDING_TRANSACTION_ACCEPT);
+
+            $api->callManagePendingTransactionStatus();
+
+            $this->_importAcceptResultToPayment($api, $payment);
+        } else {
+            Mage::throwException(Mage::helper('paypal')->__('Impossible to accept transaction because the capture transaction does not exist.'));
+        }
+    }
+
+    /**
+     * Deny payment
+     *
+     * @param Varien_Object $payment
+     */
+    public function deny(Varien_Object $payment)
+    {
+        $captureTxnId = $payment->getLastTransId();
+        if ($captureTxnId) {
+            $api = $this->getApi();
+            $api->setPayment($payment)
+                ->setTransactionId($captureTxnId)
+                ->setAction(Mage_Paypal_Model_Api_Nvp::PENDING_TRANSACTION_DENY);
+
+            $api->callManagePendingTransactionStatus();
+
+            $this->_importDenyResultToPayment($api, $payment);
+        } else {
+            Mage::throwException(Mage::helper('paypal')->__('Impossible to deny transaction because the capture transaction does not exist.'));
+        }
+    }
+
+    /**
+     * Import accept results to payment
+     *
+     * @param Mage_Paypal_Model_Api_Nvp
+     * @param Mage_Sales_Model_Order_Payment
+     */
+    protected function _importAcceptResultToPayment($api, $payment)
+    {
+        $payment
+            ->setTransactionId($api->getTransactionId())
+            ->setIsTransactionClosed(false)
+            ->setIsPaymentCompleted($api->getIsPaymentCompleted());
+        Mage::getModel('paypal/info')->importToPayment($api, $payment);
+    }
+
+    /**
+     * Import deny results to payment
+     *
+     * @param Mage_Paypal_Model_Api_Nvp
+     * @param Mage_Sales_Model_Order_Payment
+     */
+    protected function _importDenyResultToPayment($api, $payment)
+    {
+        $payment
+            ->setTransactionId($api->getTransactionId())
+            ->setIsTransactionClosed(true)
+            ->setIsPaymentDenied($api->getIsPaymentDenied());
+        Mage::getModel('paypal/info')->importToPayment($api, $payment);
+    }
+
+    /**
+     * Fetch transaction details info
+     *
+     * @param string $transactionId
+     * @return array
+     */
+    public function fetchTransactionInfo($transactionId)
+    {
+        $api = $this->getApi()
+            ->setTransactionId($transactionId)
+            ->setRawResponseNeeded(true);
+        $api->callGetTransactionDetails();
+        $data = $api->getRawSuccessResponseData();
+        return ($data) ? $data : array();
+    }
+
+    /**
+     * Validate RP data
+     *
+     * @param Mage_Payment_Model_Recurring_Profile $profile
+     * @throws Mage_Core_Exception
+     */
+    public function validateRecurringProfile(Mage_Payment_Model_Recurring_Profile $profile)
+    {
+        $errors = array();
+        if (strlen($profile->getSubscriberName()) > 32) { // up to 32 single-byte chars
+            $errors[] = Mage::helper('paypal')->__('Subscriber name is too long.');
+        }
+        $refId = $profile->getInternalReferenceId(); // up to 127 single-byte alphanumeric
+        if (strlen($refId) > 127) { //  || !preg_match('/^[a-z\d\s]+$/i', $refId)
+            $errors[] = Mage::helper('paypal')->__('Merchant reference ID format is not supported.');
+        }
+        $scheduleDescr = $profile->getScheduleDescription(); // up to 127 single-byte alphanumeric
+        if (strlen($refId) > 127) { //  || !preg_match('/^[a-z\d\s]+$/i', $scheduleDescr)
+            $errors[] = Mage::helper('paypal')->__('Schedule description is too long.');
+        }
+        if ($errors) {
+            Mage::throwException(implode(' ', $errors));
+        }
+    }
+
+    /**
+     * Submit RP to the gateway
+     *
+     * @param Mage_Payment_Model_Recurring_Profile $profile
+     * @throws Mage_Core_Exception
+     */
+    public function submitRecurringProfile(Mage_Payment_Model_Recurring_Profile $profile)
+    {
+        $api = $this->getApi();
+        $api->callCreateRecurringPaymentsProfile($profile);
+        $profile->setReferenceId($api->getRecurringProfileId())
+            ->setState($api->getIsProfileActive() ? Mage_Sales_Model_Recurring_Profile::STATE_ACTIVE
+                : Mage_Sales_Model_Recurring_Profile::STATE_SUSPENDED
+            );
+    }
+
+    /**
+     * Fetch RP details
+     *
+     * @param string $referenceId
+     * @param Mage_Payment_Model_Recurring_Profile_Info $result
+     */
+    public function getRecurringProfileDetails($referenceId, Mage_Payment_Model_Recurring_Profile_Info $result)
+    {
+
+    }
+
+    /**
+     * Update RP data
+     *
+     * @param Mage_Payment_Model_Recurring_Profile $profile
+     */
+    public function updateRecurringProfile(Mage_Payment_Model_Recurring_Profile $profile)
+    {
+        // not implemented
+    }
+
+    /**
+     * Manage status
+     *
+     * @param Mage_Payment_Model_Recurring_Profile $profile
+     */
+    public function updateRecurringProfileStatus(Mage_Payment_Model_Recurring_Profile $profile)
+    {
+
     }
 
     /**
@@ -254,7 +424,6 @@ class Mage_Paypal_Model_Pro
     {
         $this->_api->callGetTransactionDetails();
         if ($this->_api->isPaymentComplete()) {
-            Mage::getModel('paypal/info')->importToPayment($api, $payment);
             return false;
         }
         return true;

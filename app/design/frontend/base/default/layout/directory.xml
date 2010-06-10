@@ -31,6 +31,11 @@
 <!--
 Category default layout
 -->
+    <default>
+        <reference name="head">
+            <block type="core/template" name="optional_zip_countries" as="optional_zip_countries" template="directory/js/optional_zip_countries.phtml" />
+        </reference>
+    </default>
 
     <catalog_category_default>
         <reference name="left">

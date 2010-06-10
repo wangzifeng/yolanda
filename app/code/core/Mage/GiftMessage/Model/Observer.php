@@ -43,9 +43,10 @@ class Mage_GiftMessage_Model_Observer extends Varien_Object
      */
     public function salesEventConvertQuoteItemToOrderItem($observer)
     {
-        $observer->getEvent()->getOrderItem()
-            ->setGiftMessageId($observer->getEvent()->getItem()->getGiftMessageId())
-            ->setGiftMessageAvailable($this->_getAvailable($observer->getEvent()->getItem()->getProductId()));
+        $orderItem = $observer->getEvent()->getOrderItem();
+        $quoteItem = $observer->getEvent()->getItem();
+        $orderItem->setGiftMessageId($quoteItem->getGiftMessageId())
+            ->setGiftMessageAvailable($this->_getAvailable($quoteItem->getProduct()));
         return $this;
     }
 

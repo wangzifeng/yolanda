@@ -413,10 +413,6 @@ class Mage_Core_Model_Translate
             $result = $translated;
         }
 
-        if ($result === false){
-            $result = $translated;
-        }
-
         if ($this->_translateInline && $this->getTranslateInline()) {
             if (strpos($result, '{{{')===false || strpos($result, '}}}')===false || strpos($result, '}}{{')===false) {
                 $result = '{{{'.$result.'}}{{'.$translated.'}}{{'.$text.'}}{{'.$module.'}}}';

@@ -62,6 +62,13 @@ class Mage_Paypal_Model_Ipn
     protected $_ipnFormData = array();
 
     /**
+     * Fields that should be replaced in debug with '***'
+     *
+     * @var array
+     */
+    protected $_debugReplacePrivateDataKeys = array();
+
+    /**
      * Config model setter
      * @param Mage_Paypal_Model_Config $config
      * @return Mage_Paypal_Model_Ipn
@@ -105,13 +112,7 @@ class Mage_Paypal_Model_Ipn
             return;
         }
 
-        // debug requested
-        if ($this->_config->debugFlag) {
-            Mage::getModel('paypal/api_debug')
-                ->setApiEndpoint($this->_config->getPaypalUrl())
-                ->setRequestBody(var_export($this->_ipnFormData, 1))
-                ->save();
-        }
+        $debugData = array('request' => $this->_ipnFormData);
 
         $sReq = '';
         $sReqDebug = '';
@@ -123,18 +124,20 @@ class Mage_Paypal_Model_Ipn
         $sReq .= "&cmd=_notify-validate";
         $sReq = substr($sReq, 1);
 
-        $http = new Varien_Http_Adapter_Curl();
-        $http->write(Zend_Http_Client::POST, $this->_config->getPaypalUrl(), '1.1', array(), $sReq);
-        $response = $http->read();
+        try {
+            $http = new Varien_Http_Adapter_Curl();
+            $http->write(Zend_Http_Client::POST, $this->_config->getPaypalUrl(), '1.1', array(), $sReq);
+            $response = $http->read();
+            $debugData['result'] = $response;
+        }
+        catch (Exception $e) {
+            $debugData['result'] = array('error' => $e->getMessage(), 'code' => $e->getCode());
+            $this->_debug($debugData);
+            throw $e;
+        }
 
         // debug postback request & response
-        if ($this->_config->debugFlag) {
-            Mage::getModel('paypal/api_debug')
-                ->setApiEndpoint($this->_config->getPaypalUrl())
-                ->setRequestBody($sReq)
-                ->setResponseBody($response)
-                ->save();
-        }
+        $this->_debug($debugData);
 
         if ($error = $http->getError()) {
             $this->_notifyAdmin(Mage::helper('paypal')->__('PayPal IPN postback HTTP error: %s', $error));
@@ -207,6 +210,7 @@ class Mage_Paypal_Model_Ipn
         try {
             try {
                 $order = $this->_getOrder();
+                $orderState = $order->getState();
                 $wasPaymentInformationChanged = $this->_importPaymentInformation($order->getPayment());
                 $paymentStatus = $this->getIpnFormData('payment_status');
                 switch ($paymentStatus) {
@@ -215,15 +219,20 @@ class Mage_Paypal_Model_Ipn
                         // break intentionally omitted
                     // paid with PayPal
                     case self::STATUS_COMPLETED:
+                        if ($orderState == Mage_Sales_Model_Order::STATE_PENDING_PAYMENT_REVIEW) {
+                            $this->_registerPaymentAccept();
+                            break;
+                        }
                         $this->_registerPaymentCapture();
                         break;
 
                     // the holded payment was denied on paypal side
                     case self::STATUS_DENIED:
-                        $this->_registerPaymentFailure(
-                            Mage::helper('paypal')->__('Merchant denied this pending payment.')
-                        );
-                        break;
+                        if ($orderState == Mage_Sales_Model_Order::STATE_PENDING_PAYMENT_REVIEW) {
+                            $this->_registerPaymentDeny();
+                            break;
+                        }
+
                     // customer attempted to pay via bank account, but failed
                     case self::STATUS_FAILED:
                         // cancel order
@@ -311,6 +320,32 @@ class Mage_Paypal_Model_Ipn
     }
 
     /**
+     * Register payment accept  
+     */
+    protected function _registerPaymentAccept()
+    {
+        $order = $this->_getOrder();
+        $payment = $order->getPayment();
+        $payment->setTransactionId($this->getIpnFormData('txn_id'))
+            ->setIsTransactionClosed(false)
+            ->registerAcceptNotification();
+        $order->save();
+    }
+
+    /**
+     * Register payment deny  
+     */
+    protected function _registerPaymentDeny()
+    {
+        $order = $this->_getOrder();
+        $payment = $order->getPayment();
+        $payment->setTransactionId($this->getIpnFormData('txn_id'))
+            ->setIsTransactionClosed(false)
+            ->registerDenyNotification();
+        $order->save();
+    }
+
+    /**
      * Treat failed payment as order cancellation
      */
     protected function _registerPaymentFailure($explanationMessage = '')
@@ -359,14 +394,14 @@ class Mage_Paypal_Model_Ipn
         $message = null;
         switch ($this->getIpnFormData('pending_reason')) {
             case 'address': // for some reason PayPal gives "address" reason, when Fraud Management Filter triggered
-                $message = Mage::helper('paypal')->__('Customer used non-confirmed address.');
+                $message = Mage::helper('paypal')->__('Customer used an unconfirmed address.');
                 break;
             case 'echeck':
                 $message = Mage::helper('paypal')->__('Waiting until Customer\'s eCheck will be cleared.');
                 // possible requires processing on our side as well
                 break;
             case 'intl':
-                $message = Mage::helper('paypal')->__('Merchant account doesn\'t have a withdrawal mechanism. Merchant must manually accept or deny this payment from your Account Overview.');
+                $message = Mage::helper('paypal')->__('Merchant account does not have a withdrawal mechanism. Merchant must manually accept or deny this payment from your Account Overview.');
                 break;
             case 'multi-currency':
                 $message = Mage::helper('paypal')->__('Multi-currency issue. Merchant must manually accept or deny this payment from PayPal Account Overview.');
@@ -552,5 +587,29 @@ class Mage_Paypal_Model_Ipn
 
         Mage::getSingleton('paypal/info')->importToPayment($from, $payment);
         return $was != $payment->getAdditionalInformation();
+    }
+
+    /**
+     * Log debug data to file
+     *
+     * @param mixed $debugData
+     */
+    protected function _debug($debugData)
+    {
+        if ($this->getDebugFlag()) {
+            Mage::getModel('core/log_adapter', 'payment_' . $this->_config->getMethodCode() . '.log')
+               ->setFilterDataKeys($this->_debugReplacePrivateDataKeys)
+               ->log($debugData);
+        }
+    }
+
+    /**
+     * Define if debugging is enabled
+     *
+     * @return bool
+     */
+    public function getDebugFlag()
+    {
+        $this->_config->debugFlag;
     }
 }

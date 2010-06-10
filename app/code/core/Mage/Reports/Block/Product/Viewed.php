@@ -56,6 +56,18 @@ class Mage_Reports_Block_Product_Viewed extends Mage_Reports_Block_Product_Abstr
     }
 
     /**
+     * Added predefined ids support
+     */
+    public function getCount()
+    {
+        $ids = $this->getProductIds();
+        if (!empty($ids)) {
+            return count($ids);
+        }
+        return parent::getCount();
+    }
+
+    /**
      * Prepare to html
      * check has viewed products
      *
@@ -66,9 +78,7 @@ class Mage_Reports_Block_Product_Viewed extends Mage_Reports_Block_Product_Abstr
         if (!$this->getCount()) {
             return '';
         }
-
         $this->setRecentlyViewedProducts($this->getItemsCollection());
-
         return parent::_toHtml();
     }
 }

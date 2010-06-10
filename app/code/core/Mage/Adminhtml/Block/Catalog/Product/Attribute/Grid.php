@@ -94,7 +94,7 @@ class Mage_Adminhtml_Block_Catalog_Product_Attribute_Grid extends Mage_Eav_Block
         ), 'is_user_defined');
 
         $this->addColumnAfter('is_filterable', array(
-            'header'=>Mage::helper('catalog')->__('Use In Layered Navigation'),
+            'header'=>Mage::helper('catalog')->__('Use in Layered Navigation'),
             'sortable'=>true,
             'index'=>'is_filterable',
             'type' => 'options',

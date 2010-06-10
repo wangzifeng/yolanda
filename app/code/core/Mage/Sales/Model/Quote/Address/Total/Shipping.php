@@ -48,7 +48,7 @@ class Mage_Sales_Model_Quote_Address_Total_Shipping extends Mage_Sales_Model_Quo
         $this->_setAmount(0)
             ->_setBaseAmount(0);
 
-        $items = $address->getAllItems();
+        $items = $this->_getAddressItems($address);
         if (!count($items)) {
             return $this;
         }
@@ -191,5 +191,15 @@ class Mage_Sales_Model_Quote_Address_Total_Shipping extends Mage_Sales_Model_Quo
             ));
         }
         return $this;
+    }
+
+    /**
+     * Get Shipping label
+     *
+     * @return string
+     */
+    public function getLabel()
+    {
+        return Mage::helper('sales')->__('Shipping');
     }
 }

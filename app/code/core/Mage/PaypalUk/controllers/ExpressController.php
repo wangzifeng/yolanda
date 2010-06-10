@@ -35,14 +35,14 @@ class Mage_PaypalUk_ExpressController extends Mage_Paypal_Controller_Express_Abs
      *
      * @var string
      */
-    protected $_configType = 'paypaluk/config';
+    protected $_configType = 'paypal/config';
 
     /**
      * Config method type
      *
      * @var string
      */
-    protected $_configMethod = Mage_PaypalUk_Model_Config::METHOD_WPP_PE_EXPRESS;
+    protected $_configMethod = Mage_Paypal_Model_Config::METHOD_WPP_PE_EXPRESS;
 
     /**
      * Checkout mode type

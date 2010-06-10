@@ -108,7 +108,7 @@ class Mage_GoogleOptimizer_Helper_Data extends Mage_Core_Helper_Abstract
                 $newAttributeName .= substr($attributeName, 0, (self::MAX_ATTRIBUTE_LENGTH_LIMIT - strlen('product__'.$product->getId())));
                 $newAttributeName .= '_'.$product->getId();
             }
-            $attributeHtml = '<script>utmx_section("'.$newAttributeName.'")</script>' . $attributeHtml . '</noscript>';
+            $attributeHtml = '<script type="text/javascript">utmx_section("'.$newAttributeName.'")</script>' . $attributeHtml . '</noscript>';
         }
         return $attributeHtml;
     }

@@ -137,7 +137,7 @@ class Mage_Bundle_Block_Adminhtml_Catalog_Product_Edit_Tab_Bundle_Option_Search_
         $this->addColumn('qty', array(
             'filter'    => false,
             'sortable'  => false,
-            'header'    => Mage::helper('sales')->__('Qty To Add'),
+            'header'    => Mage::helper('sales')->__('Qty to Add'),
             'name'      => 'qty',
             'inline_css'=> 'qty',
             'align'     => 'right',

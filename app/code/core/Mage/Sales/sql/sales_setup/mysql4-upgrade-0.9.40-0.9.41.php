@@ -43,9 +43,9 @@ $installer->addAttribute('quote_address_item', 'base_cost', array(
     'required'          => false,
 ));
 
-$installer->getConnection()->changeColumn($installer->getTable('sales/order_item'), 'cost', 'base_cost', 'DECIMAL( 12, 4 ) NULL DEFAULT \'0.0000\'');
+$installer->getConnection()->changeColumn($installer->getTable('sales_flat_order_item'), 'cost', 'base_cost', 'DECIMAL( 12, 4 ) NULL DEFAULT \'0.0000\'');
 
-$installer->getConnection()->addColumn($installer->getTable('sales/order'), 'base_total_invoiced_cost', 'DECIMAL( 12, 4 ) NULL DEFAULT NULL');
+$installer->getConnection()->addColumn($installer->getTable('sales_order'), 'base_total_invoiced_cost', 'DECIMAL( 12, 4 ) NULL DEFAULT NULL');
 
 $installer->addAttribute('order', 'base_total_invoiced_cost', array(
     'type'              => 'static'

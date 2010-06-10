@@ -44,9 +44,7 @@ class Mage_Adminhtml_Block_Dashboard_Tab_Customers_Newest extends Mage_Adminhtml
     protected function _prepareCollection()
     {
         $collection = Mage::getResourceModel('reports/customer_collection')
-            ->addCustomerName()
-            ->joinOrders()
-            ->addOrdersCount();
+            ->addCustomerName();
 
         $storeFilter = 0;
         if ($this->getParam('store')) {
@@ -60,7 +58,7 @@ class Mage_Adminhtml_Block_Dashboard_Tab_Customers_Newest extends Mage_Adminhtml
             $collection->addAttributeToFilter('store_id', array('in' => $storeIds));
         }
 
-        $collection->addSumAvgTotals($storeFilter)
+        $collection->addOrdersStatistics($storeFilter)
             ->orderByCustomerRegistration();
 
         $this->setCollection($collection);

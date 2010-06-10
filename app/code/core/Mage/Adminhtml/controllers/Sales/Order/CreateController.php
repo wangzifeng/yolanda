@@ -252,7 +252,7 @@ class Mage_Adminhtml_Sales_Order_CreateController extends Mage_Adminhtml_Control
             if ($this->_getQuote()->getCouponCode() !== $data['coupon']['code']) {
                 $this->_getSession()->addError($this->__('"%s" coupon code is not valid.', $data['coupon']['code']));
             } else {
-                $this->_getSession()->addSuccess($this->__('Coupon code accepted.'));
+                $this->_getSession()->addSuccess($this->__('The coupon code has been accepted.'));
             }
         }
 
@@ -314,7 +314,6 @@ class Mage_Adminhtml_Sales_Order_CreateController extends Mage_Adminhtml_Control
         }
         catch (Exception $e){
             $this->_reloadQuote();
-//            $this->_getSession()->addException($e, $this->__('Processing data problem'));
             $this->_getSession()->addException($e, $e->getMessage());
         }
 
@@ -386,7 +385,7 @@ class Mage_Adminhtml_Sales_Order_CreateController extends Mage_Adminhtml_Control
                 ->createOrder();
 
             $this->_getSession()->clear();
-            Mage::getSingleton('adminhtml/session')->addSuccess($this->__('Order has been successfully created'));
+            Mage::getSingleton('adminhtml/session')->addSuccess($this->__('The order has been created.'));
             $this->_redirect('*/sales_order/view', array('order_id' => $order->getId()));
         }
         catch (Mage_Core_Exception $e){

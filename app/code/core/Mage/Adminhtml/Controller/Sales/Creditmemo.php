@@ -84,7 +84,7 @@ class Mage_Adminhtml_Controller_Sales_Creditmemo extends Mage_Adminhtml_Controll
         if ($creditmemoId = $this->getRequest()->getParam('creditmemo_id')) {
             if ($creditmemo = Mage::getModel('sales/order_creditmemo')->load($creditmemoId)) {
                 $creditmemo->sendEmail();
-                $this->_getSession()->addSuccess(Mage::helper('sales')->__('Message was successfully sent'));
+                $this->_getSession()->addSuccess(Mage::helper('sales')->__('The message was sent.'));
                 $this->_redirect('*/sales_order_creditmemo/view', array(
                     'creditmemo_id' => $creditmemoId
                 ));

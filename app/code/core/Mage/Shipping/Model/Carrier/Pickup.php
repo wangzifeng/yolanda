@@ -31,6 +31,7 @@ class Mage_Shipping_Model_Carrier_Pickup
 {
 
     protected $_code = 'pickup';
+    protected $_isFixed = true;
 
     /**
      * Enter description here...

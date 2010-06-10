@@ -37,7 +37,7 @@
             <show_in_store>1</show_in_store>
             <groups>
                 <email translate="label">
-                    <label>Share options</label>
+                    <label>Share Options</label>
                     <frontend_type>text</frontend_type>
                     <sort_order>2</sort_order>
                     <show_in_default>1</show_in_default>

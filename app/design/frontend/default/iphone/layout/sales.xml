@@ -69,7 +69,9 @@ Customer account home dashboard layout
     <sales_order_history>
         <update handle="customer_account"/>
         <reference name="content">
-            <block type="sales/order_history" name="sales.order.history"/>
+            <block type="sales/order_history" name="sales.order.history">
+                <block type="core/text_list" name="sales.order.history.info" as="info"/>
+            </block>
             <block type="customer/account_link" name="customer.account.link.back" template="customer/account/link/back.phtml"/>
         </reference>
     </sales_order_history>
@@ -253,4 +255,36 @@ Customer account home dashboard layout
         </block>
     </sales_email_order_creditmemo_items>
 
+    <sales_customer_billing_agreement_index>
+        <update handle="customer_account"/>
+        <reference name="root">
+            <action method="setTemplate"><template>page/2columns-left.phtml</template></action>
+        </reference>
+        <reference name="my.account.wrapper">
+            <block type="sales/customer_account_billing_agreement" name="customer.account.billing.agreement" template="sales/customer/account/billing/agreement.phtml" />
+        </reference>
+    </sales_customer_billing_agreement_index>
+
+    <sales_customer_billing_agreement_view>
+        <update handle="customer_account"/>
+        <reference name="root">
+            <action method="setTemplate"><template>page/2columns-left.phtml</template></action>
+        </reference>
+        <reference name="my.account.wrapper">
+            <block type="sales/customer_account_billing_agreement" name="customer.account.billing.agreement" template="sales/customer/account/billing/agreements/view.phtml" />
+        </reference>
+    </sales_customer_billing_agreement_view>
+
+    <customer_account>
+        <reference name="customer_account_navigation" >
+                <action method="addLink" translate="label" module="customer"><name>billing_agreements</name><path>sales/customer_billing_agreement/</path><label>Billing Agreements</label></action>
+        </reference>
+    </customer_account>
+
+    <catalog_product_view>
+        <reference name="product.info.extra_buttons">
+            <block type="sales/catalog_product_view_recurring_profile" name="sales.product.recurring_profile" template="sales/catalog/product/view/recurring/profile.phtml"/>
+            <block type="core/html_calendar" name="html_calendar" as="html_calendar" template="page/js/calendar.phtml"/>
+        </reference>
+    </catalog_product_view>
 </layout>

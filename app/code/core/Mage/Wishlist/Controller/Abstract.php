@@ -82,7 +82,7 @@ abstract class Mage_Wishlist_Controller_Abstract extends Mage_Core_Controller_Fr
                 }
             } catch (Exception $e) {
                 Mage::logException($e);
-                $messages[] = Mage::helper('wishlist')->__('Cannot add to shopping cart');
+                $messages[] = Mage::helper('wishlist')->__('Cannot add the item to shopping cart.');
             }
         }
 
@@ -112,7 +112,7 @@ abstract class Mage_Wishlist_Controller_Abstract extends Mage_Core_Controller_Fr
             foreach ($isGrouped as $item) {
                 $products[] = '"' . $item->getProduct()->getName() . '"';
             }
-            $messages[] = Mage::helper('wishlist')->__('Product(s) %s grouped. Each of them can be added to cart separately only.', join(', ', $products));
+            $messages[] = Mage::helper('wishlist')->__('Product(s) %s are grouped. Each of them can be added to cart separately only.', join(', ', $products));
         }
 
         if ($hasOptions) {
@@ -147,6 +147,15 @@ abstract class Mage_Wishlist_Controller_Abstract extends Mage_Core_Controller_Fr
         }
 
         if ($addedItems) {
+            // save wishlist model for setting date of last update
+            try {
+                $wishlist->save();
+            }
+            catch (Exception $e) {
+                Mage::getSingleton('wishlist/session')->addError($this->__('Cannot update wishlist'));
+                $redirectUrl = $indexUrl;
+            }
+
             $products = array();
             foreach ($addedItems as $product) {
                 $products[] = '"' . $product->getName() . '"';

@@ -41,7 +41,7 @@ class Mage_GoogleCheckout_Block_Adminhtml_Shipping_Applicable_Countries
     {
         $elId = $element->getHtmlId();
         $childId = str_replace('sallowspecific', 'specificcountry', $elId);
-        $html = "<script>
+        $html = "<script type='text/javascript'>
         var dwvie = function ()
         {
             var valueSelectId = '{$elId}';

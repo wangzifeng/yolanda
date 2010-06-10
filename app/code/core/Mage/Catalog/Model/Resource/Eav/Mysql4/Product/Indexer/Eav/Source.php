@@ -261,4 +261,17 @@ class Mage_Catalog_Model_Resource_Eav_Mysql4_Product_Indexer_Eav_Source
         $adapter->insertArray($this->getIdxTable(), array('entity_id', 'attribute_id', 'store_id', 'value'), $data);
         return $this;
     }
+
+    /**
+     * Retrieve temporary source index table name
+     *
+     * @return string
+     */
+    public function getIdxTable($table = null)
+    {
+        if ($this->useIdxTable()) {
+            return $this->getTable('catalog/product_eav_indexer_idx');
+        }
+        return $this->getTable('catalog/product_eav_indexer_tmp');
+    }
 }

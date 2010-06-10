@@ -59,4 +59,20 @@ class Mage_GiftMessage_Model_Entity_Attribute_Backend_Boolean_Config extends Mag
         }
     }
 
+    /**
+     * Validate attribute data
+     *
+     * @param Varien_Object $object
+     * @return boolean
+     */
+    public function validate($object)
+    {
+        // all attribute's options
+        $optionsAllowed = array('0', '1', '2');
+
+        $value = $object->getData($this->getAttribute()->getAttributeCode());
+
+        return in_array($value, $optionsAllowed)? true : false;
+    }
+
 }

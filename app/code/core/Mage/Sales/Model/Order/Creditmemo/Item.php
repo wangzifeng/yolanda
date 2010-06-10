@@ -186,4 +186,19 @@ class Mage_Sales_Model_Order_Creditmemo_Item extends Mage_Core_Model_Abstract
         return false;
     }
 
+    /**
+     * Before object save
+     *
+     * @return Mage_Sales_Model_Order_Creditmemo_Item
+     */
+    protected function _beforeSave()
+    {
+        parent::_beforeSave();
+
+        if (!$this->getParentId() && $this->getCreditmemo()) {
+            $this->setParentId($this->getCreditmemo()->getId());
+        }
+
+        return $this;
+    }
 }

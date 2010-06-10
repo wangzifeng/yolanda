@@ -38,6 +38,7 @@ class Mage_Shipping_Model_Carrier_Flatrate
 {
 
     protected $_code = 'flatrate';
+    protected $_isFixed = true;
 
     /**
      * Enter description here...

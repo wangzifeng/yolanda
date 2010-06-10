@@ -119,8 +119,9 @@ class Mage_Payment_Block_Form_Cc extends Mage_Payment_Block_Form
     */
     public function hasSsCardType()
     {
-        $availableTypes =$this->getMethod()->getConfigData('cctypes');
-        if ($availableTypes && in_array('SS', explode(',', $availableTypes))) {
+        $availableTypes = explode(',', $this->getMethod()->getConfigData('cctypes'));
+        $ssPresenations = array_intersect(array('SS', 'SM', 'SO'), $availableTypes);
+        if ($availableTypes && count($ssPresenations) > 0) {
             return true;
         }
         return false;

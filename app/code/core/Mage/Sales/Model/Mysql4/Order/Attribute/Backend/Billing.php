@@ -27,6 +27,7 @@
 /**
  * Order billing address backend
  *
+ * @deprecated after 1.4, no more EAV for sales
  * @category   Mage
  * @package    Mage_Sales
  * @author      Magento Core Team <core@magentocommerce.com>

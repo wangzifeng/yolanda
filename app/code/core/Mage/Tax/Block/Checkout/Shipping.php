@@ -61,8 +61,7 @@ class Mage_Tax_Block_Checkout_Shipping extends Mage_Checkout_Block_Total_Default
      */
     public function getShippingIncludeTax()
     {
-        return $this->getTotal()->getAddress()->getShippingAmount() +
-            $this->getTotal()->getAddress()->getShippingTaxAmount();
+        return $this->getTotal()->getAddress()->getShippingInclTax();
     }
 
     /**

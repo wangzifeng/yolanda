@@ -112,7 +112,7 @@ class Mage_CatalogSearch_Model_Query extends Mage_Core_Model_Abstract
     }
 
     /**
-     * Load Query object only by query text (skip 'synonym for')
+     * Load Query object only by query text (skip 'synonym For')
      *
      * @param string $text
      * @return Mage_CatalogSearch_Model_Query

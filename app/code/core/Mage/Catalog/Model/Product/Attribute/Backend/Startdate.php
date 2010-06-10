@@ -37,19 +37,18 @@ class Mage_Catalog_Model_Product_Attribute_Backend_Startdate extends Mage_Eav_Mo
 {
     public function beforeSave($object)
     {
-        $attributeName = $this->getAttribute()->getName();
-
-        $startDate = $object->getData($attributeName);
-
-        if ($startDate=='' && $object->getSpecialPrice()) {
+        $attributeName  = $this->getAttribute()->getName();
+        $startDate      = $object->getData($attributeName);
+        if ($startDate === false) {
+            return $this;
+        }
+        if ($startDate == '' && $object->getSpecialPrice()) {
             $startDate = Mage::app()->getLocale()->date();
-//            $startDate = Mage::getModel('core/date')->gmtDate('');
         }
 
         $object->setData($attributeName, $startDate);
 
         parent::beforeSave($object);
-
         return $this;
     }
 

@@ -69,11 +69,14 @@ class Mage_Checkout_Block_Onepage_Progress extends Mage_Checkout_Block_Onepage_A
         return $this->getChildHtml('payment_info');
     }
 
+    /**
+     * Get quote shipping price including tax
+     * @return float
+     */
     public function getShippingPriceInclTax()
     {
-        $exclTax = $this->getQuote()->getShippingAddress()->getShippingAmount();
-        $taxAmount = $this->getQuote()->getShippingAddress()->getShippingTaxAmount();
-        return $this->formatPrice($exclTax + $taxAmount);
+        $inclTax = $this->getQuote()->getShippingAddress()->getShippingInclTax();
+        return $this->formatPrice($inclTax);
     }
 
     public function getShippingPriceExclTax()

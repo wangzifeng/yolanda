@@ -156,4 +156,46 @@ abstract class Mage_Core_Model_Resource_Abstract
     {
         return  strtotime($str);
     }
+
+    /**
+     * Serialize specified field in an object
+     *
+     * @param Varien_Object $object
+     * @param string $field
+     * @param mixed $defaultValue
+     * @param bool $unsetEmpty
+     */
+    protected function _serializeField(Varien_Object $object, $field, $defaultValue = null, $unsetEmpty = false)
+    {
+        $value = $object->getData($field);
+        if (empty($value)) {
+            if ($unsetEmpty) {
+                $object->unsetData($field);
+            } else {
+                if (is_object($defaultValue) || is_array($defaultValue)) {
+                    $defaultValue = serialize($defaultValue);
+                }
+                $object->setData($field, $defaultValue);
+            }
+        } elseif (is_array($value) || is_object($value)) {
+            $object->setData($field, serialize($value));
+        }
+    }
+
+    /**
+     * Unserialize Varien_Object field in an object
+     *
+     * @param Mage_Core_Model_Abstract $object
+     * @param string $field
+     * @param mixed $defaultValue
+     */
+    protected function _unserializeField(Varien_Object $object, $field, $defaultValue = null)
+    {
+        $value = $object->getData($field);
+        if (empty($value)) {
+            $object->setData($field, $defaultValue);
+        } elseif (!is_array($value) && !is_object($value)) {
+            $object->setData($field, unserialize($value));
+        }
+    }
 }

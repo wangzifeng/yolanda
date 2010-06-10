@@ -76,4 +76,20 @@ class Mage_Sales_Model_Order_Invoice_Comment extends Mage_Sales_Model_Abstract
         }
         return Mage::app()->getStore();
     }
+
+    /**
+     * Before object save
+     *
+     * @return Mage_Sales_Model_Order_Invoice_Comment
+     */
+    protected function _beforeSave()
+    {
+        parent::_beforeSave();
+
+        if (!$this->getParentId() && $this->getInvoice()) {
+            $this->setParentId($this->getInvoice()->getId());
+        }
+
+        return $this;
+    }
 }

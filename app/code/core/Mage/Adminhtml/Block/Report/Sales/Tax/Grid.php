@@ -58,8 +58,9 @@ class Mage_Adminhtml_Block_Report_Sales_Tax_Grid extends Mage_Adminhtml_Block_Re
             'sortable'          => false,
             'period_type'       => $this->getPeriodType(),
             'renderer'          => 'adminhtml/report_sales_grid_column_renderer_date',
-            'totals_label'      => Mage::helper('adminhtml')->__('Total'),
-            'subtotals_label'   => Mage::helper('adminhtml')->__('SubTotal')
+            'totals_label'      => Mage::helper('sales')->__('Total'),
+            'subtotals_label'   => Mage::helper('sales')->__('Subtotal'),
+            'html_decorators' => array('nobr'),
         ));
 
         $this->addColumn('code', array(
@@ -99,8 +100,8 @@ class Mage_Adminhtml_Block_Report_Sales_Tax_Grid extends Mage_Adminhtml_Block_Re
             'sortable'      => false
         ));
 
-        $this->addExportType('*/*/exportTaxCsv', Mage::helper('reports')->__('CSV'));
-        $this->addExportType('*/*/exportTaxExcel', Mage::helper('reports')->__('Excel'));
+        $this->addExportType('*/*/exportTaxCsv', Mage::helper('adminhtml')->__('CSV'));
+        $this->addExportType('*/*/exportTaxExcel', Mage::helper('adminhtml')->__('Excel'));
 
         return parent::_prepareColumns();
     }

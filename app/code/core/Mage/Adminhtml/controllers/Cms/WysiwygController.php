@@ -49,6 +49,10 @@ class Mage_Adminhtml_Cms_WysiwygController extends Mage_Adminhtml_Controller_Act
             $image->open($url);
             $image->display();
         } catch (Exception $e) {
+            $image = Varien_Image_Adapter::factory('GD2');
+            $image->open(Mage::getSingleton('cms/wysiwyg_config')->getSkinImagePlaceholderUrl());
+            $image->display();
+            /*
             $image = imagecreate(100, 100);
             $bkgrColor = imagecolorallocate($image,10,10,10);
             imagefill($image,0,0,$bkgrColor);
@@ -57,6 +61,7 @@ class Mage_Adminhtml_Cms_WysiwygController extends Mage_Adminhtml_Controller_Act
             header('Content-type: image/png');
             imagepng($image);
             imagedestroy($image);
+            */
         }
     }
 }
