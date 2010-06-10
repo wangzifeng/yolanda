@@ -21,14 +21,14 @@
  *
  * @category    Mage
  * @package     Mage_Paypal
- * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
+ * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
  * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 -->
 <config>
     <modules>
         <Mage_Paypal>
-            <version>1.4.0.0</version>
+            <version>1.4.0.1</version>
         </Mage_Paypal>
     </modules>
     <global>
@@ -41,6 +41,8 @@
                 <class>Mage_Paypal_Model_Mysql4</class>
                 <entities>
                     <api_debug><table>paypal_api_debug</table></api_debug>
+                    <settlement_report><table>paypal_settlement_report</table></settlement_report>
+                    <settlement_report_row><table>paypal_settlement_report_row</table></settlement_report_row>
                 </entities>
             </paypal_mysql4>
         </models>
@@ -78,6 +80,11 @@
                     </SO>
                 </types>
             </cc>
+        </payment>
+        <payment>
+            <groups>
+                <paypal>PayPal</paypal>
+            </groups>
         </payment>
     </global>
     <frontend>
@@ -127,17 +134,14 @@
     </adminhtml>
     <default>
         <paypal>
-            <general>
-                <merchant_country>US</merchant_country>
-            </general>
             <style>
-                <button_flavor>dynamic</button_flavor>
                 <logo>nowAccepting_150x60</logo>
             </style>
             <wpp>
                 <api_password backend_model="adminhtml/system_config_backend_encrypted"/>
                 <api_signature backend_model="adminhtml/system_config_backend_encrypted"/>
                 <api_username backend_model="adminhtml/system_config_backend_encrypted"/>
+                <button_flavor>dynamic</button_flavor>
             </wpp>
             <wpuk>
                 <user backend_model="adminhtml/system_config_backend_encrypted"/>
@@ -153,38 +157,44 @@
         <payment>
             <paypal_express>
                 <model>paypal/express</model>
-                <title>PayPal Express</title>
+                <title>PayPal Express Checkout</title>
                 <payment_action>Authorization</payment_action>
-                <solution_type>Sole</solution_type>
+                <solution_type>Mark</solution_type>
                 <line_items_enabled>1</line_items_enabled>
                 <visible_on_cart>1</visible_on_cart>
                 <visible_on_product>1</visible_on_product>
+                <allow_ba_signup>never</allow_ba_signup>
+                <group>paypal</group>
             </paypal_express>
             <paypal_direct>
                 <model>paypal/direct</model>
-                <title>PayPal Direct</title>
+                <title>PayPal Direct Payment</title>
                 <payment_action>Authorization</payment_action>
                 <cctypes>VI,MC</cctypes>
                 <useccv>1</useccv>
+                <group>paypal</group>
             </paypal_direct>
             <paypal_standard>
                 <model>paypal/standard</model>
-                <title>PayPal Standard</title>
-                <payment_action>Authorization</payment_action>
+                <title>PayPal Website Payments Standard</title>
+                <payment_action>Sale</payment_action>
                 <line_items_enabled>1</line_items_enabled>
+                <group>paypal</group>
             </paypal_standard>
             <paypaluk_express>
-                <title>PayPal Express Payflow Edition</title>
+                <title>PayPal Express Checkout Payflow Edition</title>
                 <payment_action>Authorization</payment_action>
                 <line_items_enabled>1</line_items_enabled>
                 <visible_on_cart>1</visible_on_cart>
                 <visible_on_product>1</visible_on_product>
+                <group>paypal</group>
             </paypaluk_express>
             <paypaluk_direct>
-                <title>PayPal Direct Payflow Edition</title>
+                <title>PayPal Direct Payment Payflow Edition</title>
                 <payment_action>Authorization</payment_action>
                 <cctypes>VI,MC</cctypes>
                 <useccv>1</useccv>
+                <group>paypal</group>
             </paypaluk_direct>
             <verisign>
                 <model>paypal/payflowpro</model>
@@ -192,18 +202,37 @@
                 <payment_action>Authorization</payment_action>
                 <cctypes>AE,VI</cctypes>
                 <useccv>1</useccv>
-                <fraud_order_status>holded</fraud_order_status>
                 <tender>C</tender>
                 <verbosity>MEDIUM</verbosity>
                 <user backend_model="adminhtml/system_config_backend_encrypted"/>
                 <pwd backend_model="adminhtml/system_config_backend_encrypted"/>
+                <group>paypal</group>
             </verisign>
             <paypal_billing_agreement>
                 <active>1</active>
                 <allow_billing_agreement_wizard>1</allow_billing_agreement_wizard>
                 <model>paypal/method_agreement</model>
                 <title>PayPal Billing Agreement</title>
+                <group>paypal</group>
             </paypal_billing_agreement>
         </payment>
     </default>
+    <crontab>
+        <jobs>
+            <paypal_fetch_settlement_reports>
+                <run><model>paypal/observer::fetchReports</model></run>
+            </paypal_fetch_settlement_reports>
+        </jobs>
+    </crontab>
+    <admin>
+        <routers>
+            <adminhtml>
+                <args>
+                    <modules>
+                        <Mage_Paypal before="Mage_Adminhtml">Mage_Paypal_Adminhtml</Mage_Paypal>
+                    </modules>
+                </args>
+            </adminhtml>
+        </routers>
+    </admin>
 </config>

@@ -20,7 +20,7 @@
  *
  * @category    Mage
  * @package     Mage_Catalog
- * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
+ * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -284,7 +284,6 @@ abstract class Mage_Catalog_Model_Product_Type_Abstract
         // try to add custom options
         try {
             $options = $this->_prepareOptionsForCart($buyRequest, $product);
-            $recurringProfileOptions = $this->_prepareRecurringProfileOptions($buyRequest, $product);
         } catch (Mage_Core_Exception $e) {
             return $e->getMessage();
         }
@@ -328,9 +327,6 @@ abstract class Mage_Catalog_Model_Product_Type_Abstract
                 $product->addCustomOption('option_'.$optionId, $optionValue);
             }
         }
-        if ($recurringProfileOptions) {
-            $product->addCustomOption('recurring_profile_options', serialize($recurringProfileOptions));
-        }
 
         // set quantity in cart
         $product->setCartQty($buyRequest->getQty());
@@ -357,7 +353,8 @@ abstract class Mage_Catalog_Model_Product_Type_Abstract
      */
     protected function _prepareOptionsForCart(Varien_Object $buyRequest, $product = null)
     {
-        $newOptions = array();
+        $transport = new StdClass;
+        $transport->options = array();
         foreach ($this->getProduct($product)->getOptions() as $_option) {
             /* @var $_option Mage_Catalog_Model_Product_Option */
             $group = $_option->groupFactory($_option->getType())
@@ -368,38 +365,13 @@ abstract class Mage_Catalog_Model_Product_Type_Abstract
 
             $preparedValue = $group->prepareForCart();
             if ($preparedValue !== null) {
-                $newOptions[$_option->getId()] = $preparedValue;
+                $transport->options[$_option->getId()] = $preparedValue;
             }
         }
-        return $newOptions;
-    }
-
-    /**
-     * Validate and process options for recurring profile
-     *
-     * @param Varien_Object $buyRequest
-     * @param Mage_Catalog_Model_Product $product
-     * @return  array || string
-     */
-    protected function _prepareRecurringProfileOptions(Varien_Object $buyRequest, $product = null)
-    {
-        $options = array();
-        $startDate = $buyRequest->getData('recurring_start_date');
-        if ($startDate) {
-            $format = Mage::app()->getLocale()->getDateFormat(Mage_Core_Model_Locale::FORMAT_TYPE_SHORT);
-            $locale = Mage::app()->getLocale()->getLocaleCode();
-            if (Zend_Date::isDate($startDate, $format, $locale)) {
-                $date = new Zend_Date($startDate, $format, $locale);
-                $options['start_date'] = $date->toString(Varien_Date::DATETIME_INTERNAL_FORMAT);
-            } else {
-                Mage::throwException(Mage::helper('catalog') ->__('Start date for recurring period should be provided in valid format.'));
-            }
-        }
-        $subscriberName = $buyRequest->getData('recurring_subscriber_name');
-        if ($subscriberName) {
-            $options['subscriber_name'] = $subscriberName;
-        }
-        return $options;
+        Mage::dispatchEvent('catalog_product_type_prepare_cart_options', array(
+            'transport' => $transport, 'buy_request' => $buyRequest, 'product' => $product
+        ));
+        return $transport->options;
     }
 
     /**
@@ -577,6 +549,9 @@ abstract class Mage_Catalog_Model_Product_Type_Abstract
     public function hasOptions($product = null)
     {
         if ($this->getProduct($product)->getHasOptions()) {
+            return true;
+        }
+        if ($this->getProduct($product)->isRecurring()) {
             return true;
         }
         return false;

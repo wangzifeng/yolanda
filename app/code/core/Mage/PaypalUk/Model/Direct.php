@@ -20,7 +20,7 @@
  *
  * @category    Mage
  * @package     Mage_PaypalUk
- * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
+ * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -37,13 +37,6 @@ class Mage_PaypalUk_Model_Direct extends Mage_Paypal_Model_Direct
      * @var string
      */
     protected $_proType = 'paypaluk/pro';
-
-    /**
-     * Ipn notify action
-     *
-     * @var string
-     */
-    protected $_notifyAction = 'paypaluk/ipn/direct';
 
     /**
      * Return available CC types for gateway based on merchant country
@@ -84,8 +77,8 @@ class Mage_PaypalUk_Model_Direct extends Mage_Paypal_Model_Direct
             ->setIsTransactionPending($api->getIsPaymentPending())
             ->setTransactionAdditionalInfo(Mage_PaypalUk_Model_Pro::TRANSPORT_PAYFLOW_TXN_ID, $api->getTransactionId())
             ;
-        $payment->setPreparedMessage(Mage::helper('paypaluk')->__('Payflow PNREF: #%s.', $api->getTransactionId()));
-        Mage::getModel($this->_infoType)->importToPayment($api, $payment);
+        $payment->setPreparedMessage(Mage::helper('paypaluk')->__('Payflow PPREF: #%s.', $api->getTransactionId()));
+        $this->_pro->importPaymentInfo($api, $payment);
     }
 
     /**

@@ -20,7 +20,7 @@
  *
  * @category    Mage
  * @package     Mage_Core
- * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
+ * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -540,6 +540,14 @@ class Mage_Core_Model_Resource_Setup
             $sql .= $this->_conn->quoteInto(" and $parentField=?", $parentId);
         }
         $this->_conn->query($sql);
+
+        if (isset($this->_setupCache[$table][$parentId][$id])) {
+            if (is_array($field)) {
+                $this->_setupCache[$table][$parentId][$id] = array_merge($this->_setupCache[$table][$parentId][$id], $field);
+            } else {
+                $this->_setupCache[$table][$parentId][$id][$field] = $value;
+            }
+        }
 
         return $this;
     }

@@ -19,7 +19,7 @@
  *
  * @category    design
  * @package     default_modern
- * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
+ * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
  * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
@@ -367,6 +367,13 @@ p.required { font-size:11px; text-align:right; color:#EB340A; }
 .data-table tbody td .option-label { font-weight:bold; font-style:italic; }
 .data-table tbody td .option-value { padding-left:10px; }
 
+/* Generic Info Box */
+.info-box { margin:0 0 15px; }
+.info-box h2 { font-size:13px; font-weight:bold; border-bottom:1px solid #ddd; margin:0 0 8px; }
+
+.info-table th { font-weight:bold; padding:2px 15px 2px 0; }
+.info-table td { padding:2px 0; }
+
 /* Shopping cart total summary row expandable to details */
 tr.summary-total { cursor:pointer; }
 tr.summary-total td {}
@@ -375,6 +382,7 @@ tr.show-details .summary-collapse { background-position:0 -53px; }
 tr.show-details td {}
 tr.summary-details td { background-color:#dae1e4; color:#626465; }
 tr.summary-details-first td { border-top:1px solid #d2d8db; }
+tr.summary-details-excluded { font-style:italic; }
 
 /* Shopping cart tax info */
 .cart-tax-info { display:block; }
@@ -860,10 +868,12 @@ f/********** Product Prices > */
 .add-to-cart label { float:left; margin-right:5px; font-weight:bold; line-height:20px; color:#555; }
 .add-to-cart .qty { float:left; margin-right:5px; }
 .add-to-cart button.button { float:left; margin:-3px 0 0; }
+.add-to-cart .paypal-logo { clear:left; margin:0; padding:10px 0 0; text-align:right; }
 
 /* Add to Links + Add to Cart */
 .add-to-box { margin:10px 0; }
 .add-to-box .add-to-cart { margin:10px 0; border:1px solid #eee; background-color:#f8f8f8; padding:10px; text-align:right; }
+.add-to-box .add-to-cart .paypal-logo { float:left; }
 .add-to-box .or { display:none !important; }
 .add-to-box .add-to-links { margin:10px 0; text-align:right; }
 .add-to-box .add-to-links li .separator { display:none !important; }
@@ -914,6 +924,7 @@ f/********** Product Prices > */
 .product-view .product-shop .add-to-links { text-align:right; }
 .product-view .product-shop .add-to-links li { display:inline; margin-left:12px; }
 .product-view .product-shop .add-to-links li .separator { display:none !important; }
+.product-view .product-shop .product-options-bottom .paypal-logo { float:left; }
 
 /* Product Options */
 .product-options { margin:20px 0 0; padding:0 15px 10px; background-color:#f4f9ea; border:1px solid #ddd; }
@@ -926,6 +937,8 @@ f/********** Product Prices > */
 .product-options dd { padding:5px 10px 15px; margin:0 0 5px; border-bottom:1px solid #ddd; }
 .product-options dl.last dd.last { border-bottom:0; padding-bottom:5px; margin-bottom:0; }
 .product-options dd input.input-text { width:98%; }
+.product-options dd input.datetime-picker { width:150px; }
+.product-options dd .time-picker { display:-moz-inline-box; display:inline-block; padding:2px 0; vertical-align:middle; }
 .product-options dd textarea { width:98%; height:8em; }
 .product-options dd select { width:99%; }
 .product-options dd .multiselect option { border-bottom:1px dotted #d9e5ee; padding:2px 4px; }
@@ -1130,6 +1143,7 @@ f/********** Product Prices > */
 .cart .totals td { padding:0 0 0 15px; }
 .cart .totals tr.last td {}
 .cart .totals tfoot td {}
+.cart .totals tfoot th strong,
 .cart .totals tfoot td strong { font-size:14px; font-weight:bold; color:#e02f00; }
 .cart .totals .checkout-types { font-size:13px; padding:4px 0; text-align:right; }
 .cart .totals .checkout-types li { clear:both; margin:0 0 5px; }
@@ -1511,6 +1525,11 @@ f/********** Product Prices > */
 .product-review .ratings-table { margin:0 0 10px; }
 .product-review dt { font-weight:bold; }
 .product-review dd { font-size:13px; margin:5px 0 0; }
+
+/* Billing Agreements */
+.billing-agreements .info-box p { margin:0 0 5px; }
+.billing-agreements .form-list li select { float:left; margin:3px 10px 0 0; }
+.billing-agreements .table-caption { font-weight:bold; font-size:13px; }
 /* ======================================================================================= */
 
 

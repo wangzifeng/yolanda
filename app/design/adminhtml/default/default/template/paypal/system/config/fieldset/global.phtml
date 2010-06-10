@@ -20,13 +20,13 @@
  *
  * @category    design
  * @package     default_default
- * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
+ * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
  * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 ?>
 <?php
 /**
- * @see Mage_Paypal_Block_System_Config_Fieldset_Global
+ * @see Mage_Paypal_Block_Adminhtml_System_Config_Fieldset_Global
  */
 ?>
 <table class="paypal-selection" id="paypal_checkout" cellspacing="0">
@@ -70,7 +70,6 @@
 </table>
 
 <script type="text/javascript">
-//decorateTable('paypal_checkout');
 
 Event.observe(window, 'load', function() {
     var pConfig = new PaypalConfig;
@@ -78,7 +77,8 @@ Event.observe(window, 'load', function() {
     Element.observe('paypal_account_merchant_country', 'change', pConfig.trackMerchantCountry.bind(pConfig));
     Element.observe('paypal_global_wpp', 'click', pConfig.trackWpp.bind(pConfig));
     Element.observe('paypal_global_wpp_pe', 'click', pConfig.trackWppPe.bind(pConfig));
-    ['ec','wps','ecpe','payflowpro','ba'].each(function(m) {
+    Element.observe('paypal_global_verisign', 'click', pConfig.trackPayflowpro.bind(pConfig));
+    ['ec','wps','ecpe'].each(function(m) {
         Element.observe(pConfig.getMethodSwitcher(m).id, 'click', pConfig.trackMethod.bind(pConfig, m));
     });
     pConfig.fastMode = true;
@@ -87,7 +87,7 @@ Event.observe(window, 'load', function() {
     pConfig.trackWpp();
     pConfig.trackWppPe();
     pConfig.trackWps();
-    ['ec','wps','ecpe','payflowpro','ba'].each(function(m) {
+    ['ec','wps','ecpe'].each(function(m) {
         pConfig.trackMethod(m);
     });
     pConfig.fastMode = false;
@@ -103,8 +103,7 @@ PaypalConfig.prototype = {
             wpp: $H({switcher: 'wpp', fieldset: 'wpp'}),
             wpppe: $H({switcher: 'wpp_pe', fieldset: 'wpp_pe'}),
             ecpe: $H({switcher: 'express_pe', fieldset: 'express_pe'}),
-            payflowpro: $H({switcher: 'verisign', fieldset: 'verisign'}),
-            ba: $H({switcher: 'billing_agreement', fieldset: 'paypal_billing_agreement'})
+            payflowpro: $H({switcher: 'verisign', fieldset: 'verisign'})
         });
         this.disabledMethods = [];
     },
@@ -122,6 +121,14 @@ PaypalConfig.prototype = {
     isDisabled: function(method)
     {
         return this.disabledMethods.indexOf(method) != -1;
+    },
+
+    isHidden: function(method)
+    {
+        if (this.getMethod(method).get('hidden')) {
+            return true;
+        }
+        return false;
     },
 
     getMethodFieldset: function(method)
@@ -153,7 +160,7 @@ PaypalConfig.prototype = {
         if (readonly == undefined) {
             readonly = true;
         }
-        if (this.isDisabled(method) && !readonly) {
+        if (this.isDisabled(method) && !readonly || this.isHidden(method)) {
             return;
         }
         if (this.fastMode) {
@@ -173,7 +180,7 @@ PaypalConfig.prototype = {
 
     enableMethod: function(method, readonly)
     {
-        if (this.isDisabled(method)) {
+        if (this.isDisabled(method) || this.isHidden(method)) {
             return;
         }
         readonly = (readonly == undefined ? false : readonly);
@@ -189,6 +196,9 @@ PaypalConfig.prototype = {
 
     disableMethod: function(method, readonly)
     {
+        if (this.isHidden(method)) {
+            return;
+        }
         readonly = (readonly == undefined ? true : readonly);
         if (this.fastMode) {
             this.getMethod(method).set('disabled', true);
@@ -200,6 +210,31 @@ PaypalConfig.prototype = {
         this.toggleFieldset(this.getMethodFieldset(method), this.getMethodSwitcher(method));
     },
 
+    toggleMethodVisibility: function(method, isHidden)
+    {
+        var selection = this.getMethodSwitcher(method).up('tr');
+        var fieldset = this.getMethodFieldset(method);
+        var fieldsetHead = fieldset.previous('div');
+        [selection, fieldset, fieldsetHead].each(function(e) {
+            isHidden ? e.hide() : e.show();
+        });
+        // do not show fieldset for turned off methods
+        if (!isHidden && !this.getMethodSwitcher(method).checked) {
+            fieldset.hide();
+        }
+        this.getMethod(method).set('hidden', isHidden);
+    },
+
+    hideMethod: function(method)
+    {
+        this.toggleMethodVisibility(method, true);
+    },
+
+    showMethod: function(method)
+    {
+        this.toggleMethodVisibility(method, false);
+    },
+
     trackMethod: function(method)
     {
         var switcher = this.getMethodSwitcher(method);
@@ -207,10 +242,6 @@ PaypalConfig.prototype = {
             this.toggleFieldset(this.getMethodFieldset(method), switcher);
         }
         this.getMethodSwitcherValue(method).value = switcher.checked ? '1' : '0';
-
-        if (method == 'ec') {
-            this.toggleApiCredentials();
-        }
     },
 
     trackMerchantCountry: function()
@@ -226,16 +257,16 @@ PaypalConfig.prototype = {
                 'exclude_methods': ['payflowpro']
             },
             'AU':{
-                'exclude_methods': ['wpp','wpppe','ecpe','ba']
+                'exclude_methods': ['wpp','wpppe','ecpe']
             },
             'NZ':{
-                'exclude_methods': ['wpp','wpppe','ecpe','ba']
+                'exclude_methods': ['wpp','wpppe','ecpe']
             },
             'DE':{
-                'exclude_methods': ['wpp','wpppe','ecpe','payflowpro','ba']
+                'exclude_methods': ['wpp','wpppe','ecpe','payflowpro']
             },
             'other':{
-                'exclude_methods': ['wpp','wpppe','ecpe','payflowpro','ba']
+                'exclude_methods': ['wpp','wpppe','ecpe','payflowpro']
             }
         });
         var country = $('paypal_account_merchant_country').value;
@@ -249,7 +280,9 @@ PaypalConfig.prototype = {
         this.getMethods().keys().each(function(m) {
             if (excludeMethods.indexOf(m) != -1) {
                 this.disableMethod(m);
+                this.hideMethod(m);
             } else {
+                this.showMethod(m);
                 this.markMethodAsReadonly(m, false);
             }
         }.bind(this));
@@ -265,33 +298,11 @@ PaypalConfig.prototype = {
         if (!$('paypal_account_business_account').value) {
             this.disableMethod('wps', true);
             this.disableMethod('ec', true);
-            this.disableMethod('ecpe', true);
-            this.disabledMethods.push('wps','ec','ecpe');
+            this.disabledMethods.push('wps','ec');
         } else {
-            this.disabledMethods = this.disabledMethods.without('wps','ec','ecpe');
+            this.disabledMethods = this.disabledMethods.without('wps','ec');
             this.markMethodAsReadonly('wps',false);
             this.markMethodAsReadonly('ec',false);
-            this.markMethodAsReadonly('ecpe',false);
-        }
-        this.toggleApiCredentials();
-    },
-
-    toggleApiCredentials: function()
-    {
-        var visible = this.getMethodSwitcher('wpp').checked || this.getMethodSwitcher('ec').checked;
-        var apiCredentials = [
-            'row_paypal_general_api_username','row_paypal_general_api_password',
-            'row_paypal_general_api_signature','row_paypal_general_use_proxy','row_paypal_general_api_wizard'
-        ];
-        apiCredentials.each(function(e) {
-            visible ? this.enableRow(e) : this.disableRow(e);
-        }.bind(this));
-        if (visible && $('paypal_general_use_proxy').value == 1) {
-            this.enableRow('row_paypal_general_proxy_host');
-            this.enableRow('row_paypal_general_proxy_port');
-        } else {
-            this.disableRow('row_paypal_general_proxy_host');
-            this.disableRow('row_paypal_general_proxy_port');
         }
     },
 
@@ -302,46 +313,39 @@ PaypalConfig.prototype = {
         if (enabled) {
             this.enableMethod('wpp',false);
             this.enableMethod('ec',true);
-            this.markMethodAsReadonly('ba',false);
         } else {
             this.disableMethod('wpp',false);
-            this.disableMethod('ba',false);
-            this.markMethodAsReadonly('ba',true);
             this.markMethodAsReadonly('ec',false);
         }
-        if (enabled || this.getMethodSwitcher('wpppe').checked) {
-            this.enableRow('row_paypal_general_heading_api');
-        } else {
-            this.disableRow('row_paypal_general_heading_api');
-        }
-        this.toggleApiCredentials();
         this.trackWps();
     },
 
     trackWppPe: function()
     {
-        var enabled = this.getMethodSwitcher('wpppe').checked;
-
-        var wppPeGeneralRows = [
-            'row_paypal_general_partner','row_paypal_general_user','row_paypal_general_vendor','row_paypal_general_pwd'
-        ];
-        wppPeGeneralRows.each(function(e) {
-            enabled ? this.enableRow(e) : this.disableRow(e);
-        }.bind(this));
-
-        if (enabled) {
-            this.enableMethod('wpppe',false);
-            this.enableMethod('ecpe',true);
-        } else {
-            this.disableMethod('wpppe',false);
-            this.markMethodAsReadonly('ecpe',false);
-        }
-        if (enabled || this.getMethodSwitcher('wpp').checked) {
-            this.enableRow('row_paypal_general_heading_api');
-        } else {
-            this.disableRow('row_paypal_general_heading_api');
-        }
+        this.trackMethod('wpppe');
+        this.trackEcpe();
         this.trackWps();
+    },
+
+    trackPayflowpro: function()
+    {
+        this.trackMethod('payflowpro');
+        this.trackEcpe();
+    },
+
+    trackEcpe: function()
+    {
+        var wpppeEnabled = this.getMethodSwitcher('wpppe').checked;
+        if (wpppeEnabled) {
+            this.enableMethod('ecpe',true);
+            return;
+        }
+        var disabled = !wpppeEnabled && !this.getMethodSwitcher('payflowpro').checked;
+        if (disabled) {
+            this.disableMethod('ecpe', true);
+        } else {
+            this.markMethodAsReadonly('ecpe', false);
+        }
     },
 
     trackWps: function()

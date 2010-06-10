@@ -20,7 +20,7 @@
  *
  * @category    Mage
  * @package     Mage_Checkout
- * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
+ * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -203,20 +203,21 @@ class Mage_Checkout_OnepageController extends Mage_Checkout_Controller_Action
      */
     public function successAction()
     {
-        if (!$this->getOnepage()->getCheckout()->getLastSuccessQuoteId()) {
+        $session = $this->getOnepage()->getCheckout();
+        if (!$session->getLastSuccessQuoteId()) {
             $this->_redirect('checkout/cart');
             return;
         }
 
-        $lastQuoteId = $this->getOnepage()->getCheckout()->getLastQuoteId();
-        $lastOrderId = $this->getOnepage()->getCheckout()->getLastOrderId();
-
-        if (!$lastQuoteId || !$lastOrderId) {
+        $lastQuoteId = $session->getLastQuoteId();
+        $lastOrderId = $session->getLastOrderId();
+        $lastRecurringProfiles = $session->getLastRecurringProfileIds();
+        if (!$lastQuoteId || (!$lastOrderId && empty($lastRecurringProfiles))) {
             $this->_redirect('checkout/cart');
             return;
         }
 
-        Mage::getSingleton('checkout/session')->clear();
+        $session->clear();
         $this->loadLayout();
         $this->_initLayoutMessages('checkout/session');
         Mage::dispatchEvent('checkout_onepage_controller_success_action');

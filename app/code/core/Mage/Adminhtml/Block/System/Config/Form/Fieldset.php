@@ -20,7 +20,7 @@
  *
  * @category    Mage
  * @package     Mage_Adminhtml
- * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
+ * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -135,61 +135,49 @@ class Mage_Adminhtml_Block_System_Config_Form_Fieldset
             $js.= "$$('#{$id} table')[0].addClassName('system-tooltip-wrap');
                    $$('#{$id} table tbody tr').each(function(tr) {
                        Event.observe(tr, 'mouseover', function (event) {
-                           var currentTarget = this;
                            var relatedTarget = $(event.relatedTarget || event.fromElement);
-                           if(relatedTarget)
-                               if (relatedTarget == currentTarget || relatedTarget.descendantOf(currentTarget)) return;
+                           if(relatedTarget && (relatedTarget == this || relatedTarget.descendantOf(this))) {
+                               return;
+                           }
                            showTooltip(event);
                        });
                        Event.observe(tr, 'mouseout', function (event) {
-                           var currentTarget = this;
                            var relatedTarget = $(event.relatedTarget || event.toElement);
-                           if(relatedTarget)
-                               if (relatedTarget == currentTarget || relatedTarget.childOf(currentTarget)) return;
-                           hideTooltip(event);
-                       });
-                   });;
-                   $$('#{$id} table tbody tr input[type=text]').each(function(input) {
-                       Event.observe(input, 'focus', function (event) {
-                           showTooltip(event);
-                       });
-                       Event.observe(input, 'blur', function (event) {
+                           if(relatedTarget && (relatedTarget == this || relatedTarget.childOf(this))) {
+                               return;
+                           }
                            hideTooltip(event);
                        });
                    });
-                   $$('#{$id} table tbody tr select').each(function(select) {
-                       Event.observe(select, 'focus', function (event) {
+                   $$('#{$id} table')[0].select('input','select').each(function(field) {
+                       Event.observe(field, 'focus', function (event) {
                            showTooltip(event);
                        });
-                       Event.observe(select, 'blur', function (event) {
+                       Event.observe(field, 'blur', function (event) {
                            hideTooltip(event);
                        });
                    });
                    function showTooltip(event) {
-                        var tableHeight = Event.findElement(event, 'table').getStyle('height');
-                        var tr = Event.findElement(event, 'tr')
-                        var id = tr.id + '_comment';
-                       
-                       $$('.system-tooltip-box').invoke('hide');
-                       
-                        if ($(id)) {
-                            $(id).show().setStyle({height : tableHeight});
-                            if(document.viewport.getWidth() < 1200) {
-                                $(id).addClassName('system-tooltip-small').setStyle({height : 'auto'});
-                            }
-                            else {
-                                $(id).removeClassName('system-tooltip-small');
-                            }
-                        }
+                       var tableHeight = Event.findElement(event, 'table').getStyle('height');
+                       var tr = Event.findElement(event, 'tr');
+                       var id = tr.id + '_comment';
+                       $$('div.system-tooltip-box').invoke('hide');
+                       if ($(id)) {
+                           $(id).show().setStyle({height : tableHeight});
+                           if(document.viewport.getWidth() < 1200) {
+                               $(id).addClassName('system-tooltip-small').setStyle({height : 'auto'});
+                           } else {
+                               $(id).removeClassName('system-tooltip-small');
+                           }
+                       }
                    };
                    function hideTooltip(event) {
-                       var tr = Event.findElement(event, 'tr')
+                       var tr = Event.findElement(event, 'tr');
                        var id = tr.id + '_comment';
                        if ($(id)) {
-                            setTimeout(function() { $(id).hide(); }, 1);
+                           setTimeout(function() { $(id).hide(); }, 1);
                        }
-                   }
-                   ";
+                   };";
         }
         return Mage::helper('adminhtml/js')->getScript($js);
     }

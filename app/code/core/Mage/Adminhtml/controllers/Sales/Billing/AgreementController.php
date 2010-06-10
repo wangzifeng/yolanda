@@ -20,7 +20,7 @@
  *
  * @category    Mage
  * @package     Mage_Adminhtml
- * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
+ * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -41,6 +41,7 @@ class Mage_Adminhtml_Sales_Billing_AgreementController extends Mage_Adminhtml_Co
             ->_title($this->__('Billing Agreements'));
 
         $this->loadLayout()
+            ->_setActiveMenu('sales/billing_agreement')
             ->renderLayout();
     }
 
@@ -67,8 +68,9 @@ class Mage_Adminhtml_Sales_Billing_AgreementController extends Mage_Adminhtml_Co
                 ->_title($this->__('Billing Agreements'))
                 ->_title(sprintf("#%s", $agreementModel->getReferenceId()));
 
-            Mage::register('billing_agreement', $agreementModel);
+            Mage::register('current_billing_agreement', $agreementModel);
             $this->loadLayout()
+                ->_setActiveMenu('sales/billing_agreement')
                 ->renderLayout();
             return;
         }
@@ -107,12 +109,44 @@ class Mage_Adminhtml_Sales_Billing_AgreementController extends Mage_Adminhtml_Co
         $agreementModel = $this->_initBillingAgreement();
 
         if ($agreementModel && $agreementModel->canCancel()) {
-            $agreementModel->cancel();
-            $this->_getSession()->addSuccess($this->__('The billing agreement has been canceled.'));
+            try {
+                $agreementModel->cancel();
+                $this->_getSession()->addSuccess($this->__('The billing agreement has been canceled.'));
+                $this->_redirect('*/*/view', array('_current' => true));
+                return;
+            } catch (Mage_Core_Exception $e) {
+                $this->_getSession()->addError($e->getMessage());
+            } catch (Exception $e) {
+                $this->_getSession()->addError($this->__('Failed to cancel the billing agreement.'));
+                Mage::logException($e);
+            }
             $this->_redirect('*/*/view', array('_current' => true));
-            return;
         }
         return $this->_redirect('*/*/');
+    }
+
+    /**
+     * Delete billing agreement action
+     */
+    public function deleteAction()
+    {
+        $agreementModel = $this->_initBillingAgreement();
+
+        if ($agreementModel) {
+            try {
+                $agreementModel->delete();
+                $this->_getSession()->addSuccess($this->__('The billing agreement has been deleted.'));
+                $this->_redirect('*/*/');
+                return;
+            } catch (Mage_Core_Exception $e) {
+                $this->_getSession()->addError($e->getMessage());
+            } catch (Exception $e) {
+                $this->_getSession()->addError($this->__('Failed to delete the billing agreement.'));
+                Mage::logException($e);
+            }
+            $this->_redirect('*/*/view', array('_current' => true));
+        }
+        $this->_redirect('*/*/');
     }
 
     /**
@@ -126,7 +160,7 @@ class Mage_Adminhtml_Sales_Billing_AgreementController extends Mage_Adminhtml_Co
         $agreementModel = Mage::getModel('sales/billing_agreement')->load($agreementId);
 
         if (!$agreementModel->getId()) {
-            $this->_getSession()->addError($this->__('Wrong billing agreement Id specified.'));
+            $this->_getSession()->addError($this->__('Wrong billing agreement ID specified.'));
             return false;
         }
         return $agreementModel;
@@ -174,7 +208,8 @@ class Mage_Adminhtml_Sales_Billing_AgreementController extends Mage_Adminhtml_Co
                 return Mage::getSingleton('admin/session')->isAllowed('sales/billing_agreement/actions/view');
                 break;
             case 'cancel':
-                return Mage::getSingleton('admin/session')->isAllowed('sales/billing_agreement/actions/cancel');
+            case 'delete':
+                return Mage::getSingleton('admin/session')->isAllowed('sales/billing_agreement/actions/manage');
                 break;
             default:
                 return Mage::getSingleton('admin/session')->isAllowed('sales/billing_agreement');

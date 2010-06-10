@@ -20,7 +20,7 @@
  *
  * @category    Mage
  * @package     Mage_Paypal
- * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
+ * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -120,6 +120,15 @@ class Mage_Paypal_Model_Config
     const WPS_TRANSPORT_IPN      = 'ipn';
     const WPS_TRANSPORT_PDT      = 'pdt';
     const WPS_TRANSPORT_IPN_PDT  = 'ipn_n_pdt';
+
+    /**
+     * Billing Agreement Signup
+     *
+     * @var string
+     */
+    const EC_BA_SIGNUP_AUTO     = 'auto';
+    const EC_BA_SIGNUP_ASK      = 'ask';
+    const EC_BA_SIGNUP_NEVER    = 'never';
 
     /**
      * Default URL for centinel API (PayPal Direct)
@@ -322,7 +331,12 @@ class Mage_Paypal_Model_Config
                 // check for direct payments dependence
                 if ($this->isMethodActive(self::METHOD_WPP_PE_DIRECT)) {
                     $result = true;
+                } elseif (!$this->isMethodActive(self::METHOD_WPP_PE_DIRECT) && !$this->isMethodActive(self::METHOD_PAYFLOWPRO)) {
+                    $result = false;
                 }
+                break;
+            case self::METHOD_BILLING_AGREEMENT:
+                $result = $this->isWppApiAvailabe();
                 break;
             case self::METHOD_WPP_DIRECT:
             case self::METHOD_WPP_PE_DIRECT:
@@ -344,8 +358,29 @@ class Mage_Paypal_Model_Config
     {
         $underscored = strtolower(preg_replace('/(.)([A-Z])/', "$1_$2", $key));
         $value = Mage::getStoreConfig($this->_getSpecificConfigPath($underscored), $this->_storeId);
+        $value = $this->_prepareValue($underscored, $value);
         $this->$key = $value;
         $this->$underscored = $value;
+        return $value;
+    }
+
+    /**
+     * Perform additional config value preparation and return new value if needed
+     *
+     * @param string $key Underscored key
+     * @param string $value Old value
+     * @return string Modified value or old value
+     */
+    protected function _prepareValue($key, $value)
+    {
+        // Always set payment action as "Sale" for Unilateral payments in EC
+        if ($key == 'payment_action'
+            && $value != self::PAYMENT_ACTION_SALE
+            && $this->_methodCode == self::METHOD_WPP_EXPRESS
+            && $this->shouldUseUnilateralPayments())
+        {
+            return self::PAYMENT_ACTION_SALE;
+        }
         return $value;
     }
 
@@ -800,17 +835,48 @@ class Mage_Paypal_Model_Config
     }
 
     /**
+     * Retrieve express checkout billing agreement signup options
+     *
+     * @return array
+     */
+    public function getExpressCheckoutBASignupOptions()
+    {
+        return array(
+            self::EC_BA_SIGNUP_AUTO  => Mage::helper('paypal')->__('Auto'),
+            self::EC_BA_SIGNUP_ASK   => Mage::helper('paypal')->__('Ask Customer'),
+            self::EC_BA_SIGNUP_NEVER => Mage::helper('paypal')->__('Never')
+        );
+    }
+
+    /**
+     * Whether to ask customer to create billing agreements
+     * Unilateral payments are incompatible with the billing agreements
+     *
+     * @return bool
+     */
+    public function shouldAskToCreateBillingAgreement()
+    {
+        return ($this->allow_ba_signup === self::EC_BA_SIGNUP_ASK) && !$this->shouldUseUnilateralPayments();
+    }
+
+    /**
      * Check whether only Unilateral payments (Accelerated Boarding) possible for Express method or not
      *
      * @return bool
      */
     public function shouldUseUnilateralPayments()
     {
-        $email = Mage::getStoreConfig($this->_mapGeneralFieldset('business_account'), $this->_storeId);
-        $apiUser = Mage::getStoreConfig($this->_mapWppFieldset('api_username'), $this->_storeId);
-        $apiPassword = Mage::getStoreConfig($this->_mapWppFieldset('api_password'), $this->_storeId);
-        $apiSignature = Mage::getStoreConfig($this->_mapWppFieldset('api_signature'), $this->_storeId);
-        return $email && (!$apiUser || !$apiPassword || !$apiSignature);
+        return $this->business_account && !$this->isWppApiAvailabe();
+    }
+
+    /**
+     * Check whether WPP API credentials are available for this method
+     *
+     * @return bool
+     */
+    public function isWppApiAvailabe()
+    {
+        return $this->api_username && $this->api_password && $this->api_signature;
     }
 
     /**
@@ -858,6 +924,23 @@ class Mage_Paypal_Model_Config
     {
         $model = Mage::getModel('payment/source_cctype')->setAllowedTypes(array('AE', 'VI', 'MC', 'JCB', 'DI'));
         return $model->toOptionArray();
+    }
+
+    /**
+     * Check whether the specified payment method is a CC-based one
+     *
+     * @param string $code
+     * @return bool
+     */
+    public static function getIsCreditCardMethod($code)
+    {
+        switch ($code) {
+            case self::METHOD_WPP_DIRECT:
+            case self::METHOD_WPP_PE_DIRECT:
+            case self::METHOD_PAYFLOWPRO:
+                return true;
+        }
+        return false;
     }
 
     /**
@@ -945,22 +1028,22 @@ class Mage_Paypal_Model_Config
                 $path = $this->_mapDirectFieldset($fieldName);
                 break;
             case self::METHOD_BILLING_AGREEMENT:
-                return $this->_mapBillingAgreementFieldset($fieldName);
+                $path = $this->_mapMethodFieldset($fieldName);
+                break;
         }
 
-        switch ($this->_methodCode) {
-            case self::METHOD_WPP_EXPRESS:
-            case self::METHOD_WPP_DIRECT:
-                if ($path === null) {
+        if ($path === null) {
+            switch ($this->_methodCode) {
+                case self::METHOD_WPP_EXPRESS:
+                case self::METHOD_WPP_DIRECT:
+                case self::METHOD_BILLING_AGREEMENT:
                     $path = $this->_mapWppFieldset($fieldName);
-                }
-                break;
-            case self::METHOD_WPP_PE_EXPRESS:
-            case self::METHOD_WPP_PE_DIRECT:
-                if ($path === null) {
+                    break;
+                case self::METHOD_WPP_PE_EXPRESS:
+                case self::METHOD_WPP_PE_DIRECT:
                     $path = $this->_mapWpukFieldset($fieldName);
-                }
-                break;
+                    break;
+            }
         }
 
         if ($path === null) {
@@ -1003,6 +1086,7 @@ class Mage_Paypal_Model_Config
         switch ($fieldName)
         {
             case 'line_items_summary':
+            case 'sandbox_flag':
                 return 'payment/' . self::METHOD_WPS . "/{$fieldName}";
             default:
                 return $this->_mapMethodFieldset($fieldName);
@@ -1023,6 +1107,7 @@ class Mage_Paypal_Model_Config
             case 'solution_type':
             case 'visible_on_cart':
             case 'visible_on_product':
+            case 'allow_ba_signup':
                 return "payment/{$this->_methodCode}/{$fieldName}";
             default:
                 return $this->_mapMethodFieldset($fieldName);
@@ -1062,9 +1147,11 @@ class Mage_Paypal_Model_Config
             case 'api_username':
             case 'api_password':
             case 'api_signature':
+            case 'sandbox_flag':
             case 'use_proxy':
             case 'proxy_host':
             case 'proxy_port':
+            case 'button_flavor':
                 return "paypal/wpp/{$fieldName}";
             default:
                 return null;
@@ -1079,13 +1166,21 @@ class Mage_Paypal_Model_Config
      */
     protected function _mapWpukFieldset($fieldName)
     {
-        switch ($fieldName)
-        {
+        $pathPrefix = 'paypal/wpuk';
+        // Use PUMP credentials from Verisign for EC when Direct Payments are unavailable
+        if ($this->_methodCode == self::METHOD_WPP_PE_EXPRESS && !$this->isMethodAvailable(self::METHOD_WPP_PE_DIRECT)) {
+            $pathPrefix = 'payment/verisign';
+        }
+        switch ($fieldName) {
             case 'partner':
             case 'user':
             case 'vendor':
             case 'pwd':
-                return "paypal/wpuk/{$fieldName}";
+            case 'sandbox_flag':
+            case 'use_proxy':
+            case 'proxy_host':
+            case 'proxy_port':
+                return $pathPrefix . '/' . $fieldName;
             default:
                 return null;
         }
@@ -1106,7 +1201,6 @@ class Mage_Paypal_Model_Config
             case 'paypal_hdrbackcolor':
             case 'paypal_hdrbordercolor':
             case 'paypal_payflowcolor':
-            case 'button_flavor':
                 return "paypal/style/{$fieldName}";
             default:
                 return null;
@@ -1153,26 +1247,10 @@ class Mage_Paypal_Model_Config
             case 'cctypes':
             case 'sort_order':
             case 'debug':
-            case 'sandbox_flag':
                 return "payment/{$this->_methodCode}/{$fieldName}";
             default:
                 return null;
         }
-    }
-
-    /**
-     * Map Billing Agreements General Settings
-     *
-     * @param string $fieldName
-     * @return string|null
-     */
-    protected function _mapBillingAgreementFieldset($fieldName)
-    {
-        if ($fieldName == 'sandbox_flag') {
-            return 'payment/' . self::METHOD_WPP_DIRECT . '/' . $fieldName;
-        }
-        $path = $this->_mapMethodFieldset($fieldName);
-        return ($path) ? $path : $this->_mapWppFieldset($fieldName);
     }
 }
 

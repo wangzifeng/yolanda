@@ -20,7 +20,7 @@
  *
  * @category    design
  * @package     base_default
- * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
+ * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
  * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 ?>
@@ -30,17 +30,17 @@
  */
 ?>
 <tr>
-    <td colspan="<?php echo $this->getColspan() + 1; ?>" style="<?php echo $this->getTotalStyle() ?>" class="">
+    <th colspan="<?php echo $this->getColspan() + 1; ?>" style="<?php echo $this->getTotalStyle() ?>" class="a-right">
         <?php echo sprintf(($this->getRenderingArea() == $this->getTotalArea()) ? '<strong>%s</strong>' : '%s', $this->escapeHtml($this->getTotalTitle())) ?>
-    </td>
+    </th>
 </tr>
 <?php foreach ($this->getTotalItems() as $i => $item): ?>
 <?php foreach ($this->getTotalItemDetails($item) as $j => $row):?>
-<tr class="summary-details <?php echo "summary-details-nominal-{$i}" . (0 == $j ? ' summary-details-first' : '')?>" style="display:none;">
+<tr class="summary-details <?php echo "summary-details-nominal-{$i}" . (0 == $j ? ' summary-details-first' : '') . ($this->getItemDetailsRowIsCompounded($row) ? '' : ' summary-details-excluded')?>" style="display:none;">
     <td colspan="<?php echo $this->getColspan(); ?>" style="<?php echo $this->getTotalStyle() ?>" class="a-right">
         <?php echo $this->escapeHtml($this->getItemDetailsRowLabel($row)) ?>
     </td>
-    <td>
+    <td class="a-right">
         <?php echo $this->formatPrice($this->getItemDetailsRowAmount($row)) ?>
     </td>
 </tr>
@@ -49,7 +49,7 @@
     <td colspan="<?php echo $this->getColspan(); ?>" style="<?php echo $this->getTotalStyle() ?>">
         <div class="summary-collapse"><?php echo $this->escapeHtml($this->getItemName($item)); ?></div>
     </td>
-    <td>
+    <td class="a-right">
         <?php echo $this->helper('checkout')->formatPrice($this->getItemRowTotal($item)) ?>
     </td>
 </tr>

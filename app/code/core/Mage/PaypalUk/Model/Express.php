@@ -20,7 +20,7 @@
  *
  * @category    Mage
  * @package     Mage_PaypalUk
- * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
+ * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -31,6 +31,8 @@ class Mage_PaypalUk_Model_Express extends Mage_Paypal_Model_Express
 {
     protected $_code = Mage_Paypal_Model_Config::METHOD_WPP_PE_EXPRESS;
     protected $_formBlockType = 'paypaluk/express_form';
+    protected $_canCreateBillingAgreement = false;
+    protected $_canManageRecurringProfiles = false;
 
     /**
      * Website Payments Pro instance type
@@ -40,28 +42,30 @@ class Mage_PaypalUk_Model_Express extends Mage_Paypal_Model_Express
     protected $_proType = 'paypaluk/pro';
 
     /**
-     * Notify Url
+     * Express Checkout payment method instance
      *
-     * @var string
+     * @var Mage_Paypal_Model_Express
      */
-    protected $_ipnAction = 'paypaluk/ipn/express';
+    protected $_ecInstance = null;
 
     /**
-     * Custom getter for payment configuration
+     * EC PE won't be available if the EC is available
      *
-     * @param string $field
-     * @param int $storeId
-     * @return mixed
+     * @param Mage_Sales_Model_Quote $quote
+     * @return bool
      */
-    public function getConfigData($field, $storeId = null)
+    public function isAvailable($quote = null)
     {
-        $value = parent::getConfigData($field, $storeId);
-        if ($field == 'visible_on_cart' || $field == 'visible_on_product') {
-            $wppExpressShortcut = Mage::getStoreConfigFlag('payment/'.Mage_Paypal_Model_Config::METHOD_WPP_EXPRESS.'/'.$field, $storeId)
-                && $this->_pro->getConfig()->isMethodAvailable(Mage_Paypal_Model_Config::METHOD_WPP_EXPRESS);
-            $value = (bool)$value && !$wppExpressShortcut;
+        if (!parent::isAvailable($quote)) {
+            return false;
         }
-        return $value;
+        if (!$this->_ecInstance) {
+            $this->_ecInstance = Mage::helper('payment')->getMethodInstance(Mage_Paypal_Model_Config::METHOD_WPP_EXPRESS);
+        }
+        if ($quote) {
+            $this->_ecInstance->setStore($quote->getStoreId());
+        }
+        return !$this->_ecInstance->isAvailable();
     }
 
     /**
@@ -79,7 +83,7 @@ class Mage_PaypalUk_Model_Express extends Mage_Paypal_Model_Express
             ->setIsTransactionPending($api->getIsPaymentPending())
             ->setTransactionAdditionalInfo(Mage_PaypalUk_Model_Pro::TRANSPORT_PAYFLOW_TXN_ID, $api->getTransactionId())
         ;
-        $payment->setPreparedMessage(Mage::helper('paypaluk')->__('Payflow PNREF: #%s.', $api->getTransactionId()));
+        $payment->setPreparedMessage(Mage::helper('paypaluk')->__('Payflow PPREF: #%s.', $api->getTransactionId()));
         Mage::getModel('paypal/info')->importToPayment($api, $payment);
     }
 

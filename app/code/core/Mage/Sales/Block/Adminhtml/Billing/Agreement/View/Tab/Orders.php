@@ -19,8 +19,8 @@
  * needs please refer to http://www.magentocommerce.com for more information.
  *
  * @category    Mage
- * @package     Mage_Adminhtml
- * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
+ * @package     Mage_Sales
+ * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -40,6 +40,19 @@ class Mage_Sales_Block_Adminhtml_Billing_Agreement_View_Tab_Orders extends Mage_
     {
         parent::__construct();
         $this->setId('billing_agreement_orders');
+    }
+
+    /**
+     * Prepare related orders collection
+     *
+     * @return Mage_Adminhtml_Block_Widget_Grid
+     */
+    protected function _prepareCollection()
+    {
+        $collection = Mage::getResourceModel('sales/order_grid_collection');
+        $collection->addBillingAgreementsFilter(Mage::registry('current_billing_agreement')->getId());
+        $this->setCollection($collection);
+        return Mage_Adminhtml_Block_Widget_Grid::_prepareCollection();
     }
 
     /**

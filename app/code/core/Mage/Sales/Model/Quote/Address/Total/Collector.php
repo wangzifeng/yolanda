@@ -20,7 +20,7 @@
  *
  * @category    Mage
  * @package     Mage_Sales
- * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
+ * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -148,33 +148,39 @@ class Mage_Sales_Model_Quote_Address_Total_Collector
             }
         }
         $configArray = $this->_modelsConfig;
-        foreach ($configArray as $code => $data) {
-            foreach ($data['before'] as $beforeCode) {
-                if (!isset($configArray[$beforeCode])) {
-                    continue;
+        // invoke simple sorting if the first element contains the "sort_order" key
+        reset($configArray); $element = current($configArray);
+        if (isset($element['sort_order'])) {
+            uasort($configArray, array($this, '_compareSortOrder'));
+        } else {
+            foreach ($configArray as $code => $data) {
+                foreach ($data['before'] as $beforeCode) {
+                    if (!isset($configArray[$beforeCode])) {
+                        continue;
+                    }
+                    $configArray[$code]['before'] = array_merge(
+                        $configArray[$code]['before'], $configArray[$beforeCode]['before']
+                    );
+                    $configArray[$beforeCode]['after']  = array_merge(
+                        $configArray[$beforeCode]['after'], array($code), $data['after']
+                    );
+                    $configArray[$beforeCode]['after']  = array_unique($configArray[$beforeCode]['after']);
                 }
-                $configArray[$code]['before'] = array_merge(
-                    $configArray[$code]['before'], $configArray[$beforeCode]['before']
-                );
-                $configArray[$beforeCode]['after']  = array_merge(
-                    $configArray[$beforeCode]['after'], array($code), $data['after']
-                );
-                $configArray[$beforeCode]['after']  = array_unique($configArray[$beforeCode]['after']);
-            }
-            foreach ($data['after'] as $afterCode) {
-                if (!isset($configArray[$afterCode])) {
-                    continue;
+                foreach ($data['after'] as $afterCode) {
+                    if (!isset($configArray[$afterCode])) {
+                        continue;
+                    }
+                    $configArray[$code]['after'] = array_merge(
+                        $configArray[$code]['after'], $configArray[$afterCode]['after']
+                    );
+                    $configArray[$afterCode]['before'] = array_merge(
+                        $configArray[$afterCode]['before'], array($code), $data['before']
+                    );
+                    $configArray[$afterCode]['before'] = array_unique($configArray[$afterCode]['before']);
                 }
-                $configArray[$code]['after'] = array_merge(
-                    $configArray[$code]['after'], $configArray[$afterCode]['after']
-                );
-                $configArray[$afterCode]['before'] = array_merge(
-                    $configArray[$afterCode]['before'], array($code), $data['before']
-                );
-                $configArray[$afterCode]['before'] = array_unique($configArray[$afterCode]['before']);
             }
+            uasort($configArray, array($this, '_compareTotals'));
         }
-        uasort($configArray, array($this, '_compareTotals'));
         $sortedCollectors = array_keys($configArray);
         if (Mage::app()->useCache('config')) {
             Mage::app()->saveCache(serialize($sortedCollectors), $this->_collectorsCacheKey, array(
@@ -215,6 +221,28 @@ class Mage_Sales_Model_Quote_Address_Total_Collector
             $res = -1;
         } elseif (in_array($bCode, $a['after']) || in_array($aCode, $b['before'])) {
             $res = 1;
+        } else {
+            $res = 0;
+        }
+        return $res;
+    }
+
+    /**
+     * uasort() callback that uses sort_order for comparison
+     *
+     * @param array $a
+     * @param array $b
+     * @return int
+     */
+    protected function _compareSortOrder($a, $b)
+    {
+        if (!isset($a['sort_order']) || !isset($b['sort_order'])) {
+            return 0;
+        }
+        if ($a['sort_order'] > $b['sort_order']) {
+            $res = 1;
+        } elseif ($a['sort_order'] < $b['sort_order']) {
+            $res = -1;
         } else {
             $res = 0;
         }

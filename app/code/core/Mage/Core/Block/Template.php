@@ -20,7 +20,7 @@
  *
  * @category    Mage
  * @package     Mage_Core
- * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
+ * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -284,20 +284,29 @@ class Mage_Core_Block_Template extends Mage_Core_Block_Abstract
     }
 
     /**
-     * Get Key for caching block content
+     * Get data from specified object
      *
-     * @return string
+     * @param Varien_Object $object
+     * @param string $key
+     * @return mixed
      */
-    public function getCacheKey()
+    public function getObjectData(Varien_Object $object, $key)
     {
-        if (!$this->hasData('cache_key')) {
-            $key = array(
-                'BLOCK_TPL',
-                Mage::app()->getStore()->getCode(),
-                $this->getTemplateFile()
-            );
-            $this->setCacheKey(implode(':', $key));
-        }
-        return $this->getData('cache_key');
+        return $object->getDataUsingMethod((string)$key);
+    }
+
+    /**
+     * Get cache key informative items
+     *
+     * @return array
+     */
+    public function getCacheKeyInfo()
+    {
+        return array(
+            'BLOCK_TPL',
+            Mage::app()->getStore()->getCode(),
+            $this->getTemplateFile(),
+            'template' => $this->getTemplate()
+        );
     }
 }

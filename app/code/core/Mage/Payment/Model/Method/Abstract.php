@@ -20,7 +20,7 @@
  *
  * @category    Mage
  * @package     Mage_Payment
- * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
+ * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -61,6 +61,9 @@ abstract class Mage_Payment_Model_Method_Abstract extends Varien_Object
     protected $_canUseForMultishipping      = true;
     protected $_isInitializeNeeded          = false;
     protected $_canFetchTransactionInfo     = false;
+    protected $_canReviewPayment            = false;
+    protected $_canCreateBillingAgreement   = false;
+    protected $_canManageRecurringProfiles  = true;
     /**
      * TODO: whether a captured transaction may be voided by this gateway
      * This may happen when amount is captured, but not settled
@@ -193,11 +196,23 @@ abstract class Mage_Payment_Model_Method_Abstract extends Varien_Object
     }
 
     /**
+     * Check whether payment method instance can create billing agreements
+     *
+     * @return bool
+     */
+    public function canCreateBillingAgreement()
+    {
+        return $this->_canCreateBillingAgreement;
+    }
+
+    /**
      * Fetch transaction info
      *
+     * @param Mage_Payment_Model_Info $payment
+     * @param string $transactionId
      * @return array
      */
-    public function fetchTransactionInfo($transactionId)
+    public function fetchTransactionInfo(Mage_Payment_Model_Info $payment, $transactionId)
     {
         return array();
     }
@@ -261,6 +276,16 @@ abstract class Mage_Payment_Model_Method_Abstract extends Varien_Object
     public function canManageBillingAgreements()
     {
         return ($this instanceof Mage_Payment_Model_Billing_Agreement_MethodInterface);
+    }
+
+    /**
+     * Whether can manage recurring profiles
+     *
+     * @return bool
+     */
+    public function canManageRecurringProfiles()
+    {
+        return $this->_canManageRecurringProfiles && ($this instanceof Mage_Payment_Model_Recurring_Profile_MethodInterface);
     }
 
     /**
@@ -469,6 +494,48 @@ abstract class Mage_Payment_Model_Method_Abstract extends Varien_Object
     }
 
     /**
+     * Whether this method can accept or deny payment
+     *
+     * @param Mage_Payment_Model_Info $payment
+     * @param bool $soft
+     * @return bool
+     */
+    public function canReviewPayment(Mage_Payment_Model_Info $payment)
+    {
+        return $this->_canReviewPayment;
+    }
+
+    /**
+     * Attempt to accept a payment that us under review
+     *
+     * @param Mage_Payment_Model_Info $payment
+     * @return bool
+     * @throws Mage_Core_Exception
+     */
+    public function acceptPayment(Mage_Payment_Model_Info $payment)
+    {
+        if (!$this->canReviewPayment($payment)) {
+            Mage::throwException(Mage::helper('payment')->__('The payment review action is unavailable.'));
+        }
+        return false;
+    }
+
+    /**
+     * Attempt to deny a payment that us under review
+     *
+     * @param Mage_Payment_Model_Info $payment
+     * @return bool
+     * @throws Mage_Core_Exception
+     */
+    public function denyPayment(Mage_Payment_Model_Info $payment)
+    {
+        if (!$this->canReviewPayment($payment)) {
+            Mage::throwException(Mage::helper('payment')->__('The payment review action is unavailable.'));
+        }
+        return false;
+    }
+
+    /**
      * Retrieve payment method title
      *
      * @return string
@@ -535,8 +602,12 @@ abstract class Mage_Payment_Model_Method_Abstract extends Varien_Object
             'method_instance' => $this,
             'quote'           => $quote,
         ));
-        if ($quote && $quote->hasRecurringItems()) {
-            if (!($this instanceof Mage_Payment_Model_Recurring_Profile_MethodInterface)) {
+
+        // disable method if it cannot implement recurring profiles management and there are recurring items in quote
+        if ($checkResult->isAvailable) {
+            $implementsRecurring = $this->canManageRecurringProfiles();
+            // the $quote->hasRecurringItems() causes big performance impact, thus it has to be called last
+            if ($quote && (!$implementsRecurring) && $quote->hasRecurringItems()) {
                 $checkResult->isAvailable = false;
             }
         }

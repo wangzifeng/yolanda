@@ -21,7 +21,7 @@
  *
  * @category    design
  * @package     default_iphone
- * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
+ * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
  * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
@@ -254,37 +254,4 @@ Customer account home dashboard layout
             </block>
         </block>
     </sales_email_order_creditmemo_items>
-
-    <sales_customer_billing_agreement_index>
-        <update handle="customer_account"/>
-        <reference name="root">
-            <action method="setTemplate"><template>page/2columns-left.phtml</template></action>
-        </reference>
-        <reference name="my.account.wrapper">
-            <block type="sales/customer_account_billing_agreement" name="customer.account.billing.agreement" template="sales/customer/account/billing/agreement.phtml" />
-        </reference>
-    </sales_customer_billing_agreement_index>
-
-    <sales_customer_billing_agreement_view>
-        <update handle="customer_account"/>
-        <reference name="root">
-            <action method="setTemplate"><template>page/2columns-left.phtml</template></action>
-        </reference>
-        <reference name="my.account.wrapper">
-            <block type="sales/customer_account_billing_agreement" name="customer.account.billing.agreement" template="sales/customer/account/billing/agreements/view.phtml" />
-        </reference>
-    </sales_customer_billing_agreement_view>
-
-    <customer_account>
-        <reference name="customer_account_navigation" >
-                <action method="addLink" translate="label" module="customer"><name>billing_agreements</name><path>sales/customer_billing_agreement/</path><label>Billing Agreements</label></action>
-        </reference>
-    </customer_account>
-
-    <catalog_product_view>
-        <reference name="product.info.extra_buttons">
-            <block type="sales/catalog_product_view_recurring_profile" name="sales.product.recurring_profile" template="sales/catalog/product/view/recurring/profile.phtml"/>
-            <block type="core/html_calendar" name="html_calendar" as="html_calendar" template="page/js/calendar.phtml"/>
-        </reference>
-    </catalog_product_view>
 </layout>

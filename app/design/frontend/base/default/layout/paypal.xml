@@ -21,7 +21,7 @@
  *
  * @category    design
  * @package     base_default
- * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
+ * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
  * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
@@ -29,11 +29,15 @@
 <layout version="0.1.0">
     <checkout_cart_index>
         <reference name="checkout.cart.top_methods">
-            <block type="paypal/express_shortcut" name="checkout.cart.methods.paypal_express.top" before="-" template="paypal/express/shortcut.phtml"/>
+            <block type="paypal/express_shortcut" name="checkout.cart.methods.paypal_express.top" before="-" template="paypal/express/shortcut.phtml">
+                <action method="setIsQuoteAllowed"><value>1</value></action>
+            </block>
         </reference>
 
         <reference name="checkout.cart.methods">
-            <block type="paypal/express_shortcut" name="checkout.cart.methods.paypal_express.bottom" before="-" template="paypal/express/shortcut.phtml"/>
+            <block type="paypal/express_shortcut" name="checkout.cart.methods.paypal_express.bottom" before="-" template="paypal/express/shortcut.phtml">
+                <action method="setIsQuoteAllowed"><value>1</value></action>
+            </block>
         </reference>
     </checkout_cart_index>
 
@@ -70,7 +74,6 @@
     </paypal_express_review_details>
 
 <!--
-PayPal logo and shortcut
 Available logo types can be assigned with action="setLogoType":
  - wePrefer_150x60
  - wePrefer_150x40
@@ -81,11 +84,14 @@ Available logo types can be assigned with action="setLogoType":
  - shopNowUsing_150x60
  - shopNowUsing_150x40
 -->
-
     <catalog_product_view>
-        <reference name="product.info.extra_buttons">
-            <block type="paypal/express_shortcut" name="paypal.partner.catalog.shortcut" template="paypal/partner/catalog/product/shortcut.phtml">
-                <action method="setContext"><context>visible_on_product</context></action>
+        <reference name="product.info.addtocart">
+            <block type="page/html_wrapper" name="product.info.addtocart.paypal.wrapper">
+                <action method="setHtmlTagName"><tag>p</tag></action>
+                <action method="setElementClass"><class>paypal-logo</class></action>
+                <block type="paypal/express_shortcut" name="product.info.addtocart.paypal" template="paypal/express/shortcut.phtml">
+                    <action method="setIsInCatalogProduct"><value>1</value></action>
+                </block>
             </block>
         </reference>
         <reference name="right">
@@ -115,10 +121,10 @@ Available logo types can be assigned with action="setLogoType":
 
     <default>
         <reference name="topCart.extra_actions">
-            <block type="paypal/express_shortcut" name="paypal.partner.top_cart.shortcut" template="paypal/partner/shortcut.phtml"/>
+            <block type="paypal/express_shortcut" name="paypal.partner.top_cart.shortcut" template="paypal/express/shortcut.phtml"/>
         </reference>
         <reference name="cart_sidebar.extra_actions">
-            <block type="paypal/express_shortcut" name="paypal.partner.cart_sidebar.shortcut" template="paypal/partner/shortcut.phtml"/>
+            <block type="paypal/express_shortcut" name="paypal.partner.cart_sidebar.shortcut" template="paypal/express/shortcut.phtml"/>
         </reference>
     </default>
 </layout>

@@ -21,7 +21,7 @@
  *
  * @category    Mage
  * @package     Mage_Tax
- * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
+ * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
  * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 -->
@@ -165,11 +165,11 @@
                 <nominal_totals>
                     <nominal_tax_subtotal>
                         <class>tax/sales_total_quote_nominal_subtotal</class>
-                        <after>nominal_subtotal</after>
+                        <sort_order>500</sort_order>
                     </nominal_tax_subtotal>
                     <nominal_tax>
                         <class>tax/sales_total_quote_nominal_tax</class>
-                        <after>nominal_tax_subtotal</after>
+                        <sort_order>750</sort_order>
                     </nominal_tax>
                 </nominal_totals>
             </quote>

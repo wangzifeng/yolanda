@@ -20,26 +20,25 @@
  *
  * @category    Mage
  * @package     Mage_Paypal
- * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
+ * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 /**
- * Source model for settlement reports schedule
+ * Source model for available settlement report fetching intervals
  */
 class Mage_Paypal_Model_System_Config_Source_FetchingSchedule
 {
     public function toOptionArray()
     {
-        $options = array(
-            '1' => Mage::helper('paypal')->__('1 day'),
-            '3' => Mage::helper('paypal')->__('3 days'),
-            '7' => Mage::helper('paypal')->__('7 days'),
-            '10' => Mage::helper('paypal')->__('10 days'),
-            '14' => Mage::helper('paypal')->__('14 days'),
-            '30' => Mage::helper('paypal')->__('30 days'),
-            '40' => Mage::helper('paypal')->__('40 days'),
+        return array (
+            1 => Mage::helper('paypal')->__("Daily"),
+            3 => Mage::helper('paypal')->__("Every 3 days"),
+            7 => Mage::helper('paypal')->__("Every 7 days"),
+            10 => Mage::helper('paypal')->__("Every 10 days"),
+            14 => Mage::helper('paypal')->__("Every 14 days"),
+            30 => Mage::helper('paypal')->__("Every 30 days"),
+            40 => Mage::helper('paypal')->__("Every 40 days"),
         );
-        return $options;
     }
 }

@@ -20,7 +20,7 @@
  *
  * @category    Mage
  * @package     Mage_Sales
- * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
+ * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -28,7 +28,7 @@
  * Recurring profile collection
  *
  */
-class Mage_Sales_Model_Mysql4_Recurring_Profile_Collection extends Mage_Sales_Model_Mysql4_Collection_Abstract
+class Mage_Sales_Model_Mysql4_Recurring_Profile_Collection extends Mage_Core_Model_Mysql4_Collection_Abstract
 {
     protected $_eventPrefix = 'sales_recurring_profile_collection';
     protected $_eventObject = 'recurring_profile_collection';

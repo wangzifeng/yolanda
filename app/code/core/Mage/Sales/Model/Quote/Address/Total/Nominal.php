@@ -20,7 +20,7 @@
  *
  * @category    Mage
  * @package     Mage_Sales
- * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
+ * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -54,12 +54,18 @@ class Mage_Sales_Model_Quote_Address_Total_Nominal extends Mage_Sales_Model_Quot
             $totalDetails = array();
             foreach ($collector->getCollectors() as $model) {
                 $itemRowTotal = $model->getItemRowTotal($item);
-                $rowTotal += $itemRowTotal;
-                $baseRowTotal += $model->getItemBaseRowTotal($item);
+                if ($model->getIsItemRowTotalCompoundable($item)) {
+                    $rowTotal += $itemRowTotal;
+                    $baseRowTotal += $model->getItemBaseRowTotal($item);
+                    $isCompounded = true;
+                } else {
+                    $isCompounded = false;
+                }
                 if ((float)$itemRowTotal > 0 && $label = $model->getLabel()) {
                     $totalDetails[] = new Varien_Object(array(
                         'label'  => $label,
                         'amount' => $itemRowTotal,
+                        'is_compounded' => $isCompounded,
                     ));
                 }
             }

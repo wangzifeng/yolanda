@@ -20,7 +20,7 @@
  *
  * @category    Mage
  * @package     Mage_Adminhtml
- * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
+ * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -209,49 +209,43 @@ class Mage_Adminhtml_Sales_OrderController extends Mage_Adminhtml_Controller_Act
     }
 
     /**
-     * Accept order payment action
+     * Manage payment state
+     *
+     * Either denies or approves a payment that is in "review" state
      */
-    public function acceptPaymentAction()
+    public function reviewPaymentAction()
     {
-        if ($order = $this->_initOrder()) {
-            try {
-                $order->getPayment()->accept();
-                $order->save();
-                $this->_getSession()->addSuccess(
-                    $this->__('The order payment has been accepted.')
-                );
+        try {
+            if (!$order = $this->_initOrder()) {
+                return;
             }
-            catch (Mage_Core_Exception $e) {
-                $this->_getSession()->addError($e->getMessage());
+            $action = $this->getRequest()->getParam('action', '');
+            switch ($action) {
+                case 'accept':
+                    $order->getPayment()->accept();
+                    $message = $this->__('The payment has been accepted.');
+                    break;
+                case 'deny':
+                    $order->getPayment()->deny();
+                    $message = $this->__('The payment has been denied.');
+                    break;
+                case 'update':
+                    $order->getPayment()
+                        ->registerPaymentReviewAction(Mage_Sales_Model_Order_Payment::REVIEW_ACTION_UPDATE, true);
+                    $message = $this->__('Payment update has been made.');
+                    break;
+                default:
+                    throw new Exception(sprintf('Action "%s" is not supported.', $action));
             }
-            catch (Exception $e) {
-                $this->_getSession()->addError($this->__('The order payment was not accepted.'));
-            }
-            $this->_redirect('*/sales_order/view', array('order_id' => $order->getId()));
+            $order->save();
+            $this->_getSession()->addSuccess($message);
+        } catch (Mage_Core_Exception $e) {
+            $this->_getSession()->addError($e->getMessage());
+        } catch (Exception $e) {
+            $this->_getSession()->addError($this->__('Failed to update the payment.'));
+            Mage::logException($e);
         }
-    }
-
-    /**
-     * Deny order payment action
-     */
-    public function denyPaymentAction()
-    {
-        if ($order = $this->_initOrder()) {
-            try {
-                $order->getPayment()->deny();
-                $order->save();
-                $this->_getSession()->addSuccess(
-                    $this->__('The order payment has been denied.')
-                );
-            }
-            catch (Mage_Core_Exception $e) {
-                $this->_getSession()->addError($e->getMessage());
-            }
-            catch (Exception $e) {
-                $this->_getSession()->addError($this->__('The order payment was not denied.'));
-            }
-            $this->_redirect('*/sales_order/view', array('order_id' => $order->getId()));
-        }
+        $this->_redirect('*/sales_order/view', array('order_id' => $order->getId()));
     }
 
     /**

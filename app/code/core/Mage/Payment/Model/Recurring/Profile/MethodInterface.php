@@ -20,7 +20,7 @@
  *
  * @category    Mage
  * @package     Mage_Payment
- * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
+ * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -41,16 +41,24 @@ interface Mage_Payment_Model_Recurring_Profile_MethodInterface
      * Submit to the gateway
      *
      * @param Mage_Payment_Model_Recurring_Profile $profile
+     * @param Mage_Payment_Model_Info $paymentInfo
      */
-    public function submitRecurringProfile(Mage_Payment_Model_Recurring_Profile $profile);
+    public function submitRecurringProfile(Mage_Payment_Model_Recurring_Profile $profile, Mage_Payment_Model_Info $paymentInfo);
 
     /**
      * Fetch details
      *
      * @param string $referenceId
-     * @param Mage_Payment_Model_Recurring_Profile_Info $result
+     * @param Varien_Object $result
      */
-    public function getRecurringProfileDetails($referenceId, Mage_Payment_Model_Recurring_Profile_Info $result);
+    public function getRecurringProfileDetails($referenceId, Varien_Object $result);
+
+    /**
+     * Check whether can get recurring profile details
+     *
+     * @return bool
+     */
+    public function canGetRecurringProfileDetails();
 
     /**
      * Update data

@@ -19,7 +19,7 @@
  *
  * @category    design
  * @package     default_modern
- * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
+ * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
  * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
@@ -77,6 +77,8 @@ table { face-color:expression(runtimeStyle.scrollbarFaceColor = '#fff', cellSpac
 
 .product-view .box-tags .product-tags li { padding:0 4px 0 7px; }
 .footer li { padding-right:2px; margin-right:6px; }
+
+.product-options dd .time-picker select { margin:0; padding:0; position:relative; top:-1px; }
 
 /* Clearer */
 .clearer { display:block; clear:both; font-size:0; line-height:0; height:0; overflow:hidden; }

@@ -20,7 +20,7 @@
  *
  * @category    Mage
  * @package     Mage_Sales
- * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
+ * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -56,6 +56,13 @@ class Mage_Sales_Model_Service_Quote
      * @var array
      */
     protected $_recurringPaymentProfiles = array();
+
+    /**
+     * Order that may be created during submission
+     *
+     * @var Mage_Sales_Model_Order
+     */
+    protected $_order = null;
 
     /**
      * Class constructor
@@ -103,12 +110,23 @@ class Mage_Sales_Model_Service_Quote
     }
 
     /**
+     * @deprecated after 1.4.0.1
+     * @see submitOrder()
+     * @see submitAll()
+     */
+    public function submit()
+    {
+        return $this->submitOrder();
+    }
+
+    /**
      * Submit the quote. Quote submit process will create the order based on quote data
      *
      * @return Mage_Sales_Model_Order
      */
-    public function submit()
+    public function submitOrder()
     {
+        $this->_deleteNominalItems();
         $this->_validate();
         $quote = $this->_quote;
         $isVirtual = $quote->isVirtual();
@@ -156,13 +174,59 @@ class Mage_Sales_Model_Service_Quote
         try {
             $transaction->save();
             Mage::dispatchEvent('sales_model_service_quote_submit_success', array('order'=>$order, 'quote'=>$quote));
-            $this->_submitRecurringProfiles($order);
         } catch (Exception $e) {
             Mage::dispatchEvent('sales_model_service_quote_submit_failure', array('order'=>$order, 'quote'=>$quote));
             throw $e;
         }
         Mage::dispatchEvent('sales_model_service_quote_submit_after', array('order'=>$order, 'quote'=>$quote));
+        $this->_order = $order;
         return $order;
+    }
+
+    /**
+     * Submit nominal items
+     *
+     * @return array
+     */
+    public function submitNominalItems()
+    {
+        $this->_validate();
+        $this->_submitRecurringPaymentProfiles();
+        $this->_deleteNominalItems();
+    }
+
+    /**
+     * Submit all available items
+     * All created items will be set to the object
+     */
+    public function submitAll()
+    {
+        $this->submitNominalItems();
+        // no need to submit the order if there are no normal items remained
+        if (!$this->_quote->getAllVisibleItems()) {
+            return;
+        }
+        $this->submitOrder();
+    }
+
+    /**
+     * Return recurring payment profiles
+     *
+     * @return array
+     */
+    public function getRecurringPaymentProfiles()
+    {
+        return $this->_recurringPaymentProfiles;
+    }
+
+    /**
+     * Get an order that may had been created during submission
+     *
+     * @return Mage_Sales_Model_Order
+     */
+    public function getOrder()
+    {
+        return $this->_order;
     }
 
     /**
@@ -199,65 +263,32 @@ class Mage_Sales_Model_Service_Quote
             Mage::throwException($helper->__('Please select a valid payment method.'));
         }
 
-        $this->_prepareRecurringPaymentProfiles();
         return $this;
     }
 
     /**
-     * Request recurring profiles from the quote and attempt to validate them
-     *
-     * @throws Mage_Core_Exception
+     * Submit recurring payment profiles
      */
-    protected function _prepareRecurringPaymentProfiles()
+    protected function _submitRecurringPaymentProfiles()
     {
-        $this->_recurringPaymentProfiles = $this->_quote->prepareRecurringPaymentProfiles();
-        if ($this->_recurringPaymentProfiles) {
-            foreach ($this->_recurringPaymentProfiles as $profile) {
-                if (!$profile->isValid()) {
-                    Mage::throwException($profile->getValidationErrors(true, true));
-                }
+        $profiles = $this->_quote->prepareRecurringPaymentProfiles();
+        foreach ($profiles as $profile) {
+            if (!$profile->isValid()) {
+                Mage::throwException($profile->getValidationErrors(true, true));
             }
+            $profile->submit();
         }
+        $this->_recurringPaymentProfiles = $profiles;
     }
 
     /**
-     * Submit prepared recurring profiles
-     * Profiles and recurring order items correspond each other in a severe sequence
-     *
-     * @param Mage_Sales_Model_Order $order
-     * @throws Mage_Core_Exception
+     * Get rid of all nominal items
      */
-    protected function _submitRecurringProfiles(Mage_Sales_Model_Order $order)
+    protected function _deleteNominalItems()
     {
-        if (!$this->_recurringPaymentProfiles) {
-            return;
-        }
-        try {
-            // shift a payment profile instance for each recurring order item
-            foreach ($order->getAllVisibleItems() as $item) {
-                if ($item->getIsRecurring() == '1') {
-                    $profile = array_shift($this->_recurringPaymentProfiles);
-                    if ($profile) {
-                        $profile->submit($item);
-                    } else {
-                        // no translation intentionally
-                        throw new Exception(sprintf('No recurring profile matched for item "%s" in order #%s.',
-                            $item->getSku(), $order->getIncrementId()
-                        ));
-                    }
-                }
-            }
-            if ($this->_recurringPaymentProfiles) {
-                // no translation intentionally
-                throw new Exception(sprintf('Order #%s was placed with redundant recurring payment profiles.',
-                    $order->getIncrementId()
-                ));
-            }
-        } catch (Exception $e) {
-            if ($order->isNominal()) {
-                throw $e;
-            } else {
-                Mage::logException($e);
+        foreach ($this->_quote->getAllVisibleItems() as $item) {
+            if ($item->isNominal()) {
+                $item->isDeleted(true);
             }
         }
     }

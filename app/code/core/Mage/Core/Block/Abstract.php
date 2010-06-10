@@ -20,7 +20,7 @@
  *
  * @category    Mage
  * @package     Mage_Core
- * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
+ * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -93,6 +93,13 @@ abstract class Mage_Core_Block_Abstract extends Varien_Object
      * @var array
      */
     protected $_childrenHtmlCache = array();
+
+    /**
+     * Arbitrary groups of child blocks
+     *
+     * @var array
+     */
+    protected $_childGroups = array();
 
     /**
      * Request object
@@ -616,6 +623,84 @@ abstract class Mage_Core_Block_Abstract extends Varien_Object
     }
 
     /**
+     * Make sure specified block will be registered in the specified child groups
+     *
+     * @param string $groupName
+     * @param Mage_Core_Block_Abstract $child
+     */
+    public function addToChildGroup($groupName, Mage_Core_Block_Abstract $child)
+    {
+        if (!isset($this->_childGroups[$groupName])) {
+            $this->_childGroups[$groupName] = array();
+        }
+        if (!in_array($child->getBlockAlias(), $this->_childGroups[$groupName])) {
+            $this->_childGroups[$groupName][] = $child->getBlockAlias();
+        }
+    }
+
+    /**
+     * Add self to the specified group of parent block
+     *
+     * @param string $groupName
+     * @return Mage_Core_Block_Abstract
+     */
+    public function addToParentGroup($groupName)
+    {
+        $this->getParentBlock()->addToChildGroup($groupName, $this);
+        return $this;
+    }
+
+    /**
+     * Get a group of child blocks
+     *
+     * Returns an array of <alias> => <block>
+     * or an array of <alias> => <callback_result>
+     * The callback currently supports only $this methods and passes the alias as parameter
+     *
+     * @param string $groupName
+     * @param string $callback
+     * @param bool $skipEmptyResults
+     * @return array
+     */
+    public function getChildGroup($groupName, $callback = null, $skipEmptyResults = true)
+    {
+        $result = array();
+        if (!isset($this->_childGroups[$groupName])) {
+            return $result;
+        }
+        foreach ($this->getSortedChildBlocks() as $block) {
+            $alias = $block->getBlockAlias();
+            if (in_array($alias, $this->_childGroups[$groupName])) {
+                if ($callback) {
+                    $row = $this->$callback($alias);
+                    if (!$skipEmptyResults || $row) {
+                        $result[$alias] = $row;
+                    }
+                } else {
+                    $result[$alias] = $block;
+                }
+
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * Get a value from child block by specified key
+     *
+     * @param string $alias
+     * @param string $key
+     * @return mixed
+     */
+    public function getChildData($alias, $key = '')
+    {
+        $child = $this->getChild($alias);
+        if ($child) {
+            return $child->getData($key);
+        }
+    }
+
+    /**
      * Before rendering html, but after trying to load cache
      *
      * @return Mage_Core_Block_Abstract
@@ -673,7 +758,6 @@ abstract class Mage_Core_Block_Abstract extends Varien_Object
             }
         }
         $html = $this->_afterToHtml($html);
-        Mage::dispatchEvent('core_block_abstract_to_html_after', array('block' => $this));
 
         /**
          * Check framing options
@@ -681,6 +765,18 @@ abstract class Mage_Core_Block_Abstract extends Varien_Object
         if ($this->_frameOpenTag) {
             $html = '<'.$this->_frameOpenTag.'>'.$html.'<'.$this->_frameCloseTag.'>';
         }
+
+        /**
+         * Use single transport object instance for all blocks
+         */
+        static $transport;
+        if ($transport === null) {
+            $transport = new Varien_Object;
+        }
+        $transport->setHtml($html);
+        Mage::dispatchEvent('core_block_abstract_to_html_after', array('block' => $this, 'transport' => $transport));
+        $html = $transport->getHtml();
+
         return $html;
     }
 
@@ -995,16 +1091,38 @@ abstract class Mage_Core_Block_Abstract extends Varien_Object
     }
 
     /**
+     * Get cache key informative items
+     * Provide string array key to share specific info item with FPC placeholder
+     *
+     * @return array
+     */
+    public function getCacheKeyInfo()
+    {
+        return array(
+            $this->getNameInLayout()
+        );
+    }
+
+    /**
      * Get Key for caching block content
      *
      * @return string
      */
     public function getCacheKey()
     {
-        if (!$this->hasData('cache_key')) {
-            $this->setCacheKey($this->getNameInLayout());
+        if ($this->hasData('cache_key')) {
+            return $this->getData('cache_key');
         }
-        return $this->getData('cache_key');
+        /**
+         * don't prevent recalculation by saving generated cache key
+         * because of ability to render single block instance with different data
+         */
+        $key = $this->getCacheKeyInfo();
+        //ksort($key);  // ignore order
+        $key = array_values($key);  // ignore array keys
+        $key = implode('|', $key);
+        $key = sha1($key);
+        return $key;
     }
 
     /**

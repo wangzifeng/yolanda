@@ -20,7 +20,7 @@
  *
  * @category    Mage
  * @package     Mage_Sales
- * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
+ * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -152,6 +152,87 @@ class Mage_Sales_Model_Billing_Agreement extends Mage_Payment_Model_Billing_Agre
             self::STATUS_ACTIVE     => Mage::helper('sales')->__('Active'),
             self::STATUS_CANCELED   => Mage::helper('sales')->__('Canceled')
         );
+    }
+
+    /**
+     * Validate data
+     *
+     * @return bool
+     */
+    public function isValid()
+    {
+        $result = parent::isValid();
+        if (!$this->getCustomerId()) {
+            $this->_errors[] = Mage::helper('payment')->__('Customer ID is not set.');
+        }
+        if (!$this->getStatus()) {
+            $this->_errors[] = Mage::helper('payment')->__('Billing Agreement status is not set.');
+        }
+        return $result && empty($this->_errors);
+    }
+
+    /**
+     * Import payment data to billing agreement
+     *
+     * $payment->getBillingAgreementData() contains array with following structure :
+     *  [billing_agreement_id]  => string
+     *  [method_code]           => string
+     *
+     * @param Mage_Sales_Model_Order_Payment $payment
+     * @return Mage_Sales_Model_Billing_Agreement
+     */
+    public function importOrderPayment(Mage_Sales_Model_Order_Payment $payment)
+    {
+        $baData = $payment->getBillingAgreementData();
+
+        $this->_paymentMethodInstance = (isset($baData['method_code']))
+            ? Mage::helper('payment')->getMethodInstance($baData['method_code'])
+                ->setStore($payment->getMethodInstance()->getStore())
+            : $payment->getMethodInstance();
+
+        $this->setCustomerId($payment->getOrder()->getCustomerId())
+            ->setMethodCode($this->_paymentMethodInstance->getCode())
+            ->setReferenceId($baData['billing_agreement_id'])
+            ->setStatus(self::STATUS_ACTIVE);
+        return $this;
+    }
+
+    /**
+     * Retrieve available customer Billing Agreements
+     *
+     * @param int $customer
+     * @return Mage_Paypal_Controller_Express_Abstract
+     */
+    public function getAvailableCustomerBillingAgreements($customerId)
+    {
+        $collection = Mage::getResourceModel('sales/billing_agreement_collection');
+        $collection->addFieldToFilter('customer_id', $customerId)
+            ->addFieldToFilter('status', self::STATUS_ACTIVE)
+            ->setOrder('agreement_id');
+        return $collection;
+    }
+
+    /**
+     * Check whether need to create billing agreement for customer
+     *
+     * @param int $customerId
+     * @return bool
+     */
+    public function needToCreateForCustomer($customerId)
+    {
+        return $customerId ? count($this->getAvailableCustomerBillingAgreements($customerId)) == 0 : false;
+    }
+
+    /**
+     * Add order relation to current billing agreement
+     *
+     * @param int $orderId
+     * @return Mage_Sales_Model_Billing_Agreement
+     */
+    public function addOrderRelation($orderId)
+    {
+        $this->getResource()->addOrderRelation($this->getId(), $orderId);
+        return $this;
     }
 
 }

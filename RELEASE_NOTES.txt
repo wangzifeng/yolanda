@@ -1,3 +1,91 @@
+==== 1.4.1.0 ====
+
+=== Improvements ===
+* Added ability to use static URLs for media in WYSIWYG or image browser. Added ability to enable parsing {{store}} and {{media}} directives on catalog frontend.
+* URL rewrites history: ability to auto-generate custom rewrite with redirect from old to new URL when changing product URL-key
+* Added ability to exclude a category from navigation menu
+* Various improvements in system configuration UI. Introduced ability to make actual configuration structure to be independent on the system.xml structure
+* Added "Only X left" inventory feature
+* Implemented Centinel functionality in iphone theme
+* Upgraded TinyMCE to v.3.3.2
+* Improved PayPal integration, includes:
+** Recurring payment profiles entity and purchasing of "subscription" products. In checkout they are treated as "nominal" items.
+** Billing agreements
+** "Pending Review" order state, "Pending Review" and "Suspected Fraud" order statuses and logic related with this. Triggers by PayPal IPR, FMF and Unilateral payments.
+** Functionality of transactions listing/searching and fetching from gateway
+** Fetching PayPal settlement reports via SFTP
+** Various improvements of PayPal integration on the frontend and admin UI
+* Added notice about creating offline creditmemo from order view page.
+* Added getter for recurring payment methods in payment helper.
+* Implemented abstract block ability to have arbitrary groups of child blocks and a method that returns such a group. Implemented a method that fetches data from child block by specified alias.
+* Implemented ability to specify "sort_order" instead of "before" and "after" in the totals declaration. All nominal totals declaration utilize "sort_order"
+* Added getter for specified object data by key in core/template block: method getObjectData()
+* Defined payment methods grouping, implemented getter for payment method list (with option to group them). Added ability to render grouped options in the "select" grid filter.
+** Moneybookers: utilized the payment methods grouping for all its methods; removed redundant "translate" attribute in the methods definition in config.
+*** Utilized payment methods grouping for PayPal peyment methods.
+* Added more verbosity to PayPal NVP and IPN debugging
+
+=== Changes ===
+* Sales module database structure changed from EAV into flat tables
+* Product custom URL rewrites redirect to SEF URL, rather than to catalog/product/view/id/
+* Reimplemented frontend top menu rendering logic (cross-browser and usability improvements)
+* Reviewed [logic of the sales reports|http://www.magentocommerce.com/wiki/doc/sales_reports_specifications]: Orders, Tax, Invoiced, Shipping, Refunds, Coupons
+* Reimplemented bestsellers report
+* Implemented 3D Secure validation for Maestro International and JCB cards
+* (!) Changed Shopping cart methods output (top + bottom): removed <li>-dependance from templates in other modules \-> moved to Checkout module
+* Moved the Payflow Pro payment method to PayPal module
+* Refactored sales/service_quote model: instead of submit() method the submitAll() should be used. It can submit nominal items separately from the order. The methods for submitting nominal items and order separately - are available as well.
+* Refactored onepage checkout model to use the new method sales/service_quote::submitAll(), added recurring profiles and billing agreements passing through the process until the success page
+* Utilized child blocks grouping to improve flexibility of rendering additional information in catalog/product/view template. The group is called "detailed_info"; any block from layout may insert itself to this group.
+* Removed redundant wrappers hard-coded into some catalog templates. Template of parent block is responsible for wrapping.
+* Refactored onepage checkout success block and template: simplified fetching related checkout information, added ability to render billing agreement and recurring profiles that might be created with the payment placement.
+
+=== Fixes ===
+* Fixed read/write connection issue during new customer order place. See http://www.magentocommerce.com/boards/viewthread/19363/P0/
+* Fixed tax rule ZIP range matching (numeric values were matched as strings)
+* Various tax fixes
+* Optimized search reindex process
+
+=== Known Issues ===
+* PayPal and Payflow pro modules are officially backwards incompatible.
+* The `sales_order_aggregated_created` table was re-created with new columns, it is not backwards compatible.
+
+=== Upgrade Path ===
+* Once upgraded, go to system configuration section and re-enter all PayPal-related settings carefully. Make sure to specify the proper merchant country and email.
+
+
+
+
+==== 1.4.x-devel-69025 ====
+
+=== Improvements ===
+* PayPal integration:
+** Settlement reports fetching from SFTP
+** Billing Agreements
+* Added website and store data to backend model when invoking in system configuration block
+* Added "original_data" key to elements when generating system configuration form
+
+=== Changes ===
+* Mage_Sales_Model_Order_Payment::canCapture() - move methodInstance::_canCapture before authorization transaction check
+* Sales/Payment changes:
+** Implemented pending payment review functionality. Includes "Payment Review" order state and statuses "Payment Review" and "Suspected Fraud". In this state the order cannot be fulfilled until the payment is approved.
+** Holding orders on pending transactions was replaced in favor of "Payment Review" state. The 'fraud' status was removed from 'holded' order state.
+** Transactions resource model unsets the "isObjectNew" if it had a lookup of autoincrement key before saving
+** Payment capture and capture notification mark invoice as paid only if needed: when it is pending and the transaction is not pending
+** fixed float casting error in Mage_Sales_Model_Order_Payment::_isCaptureFinal()
+** fixed showing up credit card type in CC payment block, if there is no credit card type information
+* PayPal Instant Payment Review and Fraud Management:
+** implemented methods for handling PayPal-specific payment statuses
+** added more data importing to payment info in PayPal: payment status, pending reason, "is_fraud_detected"
+** added importing of all required for payment processing information in different points of WPP API calls
+** implemented IPR and FMF handling for Website Payments Pro methods family (Express Checkout, Direct Payments)
+* Fixed PayPal payment info block to not render redundant CC-related information (it extends CC info block)
+* (!) Changed Shopping cart methods output (top + bottom): removed <li>-dependance from templates in other modules -> moved to Checkout module
+* Added throwing exception on an incorrect attempt of unholding order (TRJ-148987).
+
+
+
+
 ==== 1.4.x-devel-68590 ====
 
 === Improvements ===

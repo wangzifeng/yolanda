@@ -21,14 +21,14 @@
  *
  * @category    Mage
  * @package     Mage_Sales
- * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
+ * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
  * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 -->
 <config>
     <modules>
         <Mage_Sales>
-            <version>1.4.0.13</version>
+            <version>1.4.0.15</version>
         </Mage_Sales>
     </modules>
     <global>
@@ -437,6 +437,7 @@
                     <bestsellers_aggregated_yearly><table>sales_bestsellers_aggregated_yearly</table></bestsellers_aggregated_yearly>
 
                     <billing_agreement><table>sales_billing_agreement</table></billing_agreement>
+                    <billing_agreement_order><table>sales_billing_agreement_order</table></billing_agreement_order>
 
                     <!--order></order>
 
@@ -587,12 +588,21 @@
                     </grand_total>
                 </totals>
                 <nominal_totals>
+                    <recurring_initial_fee>
+                        <class>sales/quote_address_total_nominal_recurring_initial</class>
+                        <sort_order>10</sort_order>
+                    </recurring_initial_fee>
+                    <recurring_trial_payment>
+                        <class>sales/quote_address_total_nominal_recurring_trial</class>
+                        <sort_order>50</sort_order>
+                    </recurring_trial_payment>
                     <nominal_subtotal>
                         <class>sales/quote_address_total_nominal_subtotal</class>
+                        <sort_order>250</sort_order>
                     </nominal_subtotal>
                     <nominal_shipping>
                         <class>sales/quote_address_total_nominal_shipping</class>
-                        <after>nominal_subtotal</after>
+                        <sort_order>1250</sort_order>
                     </nominal_shipping>
                 </nominal_totals>
                 <item>
@@ -628,8 +638,7 @@
                     <closed translate="label"><label>Closed</label></closed>
                     <canceled translate="label"><label>Canceled</label></canceled>
                     <fraud translate="label"><label>Suspected Fraud</label></fraud>
-                    <payment_review><label>Payment Review</label></payment_review>
-                    <fraud_suspected><label>Fraud Suspected</label></fraud_suspected>
+                    <payment_review translate="label"><label>Payment Review</label></payment_review>
                 </statuses>
                 <states>
                     <new translate="label">
@@ -677,18 +686,17 @@
                         <label>On Hold</label>
                         <statuses>
                             <holded default="1"/>
-                            <fraud/>
                         </statuses>
                         <visible_on_front/>
                     </holded>
-                    <pending_payment_review translate="label">
-                        <label>Pending Payment Review</label>
+                    <payment_review translate="label">
+                        <label>Payment Review</label>
                         <statuses>
                             <payment_review default="1"/>
-                            <fraud_suspected/>
+                            <fraud/>
                         </statuses>
                         <visible_on_front/>
-                    </pending_payment_review>
+                    </payment_review>
                 </states>
             </order>
             <order_invoice>
@@ -823,6 +831,12 @@
                 <sales module="Mage_Sales">
                     <file>sales.xml</file>
                 </sales>
+                <sales_billing_agreement module="Mage_Sales">
+                    <file>sales/billing_agreement.xml</file>
+                </sales_billing_agreement>
+                <sales_recurring_profile module="Mage_Sales">
+                    <file>sales/recurring_profile.xml</file>
+                </sales_recurring_profile>
             </updates>
         </layout>
     </frontend>
@@ -892,6 +906,14 @@
                     </payment>
                 </observers>
             </catalog_product_edit_form_render_recurring>
+            <payment_method_is_active>
+                <observers>
+                    <sales_billing_agreement>
+                        <class>sales/observer</class>
+                        <method>restrictAdminBillingAgreementUsage</method>
+                    </sales_billing_agreement>
+                </observers>
+            </payment_method_is_active>
         </events>
     </adminhtml>
 

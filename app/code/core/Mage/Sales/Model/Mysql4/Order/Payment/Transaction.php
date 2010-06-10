@@ -20,7 +20,7 @@
  *
  * @category    Mage
  * @package     Mage_Sales
- * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
+ * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -90,6 +90,7 @@ class Mage_Sales_Model_Mysql4_Order_Payment_Transaction extends Mage_Sales_Model
         $select = $this->_getLoadByUniqueKeySelect($orderId, $paymentId, $txnId);
         $data = $this->_getWriteAdapter()->fetchRow($select);
         $transaction->setData($data);
+        $this->unserializeFields($transaction);
         $this->_afterLoad($transaction);
     }
 
@@ -138,7 +139,7 @@ class Mage_Sales_Model_Mysql4_Order_Payment_Transaction extends Mage_Sales_Model
         if ($transaction->isFailsafe()) {
             $autoincrementId = (int)$this->_lookupByTxnId($orderId, $paymentId, $txnId, $idFieldName);
             if ($autoincrementId) {
-                $transaction->setData($idFieldName, $autoincrementId);
+                $transaction->setData($idFieldName, $autoincrementId)->isObjectNew(false);
             }
         }
 

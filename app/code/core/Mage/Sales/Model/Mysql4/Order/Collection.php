@@ -20,7 +20,7 @@
  *
  * @category    Mage
  * @package     Mage_Sales
- * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
+ * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -85,7 +85,7 @@ class Mage_Sales_Model_Mysql4_Order_Collection extends Mage_Sales_Model_Mysql4_C
     /**
      * Joins table sales_flat_order_address to select for billing and shipping orders addresses.
      * Creates corillation map
-     * 
+     *
      * @return Mage_Sales_Model_Mysql4_Collection_Abstract
      */
     protected function _addAddressFields()
@@ -154,6 +154,40 @@ class Mage_Sales_Model_Mysql4_Order_Collection extends Mage_Sales_Model_Mysql4_C
             return parent::addAttributeToFilter($attributes, $condition);
         }
 
+        return $this;
+    }
+
+    /**
+     * Add filter by specified billing agreements
+     *
+     * @param int|array $agreements
+     * @return Mage_Sales_Model_Mysql4_Order_Collection
+     */
+    public function addBillingAgreementsFilter($agreements)
+    {
+        $agreements = (is_array($agreements)) ? $agreements : array($agreements);
+        $this->getSelect()->joinInner(
+            array('sbao' => $this->getTable('sales/billing_agreement_order')),
+            'main_table.entity_id = sbao.order_id',
+            array()
+        )->where('sbao.agreement_id IN(?)', $agreements);
+        return $this;
+    }
+
+    /**
+     * Add filter by specified recurring profile id(s)
+     *
+     * @param array|int $ids
+     * @return Mage_Sales_Model_Mysql4_Order_Collection
+     */
+    public function addRecurringProfilesFilter($ids)
+    {
+        $ids = (is_array($ids)) ? $ids : array($ids);
+        $this->getSelect()->joinInner(
+            array('srpo' => $this->getTable('sales/recurring_profile_order')),
+            'main_table.entity_id = srpo.order_id',
+            array()
+        )->where('srpo.profile_id IN(?)', $ids);
         return $this;
     }
 }

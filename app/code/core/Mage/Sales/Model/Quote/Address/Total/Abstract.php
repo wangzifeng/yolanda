@@ -20,7 +20,7 @@
  *
  * @category    Mage
  * @package     Mage_Sales
- * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
+ * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -238,6 +238,20 @@ abstract class Mage_Sales_Model_Quote_Address_Total_Abstract
             return 0;
         }
         return $item->getDataUsingMethod('base_' . $this->_itemRowTotalKey);
+    }
+
+    /**
+     * Whether the item row total may be compouded with others
+     *
+     * @param Mage_Sales_Model_Quote_Item_Abstract $item
+     * @return bool
+     */
+    public function getIsItemRowTotalCompoundable(Mage_Sales_Model_Quote_Item_Abstract $item)
+    {
+        if ($item->getData("skip_compound_{$this->_itemRowTotalKey}")) {
+            return false;
+        }
+        return true;
     }
 
     /**

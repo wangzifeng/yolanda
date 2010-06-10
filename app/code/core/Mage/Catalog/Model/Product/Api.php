@@ -20,7 +20,7 @@
  *
  * @category    Mage
  * @package     Mage_Catalog
- * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
+ * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -161,8 +161,8 @@ class Mage_Catalog_Model_Product_Api extends Mage_Catalog_Model_Api_Resource
         }
 
         $this->_prepareDataForSave($product, $productData);
-        
-        try {            
+
+        try {
             /**
              * @todo implement full validation process with errors returning which are ignoring now
              * @todo see Mage_Catalog_Model_Product::validate()
@@ -215,7 +215,7 @@ class Mage_Catalog_Model_Product_Api extends Mage_Catalog_Model_Api_Resource
 
         $this->_prepareDataForSave($product, $productData);
 
-        
+
         try {
             /**
              * @todo implement full validation process with errors returning which are ignoring now
@@ -228,7 +228,7 @@ class Mage_Catalog_Model_Product_Api extends Mage_Catalog_Model_Api_Resource
                 }
                 $this->_fault('data_invalid', implode("\n", $strErrors));
             }
-            
+
             $product->save();
         } catch (Mage_Core_Exception $e) {
             $this->_fault('data_invalid', $e->getMessage());
@@ -268,7 +268,7 @@ class Mage_Catalog_Model_Product_Api extends Mage_Catalog_Model_Api_Resource
         if (isset($productData['stock_data']) && is_array($productData['stock_data'])) {
             $product->setStockData($productData['stock_data']);
         }
-        
+
         if (isset($productData['tier_price']) && is_array($productData['tier_price'])) {
              $tierPrices = Mage::getModel('catalog/product_attribute_tierprice_api')->prepareTierPrices($product, $productData['tier_price']);
              $product->setData(Mage_Catalog_Model_Product_Attribute_Tierprice_Api::ATTRIBUTE_CODE, $tierPrices);

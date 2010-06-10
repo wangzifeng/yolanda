@@ -20,7 +20,7 @@
  *
  * @category    Mage
  * @package     Mage_Checkout
- * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
+ * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -91,6 +91,17 @@ class Mage_Checkout_Block_Total_Nominal extends Mage_Checkout_Block_Total_Defaul
     public function getItemDetailsRowAmount(Varien_Object $row)
     {
         return $row->getAmount();
+    }
+
+    /**
+     * Getter for details row compounded state
+     *
+     * @param Varien_Object $row
+     * @return bool
+     */
+    public function getItemDetailsRowIsCompounded(Varien_Object $row)
+    {
+        return $row->getIsCompounded();
     }
 
     /**

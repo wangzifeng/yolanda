@@ -20,7 +20,7 @@
  *
  * @category    design
  * @package     default_iphone
- * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
+ * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
  * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
@@ -78,7 +78,6 @@
                             <?php echo $this->getChildHtml('addtocart') ?>
                         <?php endif; ?>
                     <?php endif; ?>
-                    <?php echo $this->getChildHtml('extra_buttons') ?>
                     <?php echo $this->getChildHtml('other');?>
 
                     <?php if ($_product->isSaleable() && $this->hasOptions()):?>
@@ -94,13 +93,11 @@
         </div>
 
         <div class="product-collateral">
-        <?php if ($_description = $this->getChildHtml('description')):?>
+        <?php foreach ($this->getChildGroup('detailed_info', 'getChildHtml') as $alias => $html):?>
             <br />
-            <h4><?php echo $this->__('Product Description') ?></h4>
-            <div class="product-specs">
-                <?php echo $_description ?>
-            </div>
-        <?php endif; ?>
+            <h4><?php echo $this->escapeHtml($this->getChildData($alias, 'title'));?></h4>
+            <div><?php echo $html;?></div>
+        <?php endforeach;?>
 
         <?php if($_additional = $this->getAdditionalData()): ?>
         <div class="attribute-specs">

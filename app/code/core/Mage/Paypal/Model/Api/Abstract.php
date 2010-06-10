@@ -20,7 +20,7 @@
  *
  * @category    Mage
  * @package     Mage_Paypal
- * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
+ * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -226,6 +226,14 @@ abstract class Mage_Paypal_Model_Api_Abstract extends Varien_Object
     }
 
     /**
+     * PayPal merchant email getter
+     */
+    public function getBusinessAccount()
+    {
+        return $this->_getDataOrConfig('business_account');
+    }
+
+    /**
      * Import $this public data to specified object or array
      *
      * @param array|Varien_Object $to
@@ -277,27 +285,6 @@ abstract class Mage_Paypal_Model_Api_Abstract extends Varien_Object
     public function getFraudManagementFiltersEnabled()
     {
         return 1;
-    }
-
-    /**
-     * Whether specified payment status indicates that money were paid
-     *
-     * @param string $paymentStatus
-     * @return bool
-     */
-    public function isPaid($paymentStatus)
-    {
-        return $paymentStatus === 'Completed';
-    }
-
-    /**
-     * Whether payment is completed
-     *
-     * @return bool
-     */
-    public function isPaymentComplete()
-    {
-        return $this->isPaid($this->getPaymentStatus());
     }
 
     /**
@@ -406,15 +393,17 @@ abstract class Mage_Paypal_Model_Api_Abstract extends Varien_Object
 
     /**
      * Prepare shipping options request
+     * Returns false if there are no shipping options
      *
      * @param array &$request
      * @param int $i
+     * @return bool
      */
     protected function _exportShippingOptions(array &$request, $i = 0)
     {
         $options = $this->getShippingOptions();
         if (empty($options)) {
-            return;
+            return false;
         }
         foreach ($options as $option) {
             foreach ($this->_shippingOptionsExportItemsFormat as $publicKey => $privateFormat) {
@@ -429,6 +418,7 @@ abstract class Mage_Paypal_Model_Api_Abstract extends Varien_Object
             }
             $i++;
         }
+        return true;
     }
 
     /**
@@ -442,14 +432,25 @@ abstract class Mage_Paypal_Model_Api_Abstract extends Varien_Object
     }
 
     /**
-     * Filter bool in API calls
+     * Filter boolean values in API calls
      *
-     * @param bool $value
+     * @param mixed $value
      * @return string
      */
     protected function _filterBool($value)
     {
         return ($value) ? 'true' : 'false';
+    }
+
+    /**
+     * Filter int values in API calls
+     *
+     * @param mixed $value
+     * @return int
+     */
+    protected function _filterInt($value)
+    {
+        return (int)$value;
     }
 
     /**

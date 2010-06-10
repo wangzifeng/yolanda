@@ -20,7 +20,7 @@
  *
  * @category    Mage
  * @package     Mage_Sales
- * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
+ * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -37,9 +37,13 @@ class Mage_Sales_Model_Mysql4_Recurring_Profile extends Mage_Sales_Model_Mysql4_
         $this->_init('sales/recurring_profile', 'profile_id');
 
         $this->_serializableFields = array(
-            'order_item'      => array(new Varien_Object, new Varien_Object),
-            'profile_info'    => array(null, new Mage_Payment_Model_Recurring_Profile_Info),
+            'profile_vendor_info'    => array(null, array()),
             'additional_info' => array(null, array()),
+
+            'order_info' => array(null, array()),
+            'order_item_info' => array(null, array()),
+            'billing_address_info' => array(null, array()),
+            'shipping_address_info' => array(null, array())
         );
     }
 
@@ -53,9 +57,27 @@ class Mage_Sales_Model_Mysql4_Recurring_Profile extends Mage_Sales_Model_Mysql4_
     {
         $select = $this->_getReadAdapter()->select()
             ->from(
-                array('main_table' => $this->getTable('recurring_profile_order')),
+                array('main_table' => $this->getTable('sales/recurring_profile_order')),
                 array('order_id'))
             ->where('profile_id=?', $object->getId());
         return $this->_getReadAdapter()->fetchCol($select);
+    }
+
+    /**
+     * Add order relation to recurring profile
+     *
+     * @param int $recurringProfileId
+     * @param int $orderId
+     * @return Mage_Sales_Model_Mysql4_Recurring_Profile
+     */
+    public function addOrderRelation($recurringProfileId, $orderId)
+    {
+        $this->_getWriteAdapter()->insert(
+            $this->getTable('sales/recurring_profile_order'), array(
+                'profile_id'  => $recurringProfileId,
+                'order_id'      => $orderId
+            )
+        );
+        return $this;
     }
 }

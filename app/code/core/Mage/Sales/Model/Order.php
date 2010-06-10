@@ -20,7 +20,7 @@
  *
  * @category    Mage
  * @package     Mage_Sales
- * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
+ * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -58,14 +58,14 @@ class Mage_Sales_Model_Order extends Mage_Sales_Model_Abstract
     /**
      * Order states
      */
-    const STATE_NEW                     = 'new';
-    const STATE_PENDING_PAYMENT         = 'pending_payment';
-    const STATE_PROCESSING              = 'processing';
-    const STATE_COMPLETE                = 'complete';
-    const STATE_CLOSED                  = 'closed';
-    const STATE_CANCELED                = 'canceled';
-    const STATE_HOLDED                  = 'holded';
-    const STATE_PENDING_PAYMENT_REVIEW  = 'pending_payment_review';
+    const STATE_NEW             = 'new';
+    const STATE_PENDING_PAYMENT = 'pending_payment';
+    const STATE_PROCESSING      = 'processing';
+    const STATE_COMPLETE        = 'complete';
+    const STATE_CLOSED          = 'closed';
+    const STATE_CANCELED        = 'canceled';
+    const STATE_HOLDED          = 'holded';
+    const STATE_PAYMENT_REVIEW  = 'payment_review';
 
     /**
      * Order flags
@@ -204,7 +204,7 @@ class Mage_Sales_Model_Order extends Mage_Sales_Model_Abstract
      */
     public function canCancel()
     {
-        if ($this->canUnhold()) {
+        if ($this->canUnhold()) {  // $this->isPaymentReview()
             return false;
         }
 
@@ -219,10 +219,8 @@ class Mage_Sales_Model_Order extends Mage_Sales_Model_Abstract
             return false;
         }
 
-        if ($this->isCanceled() ||
-            $this->getState() === self::STATE_PENDING_PAYMENT_REVIEW ||
-            $this->getState() === self::STATE_COMPLETE ||
-            $this->getState() === self::STATE_CLOSED) {
+        $state = $this->getState();
+        if ($this->isCanceled() || $state === self::STATE_COMPLETE || $state === self::STATE_CLOSED) {
             return false;
         }
 
@@ -248,13 +246,11 @@ class Mage_Sales_Model_Order extends Mage_Sales_Model_Abstract
      */
     public function canVoidPayment()
     {
-        if ($this->canUnhold()) {
+        if ($this->canUnhold() || $this->isPaymentReview()) {
             return false;
         }
-        if ($this->isCanceled() ||
-            $this->getState() === self::STATE_PENDING_PAYMENT_REVIEW ||
-            $this->getState() === self::STATE_COMPLETE ||
-            $this->getState() === self::STATE_CLOSED ) {
+        $state = $this->getState();
+        if ($this->isCanceled() || $state === self::STATE_COMPLETE || $state === self::STATE_CLOSED) {
             return false;
         }
         return $this->getPayment()->canVoid(new Varien_Object);
@@ -267,13 +263,11 @@ class Mage_Sales_Model_Order extends Mage_Sales_Model_Abstract
      */
     public function canInvoice()
     {
-        if ($this->canUnhold()) {
+        if ($this->canUnhold() || $this->isPaymentReview()) {
             return false;
         }
-        if ($this->isCanceled() ||
-            $this->getState() === self::STATE_PENDING_PAYMENT_REVIEW ||
-            $this->getState() === self::STATE_COMPLETE ||
-            $this->getState() === self::STATE_CLOSED ) {
+        $state = $this->getState();
+        if ($this->isCanceled() || $state === self::STATE_COMPLETE || $state === self::STATE_CLOSED) {
             return false;
         }
 
@@ -300,13 +294,11 @@ class Mage_Sales_Model_Order extends Mage_Sales_Model_Abstract
             return $this->getForcedCanCreditmemo();
         }
 
-        if ($this->canUnhold()) {
+        if ($this->canUnhold() || $this->isPaymentReview()) {
             return false;
         }
 
-        if ($this->isCanceled() ||
-            $this->getState() === self::STATE_PENDING_PAYMENT_REVIEW ||
-            $this->getState() === self::STATE_CLOSED ) {
+        if ($this->isCanceled() || $this->getState() === self::STATE_CLOSED) {
             return false;
         }
 
@@ -331,11 +323,9 @@ class Mage_Sales_Model_Order extends Mage_Sales_Model_Abstract
      */
     public function canHold()
     {
-        if ($this->isCanceled() ||
-            $this->getState() === self::STATE_COMPLETE ||
-            $this->getState() === self::STATE_CLOSED ||
-            $this->getState() === self::STATE_HOLDED ||
-            $this->getState() === self::STATE_PENDING_PAYMENT_REVIEW) {
+        $state = $this->getState();
+        if ($this->isCanceled() || $this->isPaymentReview()
+            || $state === self::STATE_COMPLETE || $state === self::STATE_CLOSED || $state === self::STATE_HOLDED) {
             return false;
         }
 
@@ -352,8 +342,7 @@ class Mage_Sales_Model_Order extends Mage_Sales_Model_Abstract
      */
     public function canUnhold()
     {
-        if ($this->getActionFlag(self::ACTION_FLAG_UNHOLD) === false ||
-            $this->getState() === self::STATE_PENDING_PAYMENT_REVIEW) {
+        if ($this->getActionFlag(self::ACTION_FLAG_UNHOLD) === false || $this->isPaymentReview()) {
             return false;
         }
         return $this->getState() === self::STATE_HOLDED;
@@ -379,8 +368,7 @@ class Mage_Sales_Model_Order extends Mage_Sales_Model_Abstract
      */
     public function canShip()
     {
-        if ($this->canUnhold() ||
-            $this->getState() === self::STATE_PENDING_PAYMENT_REVIEW) {
+        if ($this->canUnhold() || $this->isPaymentReview()) {
             return false;
         }
 
@@ -413,10 +401,9 @@ class Mage_Sales_Model_Order extends Mage_Sales_Model_Abstract
             return false;
         }
 
-        if ($this->isCanceled() ||
-            $this->getState() === self::STATE_PENDING_PAYMENT_REVIEW ||
-            $this->getState() === self::STATE_COMPLETE ||
-            $this->getState() === self::STATE_CLOSED) {
+        $state = $this->getState();
+        if ($this->isCanceled() || $this->isPaymentReview()
+            || $state === self::STATE_COMPLETE || $state === self::STATE_CLOSED) {
             return false;
         }
 
@@ -438,9 +425,7 @@ class Mage_Sales_Model_Order extends Mage_Sales_Model_Abstract
      */
     public function canReorder()
     {
-        if ($this->canUnhold() ||
-            !$this->getCustomerId() ||
-            $this->getState() === self::STATE_PENDING_PAYMENT_REVIEW) {
+        if ($this->canUnhold() || $this->isPaymentReview() || !$this->getCustomerId()) {
             return false;
         }
 
@@ -470,13 +455,36 @@ class Mage_Sales_Model_Order extends Mage_Sales_Model_Abstract
     }
 
     /**
-     * Retrieve order payment review availability
+     * Check whether the payment is in payment review state
+     * In this state order cannot be normally processed. Possible actions can be:
+     * - accept or deny payment
+     * - fetch transaction information
      *
      * @return bool
      */
-    public function canPaymentReview()
+    public function isPaymentReview()
     {
-        return $this->getState() === self::STATE_PENDING_PAYMENT_REVIEW && $this->getPayment()->canReview();
+        return $this->getState() === self::STATE_PAYMENT_REVIEW;
+    }
+
+    /**
+     * Check whether payment can be accepted or denied
+     *
+     * @return bool
+     */
+    public function canReviewPayment()
+    {
+        return $this->isPaymentReview() && $this->getPayment()->canReviewPayment();
+    }
+
+    /**
+     * Check whether there can be a transaction update fetched for payment in review state
+     *
+     * @return bool
+     */
+    public function canFetchPaymentReviewUpdate()
+    {
+        return $this->isPaymentReview() && $this->getPayment()->canFetchTransactionInfo();
     }
 
     /**
@@ -1616,6 +1624,13 @@ class Mage_Sales_Model_Order extends Mage_Sales_Model_Abstract
             $store = $this->getStore();
             $name = array($store->getWebsite()->getName(),$store->getGroup()->getName(),$store->getName());
             $this->setStoreName(implode("\n", $name));
+        }
+
+        if (!$this->getIncrementId()) {
+            $incrementId = Mage::getSingleton('eav/config')
+                ->getEntityType('order')
+                ->fetchNewIncrementId($this->getStoreId());
+            $this->setIncrementId($incrementId);
         }
 
         /**

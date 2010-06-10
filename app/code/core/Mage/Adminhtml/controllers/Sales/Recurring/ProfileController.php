@@ -20,16 +20,14 @@
  *
  * @category    Mage
  * @package     Mage_Adminhtml
- * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
+ * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 /**
- * Adminhtml sales recurring profile controller
+ * Recurring profiles view/management controller
  *
- * @category    Mage
- * @package     Mage_Adminhtml
- * @author      Magento Core Team <core@magentocommerce.com>
+ * TODO: implement ACL restrictions
  */
 class Mage_Adminhtml_Sales_Recurring_ProfileController extends Mage_Adminhtml_Controller_Action
 {
@@ -40,12 +38,10 @@ class Mage_Adminhtml_Sales_Recurring_ProfileController extends Mage_Adminhtml_Co
      */
     public function indexAction()
     {
-        $this
-            ->_title($this->__('Sales'))->_title($this->__('Recurring Profiles'))
+        $this->_title(Mage::helper('sales')->__('Sales'))->_title(Mage::helper('sales')->__('Recurring Profiles'))
             ->loadLayout()
             ->_setActiveMenu('sales/recurring_profile')
             ->renderLayout();
-
         return $this;
     }
 
@@ -54,32 +50,127 @@ class Mage_Adminhtml_Sales_Recurring_ProfileController extends Mage_Adminhtml_Co
      */
     public function viewAction()
     {
-        $this->_title($this->__('Sales'))->_title($this->__('Recurring Profiles'));
+        try {
+            $this->_title(Mage::helper('sales')->__('Sales'))->_title(Mage::helper('sales')->__('Recurring Profiles'));
+            $profile = $this->_initProfile();
+            $this->loadLayout()
+                ->_setActiveMenu('sales/recurring_profile')
+                ->_title(Mage::helper('sales')->__('Profile #%s', $profile->getReferenceId()))
+                ->renderLayout()
+            ;
+            return;
+        } catch (Mage_Core_Exception $e) {
+            $this->_getSession()->addError($e->getMessage());
+        } catch (Exception $e) {
+            Mage::logException($e);
+        }
+        $this->_redirect('*/*/');
+    }
 
-        if ($recurringProfile = $this->_initRecurringProfile()) {
-            $this->loadLayout();
-            $this->_title(sprintf("#%s", $recurringProfile->getProfileId()));
-            $this->renderLayout();
+    /**
+     * Profiles ajax grid
+     */
+    public function gridAction()
+    {
+        try {
+            $this->loadLayout()->renderLayout();
+            return;
+        } catch (Mage_Core_Exception $e) {
+            $this->_getSession()->addError($e->getMessage());
+        } catch (Exception $e) {
+            Mage::logException($e);
+        }
+        $this->_redirect('*/*/');
+    }
+
+    /**
+     * Profile orders ajax grid
+     */
+    public function ordersAction()
+    {
+        try {
+            $this->_initProfile();
+            $this->loadLayout()->renderLayout();
+        } catch (Exception $e) {
+            Mage::logException($e);
+            $this->norouteAction();
         }
     }
 
     /**
-     * Initialize recurring profile model instance
-     *
-     * @return Mage_Sales_Model_Recurring_Profile || false
+     * Profile state updater action
      */
-    protected function _initRecurringProfile()
+    public function updateStateAction()
     {
-        $id = $this->getRequest()->getParam('recurring_profile_id');
-        $recurringProfile = Mage::getModel('sales/recurring_profile')->load($id);
+        $profile = null;
+        try {
+            $profile = $this->_initProfile();
 
-        if (!$recurringProfile->getProfileId()) {
-            $this->_getSession()->addError($this->__('This recurring profile no longer exists.'));
-            $this->_redirect('*/*/');
-            $this->setFlag('', self::FLAG_NO_DISPATCH, true);
-            return false;
+            switch ($this->getRequest()->getParam('action')) {
+                case 'cancel':
+                    $profile->cancel();
+                    break;
+                case 'suspend':
+                    $profile->suspend();
+                    break;
+                case 'activate':
+                    $profile->activate();
+                    break;
+            }
+            $this->_getSession()->addSuccess(Mage::helper('sales')->__('The profile state has been updated.'));
+        } catch (Mage_Core_Exception $e) {
+            $this->_getSession()->addError($e->getMessage());
+        } catch (Exception $e) {
+            $this->_getSession()->addError(Mage::helper('sales')->__('Failed to update the profile.'));
+            Mage::logException($e);
         }
-        Mage::register('current_recurring_profile', $recurringProfile);
-        return $recurringProfile;
+        if ($profile) {
+            $this->_redirect('*/*/view', array('profile' => $profile->getId()));
+        } else {
+            $this->_redirect('*/*/');
+        }
+    }
+
+    /**
+     * Profile information updater action
+     */
+    public function updateProfileAction()
+    {
+        $profile = null;
+        try {
+            $profile = $this->_initProfile();
+            $profile->fetchUpdate();
+            if ($profile->hasDataChanges()) {
+                $profile->save();
+                $this->_getSession()->addSuccess($this->__('The profile has been updated.'));
+            } else {
+                $this->_getSession()->addNotice($this->__('The profile has no changes.'));
+            }
+        } catch (Mage_Core_Exception $e) {
+            $this->_getSession()->addError($e->getMessage());
+        } catch (Exception $e) {
+            $this->_getSession()->addError($this->__('Failed to update the profile.'));
+            Mage::logException($e);
+        }
+        if ($profile) {
+            $this->_redirect('*/*/view', array('profile' => $profile->getId()));
+        } else {
+            $this->_redirect('*/*/');
+        }
+    }
+
+    /**
+     * Load/set profile
+     *
+     * @return Mage_Sales_Model_Recurring_Profile
+     */
+    protected function _initProfile()
+    {
+        $profile = Mage::getModel('sales/recurring_profile')->load($this->getRequest()->getParam('profile'));
+        if (!$profile->getId()) {
+            Mage::throwException($this->__('Specified profile does not exist.'));
+        }
+        Mage::register('current_recurring_profile', $profile);
+        return $profile;
     }
 }

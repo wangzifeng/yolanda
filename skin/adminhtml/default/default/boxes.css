@@ -54,7 +54,7 @@
 /********** ALIGNMENT AND CLEARS ***********/
 
 
-******************************************************************/
+/******************************************************************/
 /**************************** WIDGETS *****************************/
 /******************************************************************/
 
@@ -228,7 +228,8 @@ dl.accordion dt,
 .entry-edit .entry-edit-head { background:#6f8992; padding:2px 10px; }
 dl.accordion dt, div.collapseable { margin-top:1px; }
 dl.accordion dt a, div.collapseable a { background:url(images/entry_edit_head_arrow_down.gif) 100% 50% no-repeat; color:#fff; display:block; font-weight:bold; text-decoration:none; }
-div.disabled { background:#e6e6e6; }
+div.disabled { background:#c6cbc9 !important; }
+div.disabled a { background-image:url(images/entry_edit_head_arrow_down2.gif) !important; color:#f6f6f6 !important; }
 
 .entry-edit fieldset.collapseable { margin-bottom:10px; }
 
@@ -823,9 +824,6 @@ ul.item-options li { padding-left:.7em; }
 
 h3.paypal-header { background:url(images/paypal_section.png) no-repeat 0 0; height:0; overflow:hidden; padding:14px 0 0; width:53px; }
 
-.paypal-sub-head td { background:#f2f2f2; padding:5px; }
-.paypal-sub-head h4 { margin:0; }
-
 ul.tabs a.paypal-section,
 ul.tabs a.paypal-section:hover { background:url(images/tabs_span_bg.gif) repeat-x 0 100%; border-bottom:none; padding:0.5em 0.5em 0.28em 1.5em; }
 ul.tabs a.paypal-section:hover { background-color:#d8e6e6; }
@@ -1087,6 +1085,9 @@ ul.config-tabs a.last span  { background-image:none; }
 
 .inline-table { border:0 !important; }
 .inline-table td { border:0 !important; padding:0 5px 5px !important; }
+
+.system-fieldset-sub-head td { padding:20px 5px 5px 5px; }
+.system-fieldset-sub-head h4 { border-bottom:1px solid #ccc; margin:0; }
 
 .system-tooltip-wrap { float:left; }
 .system-tooltip-box { border-left:1px solid #ccc; float:left; line-height:16px; margin-left:5px; padding-left:5px; width:180px; }

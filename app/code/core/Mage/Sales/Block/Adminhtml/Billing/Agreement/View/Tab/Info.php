@@ -19,8 +19,8 @@
  * needs please refer to http://www.magentocommerce.com for more information.
  *
  * @category    Mage
- * @package     Mage_Adminhtml
- * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
+ * @package     Mage_Sales
+ * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -89,11 +89,11 @@ class Mage_Sales_Block_Adminhtml_Billing_Agreement_View_Tab_Info extends Mage_Ad
      */
     protected function _getBillingAgreement()
     {
-        return Mage::registry('billing_agreement');
+        return Mage::registry('current_billing_agreement');
     }
 
     /**
-     * Enter description here...
+     * Set data to block
      *
      * @return string
      */

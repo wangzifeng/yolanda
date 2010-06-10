@@ -19,7 +19,7 @@
  *
  * @category    design
  * @package     default_iphone
- * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
+ * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
  * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
@@ -250,7 +250,9 @@ tr.td-noborder td { border:0; }
 .product-options dt { padding:0; margin:0; }
 .product-options dt label { font-weight:bold; }
 .product-options dd { margin:0 0 10px; padding:0 0 10px; border-bottom:1px solid #ddd; }
+.product-options dd img { padding:4px 0 0; vertical-align:middle; }
 .product-options dd select { width:100%; }
+.product-options dd .time-picker { display:inline-block; padding:4px 0 0; vertical-align:middle; }
 .product-options dl.last dd.last { margin:0; padding:0; border-bottom:0; }
 .product-options-bottom { margin:0 0 5px; }
 

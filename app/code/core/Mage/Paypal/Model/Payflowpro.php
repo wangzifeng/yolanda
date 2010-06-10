@@ -20,7 +20,7 @@
  *
  * @category    Mage
  * @package     Mage_Paypal
- * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
+ * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -150,11 +150,27 @@ class Mage_Paypal_Model_Payflowpro extends  Mage_Payment_Model_Method_Cc
      */
     public function getTransactionUrl($testMode = null)
     {
-        $testMode = is_null($testMode) ? $this->getConfigData('test_mode') : (bool)$testMode;
+        $testMode = is_null($testMode) ? $this->getConfigData('sandbox_flag') : (bool)$testMode;
         if ($testMode) {
             return self::TRANSACTION_URL_TEST_MODE;
         }
         return self::TRANSACTION_URL;
+    }
+
+    /**
+     * Payment action getter compatible with payment model
+     *
+     * @see Mage_Sales_Model_Payment::place()
+     * @return string
+     */
+    public function getConfigPaymentAction()
+    {
+        switch ($this->getConfigData('payment_action')) {
+            case Mage_Paypal_Model_Config::PAYMENT_ACTION_AUTH:
+                return Mage_Payment_Model_Method_Abstract::ACTION_AUTHORIZE;
+            case Mage_Paypal_Model_Config::PAYMENT_ACTION_SALE:
+                return Mage_Payment_Model_Method_Abstract::ACTION_AUTHORIZE_CAPTURE;
+        }
     }
 
     public function authorize(Varien_Object $payment, $amount)
@@ -177,7 +193,6 @@ class Mage_Paypal_Model_Payflowpro extends  Mage_Payment_Model_Method_Cc
 
                 case self::RESPONSE_CODE_FRAUDSERVICE_FILTER:
                     $payment->setIsTransactionPending(true);
-                    $payment->getTransactionPendingStatus($this->getConfigData('fraud_order_status'));
                     break;
 
                 default:
@@ -230,7 +245,6 @@ class Mage_Paypal_Model_Payflowpro extends  Mage_Payment_Model_Method_Cc
 
             case self::RESPONSE_CODE_FRAUDSERVICE_FILTER:
                 $payment->setIsTransactionPending(true);
-                $payment->getTransactionPendingStatus($this->getConfigData('fraud_order_status'));
                 break;
 
             default:
