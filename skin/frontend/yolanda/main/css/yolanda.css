@@ -1,0 +1,328 @@
+/* 
+    Document   : yolanda
+    Created on : Aug 24, 2010, 4:36:44 PM
+    Author     : wangzifeng
+    Description:
+        Purpose of the stylesheet follows.
+*/
+
+/* 
+   TODO customize this sample style
+   Syntax recommendation http://www.w3.org/TR/REC-CSS2/
+*/
+
+a:link {
+
+  color:#000;
+  text-decoration: none;
+}
+
+a:visited {
+
+  color:#000;
+  text-decoration: none;
+}
+
+a:hover {
+
+  color:#7c7b7c;
+  text-decoration: none;
+}
+
+a:active {
+
+  color:#000;
+  text-decoration: none;
+}
+
+body {
+  background:#f5f1f0 no-repeat 40px 0px;
+  font-family:"Georgia",Times New Roman,Serif;
+  
+}
+
+div.page{
+  -moz-box-shadow:0 0 10px #7c7b7c;
+  -webkit-box-shadow:0 0 10px #7c7b7c;
+}
+
+div.quick-access {
+  height: auto;
+  width:313px;
+  float: left;
+  margin:0 10px;
+}
+
+div.header input#search{
+
+  width:180px;
+}
+
+div.header ul.links {
+
+  font-size: 12px;
+
+}
+
+div.header ul.links li{
+
+  margin:0 5px;
+}
+
+div#header_right {
+
+}
+
+div#header div.form-search{
+  margin-right: 5px;
+}
+
+div.footer_links ul {
+
+  height: 24px;
+}
+
+div.footer_links ul li{
+
+  margin: 0 10px;
+  display:inline;
+  text-shadow:0 -1px 1px rgba(0, 0, 0, 0.1)
+}
+
+.footer_links {
+  text-align: center;
+  text-transform:uppercase;
+}
+
+.footer-container {
+    margin:0 auto;
+    padding:10px 0;
+    text-align:left;
+    width:1000px;
+
+}
+
+.add-to-links {
+
+  margin: 10px auto;
+}
+
+.col2-left-layout .products-grid {
+
+  width: auto;
+}
+
+.col2-left-layout .products-grid li.item {
+
+  width:220px;
+  height: 220px;
+  overflow: hidden;
+  padding:12px 10px 120px;
+}
+
+.product-name h1 {
+  font-size: 24px;
+  font-family:"Georgia",Times New Roman,Serif;
+}
+
+.short-description h2 {
+  font-family:"Georgia",Times New Roman,Serif;
+  font-size: 18px;
+  margin: 10px auto;
+  padding: 10px;
+  background-color: #F5F1F0;
+  border-left: 50px solid #ddd;
+  border-bottom:1px solid #ddd;
+  border-right:1px solid #ddd;
+}
+
+
+.box-collateral h2 {
+  background-color: #F5F1F0;
+  border-left: 50px solid #ddd;
+  border-bottom:1px solid #ddd;
+  border-right:1px solid #ddd;
+  padding: 10px;
+  font-family:"Georgia",Times New Roman,Serif;
+  margin:10px auto;
+}
+
+.product-shop .price-box{
+  font-size: 24px;
+  font-family:"Georgia",Times New Roman,Serif;
+}
+
+.product-shop .add-to-box {
+
+  padding:10px 0;
+}
+
+.add-to-box .add-to-links {
+
+  margin: 0;
+}
+
+.product-view .box-tags ul li {
+
+  display:inline-block;
+  margin: 0 10px;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.product-view .box-tags h3 {
+  font-size: 12px;
+  margin: 10px auto;
+}
+.product-view #addTagForm {
+
+  margin: 10px auto;
+  display: block;
+}
+
+.account-login .new-users h2, .account-login .registered-users h2 {
+
+  margin: 10px auto;
+}
+
+button.button {
+  text-shadow:0 -1px 1px rgba(0, 0, 0, 0.1);
+  background-color: #FBEEE1;
+  border-bottom: 1px solid #ddd;
+  border-right: 1px solid #ddd;
+    -moz-border-radius:5px;
+    -webkit-border-radius:5px;
+    color: #333;
+}
+
+div.header button.button {
+
+  font-size: 14px;
+  font-weight: bold;
+  border: none;
+  background: none;
+  font-family:"Georgia",Times New Roman,Serif;
+
+}
+
+.category-products button, .product-view button {
+
+  background-color: #CFF5B3;
+  text-shadow:0 -1px 1px rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid #ddd;
+  border-right: 1px solid #ddd;
+  color: #fff;
+}
+
+.category-products button span,.product-view button span {
+
+  font-size: 16px;
+  padding: 5px 10px;
+
+}
+
+.category-products button span span,.product-view button span span{
+
+  padding: 0;
+}
+
+#shopping-cart-table {
+
+  font-family:"Arial", Helvetica, sans-serif;;
+}
+
+.cart-price .price {
+  font-size: 14px;
+  font-family:"Georgia",Times New Roman,Serif;
+}
+
+#shopping-cart-totals-table .a-right{
+
+  font-family:"Georgia",Times New Roman,Serif;
+  font-size: 18px;
+}
+
+#checkoutSteps {
+
+   font-family:"Arial", Helvetica, sans-serif;
+}
+
+.error-msg, .success-msg, .note-msg, .notice-msg {
+
+  border: 1px solid #ddd;
+
+}
+
+#checkout-review-table .price {
+
+    font-family:"Georgia",Times New Roman,Serif;
+  font-size: 18px;
+}
+
+.checkout-onepage-success .col-main p,  .checkout-cart-index .col-main p{
+
+  font-family:"Arial", Helvetica, sans-serif;
+}
+
+.my-account, .advanced-search, #contactForm {
+
+   font-family:"Arial", Helvetica, sans-serif;
+}
+
+.my-account .page-title{
+
+   font-family:"Georgia",Times New Roman,Serif;
+
+}
+
+.my-account .box-head h2 {
+
+   font-family:"Georgia",Times New Roman,Serif;
+   background-color: #F5F1F0;
+  border-left: 50px solid #ddd;
+  border-bottom:1px solid #ddd;
+  border-right:1px solid #ddd;
+  padding: 10px;
+  margin: 10px auto;
+}
+
+.my-account .addresses-list h2 {
+
+     font-family:"Georgia",Times New Roman,Serif;
+   background-color: #F5F1F0;
+  border-bottom:1px solid #ddd;
+  border-right:1px solid #ddd;
+  padding: 10px;
+  margin: 10px auto;
+}
+
+.welcome-msg .hello {
+  font-size: 18px;
+
+}
+
+.box-account a {
+    text-shadow:0 -1px 1px rgba(0, 0, 0, 0.1);
+    background-color: #FBEEE1;
+    border-bottom: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+    -moz-border-radius:5px;
+    -webkit-border-radius:5px;
+    color: #333;
+    font-size: 12px;
+    padding: 5px;
+    margin: 10px auto;
+    width: auto;
+}
+
+.box-account {
+
+  line-height: 2em;
+}
+
+.header .logo a {
+
+  width: 165px;
+  height: 20px;
+  display: block;
+}

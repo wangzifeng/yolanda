@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : local.xml
+    Created on : August 24, 2010, 4:34 PM
+    Author     : wangzifeng
+    Description:
+        Purpose of the document follows.
+-->
+
+<layout version="0.1.0">
+<default>
+  
+    <reference name="top.links">
+    <remove name="wishlist_link" />
+    </reference>
+
+
+
+<!--Setting the default layout. -->
+  <reference name="root">
+    <action method="setTemplate">
+    <template>page/1column.phtml</template>
+    </action>
+    <action method="setIsHandle">
+    <applied>1</applied>
+    </action>
+  </reference>
+
+
+  
+<!-- add the local stylesheet -->
+
+  <reference name="head">
+    <action method="addCss">
+      <stylesheet>css/yolanda.css</stylesheet>
+    </action>
+  </reference>
+
+<!-- Header -->
+  <reference name="header">
+    <remove name="store_language"/>
+  </reference>
+
+<!-- Right Sidebar -->
+
+  <reference name="left">
+    <remove name="left.newsletter"/>
+    <remove name="left.permanent.callout"/>
+  </reference>
+
+
+
+  <reference name="right">
+    <remove name="right.poll"/>
+  </reference>
+
+
+<!-- Catalog Page -->
+
+<!-- Footer -->
+  <reference name="footer">
+    
+  </reference>
+
+  <reference name="footer_links">
+    <action method="addLink" translate="label title">
+      <label>About Us</label>
+      <url>about-us</url>
+      <title>About Us</title>
+      <prepare/><urlParams/>
+      <position>1</position>
+    </action>
+
+    <action method="addLink" translate="label title">
+      <label>Customer Service</label>
+      <url>customer-service</url>
+      <title>Customer Service</title>
+      <prepare/><urlParams/>
+      <position>5</position>
+    </action>
+
+
+  </reference>
+
+
+</default>
+
+
+
+  <!--
+  <helloworld_index_index>
+    <reference name="root">
+    <block type="page/html" name="root" output="toHtml" template="../../../../../code/local/Yolanda/Helloworld/simple_page.phtml" />
+
+    <block type="customer/form_register" name="customer_form_register" template="customer/form/register.phtml"/>
+
+    <block type="page/template_links" name="top.links"/>
+
+    <block type="catalog/product_list" name="yolanda_featured" template="catalog/product/list.phtml">
+    <action method="setCategoryId"><category_id>13</category_id></action>
+    </block>
+
+    </reference>
+  </helloworld_index_index> -->
+
+  <cms_index_index>
+
+  <!-- Catalog Page  
+
+    <reference name="content">
+    <block type="catalog/product_list" name="featured" template="catalog/product/list.phtml">
+      <action method="setCategoryId"><category_id>13</category_id></action>
+    </block>
+    </reference>
+
+    -->
+  </cms_index_index>
+
+  <contacts_index_index>
+      <reference name="root">
+    <action method="setTemplate">
+    <template>page/1column.phtml</template>
+    </action>
+    <action method="setIsHandle">
+    <applied>1</applied>
+    </action>
+      </reference>
+    </contacts_index_index>
+
+     <catalogsearch_advanced_index>
+             <reference name="root">
+    <action method="setTemplate">
+    <template>page/1column.phtml</template>
+    </action>
+    <action method="setIsHandle">
+    <applied>1</applied>
+    </action>
+      </reference>
+     </catalogsearch_advanced_index>
+
+     <catalog_category_view>
+      <reference name="root">
+          <action method="setTemplate">
+          <template>page/2columns-left.phtml</template>
+          </action>
+          <action method="setIsHandle">
+          <applied>1</applied>
+          </action>
+      </reference>
+      
+      <reference name="left">
+        <block type="checkout/cart_sidebar" name="cart_sidebar" template="checkout/cart/sidebar.phtml" before="-" />
+      </reference>
+
+
+
+     </catalog_category_view>
+
+
+
+      <catalog_product_view>
+        <reference name="root">
+            <action method="setTemplate"><template>page/2columns-left.phtml</template></action>
+        </reference>
+
+        <reference name="right">
+        </reference>
+
+        <reference name="left">
+          <block type="reports/product_viewed" name="left.reports.product.viewed" template="reports/product_viewed.phtml" />
+          <block type="checkout/cart_sidebar" name="cart_sidebar" template="checkout/cart/sidebar.phtml" before="-"/>
+          <block type="catalog/product_list_related" name="catalog.product.related" template="catalog/product/list/related.phtml"/>
+          <remove name="tags_popular" />
+        </reference>
+        
+      </catalog_product_view>
+
+
+       <checkout_onepage_success>
+                      <reference name="root">
+    <action method="setTemplate">
+    <template>page/1column.phtml</template>
+    </action>
+    <action method="setIsHandle">
+    <applied>1</applied>
+    </action>
+      </reference>
+
+       </checkout_onepage_success>
+
+        <customer_account_edit>
+
+          <reference name="left">
+            <remove name="catalog.compare.sidebar" />
+        </reference>
+
+          </customer_account_edit>
+
+           <customer_account_index>
+            <reference name="left">
+            <remove name="catalog.compare.sidebar" />
+            </reference>
+
+           </customer_account_index>
+
+            <customer_address_index>
+            <reference name="left">
+            <remove name="catalog.compare.sidebar" />
+            </reference>
+
+            </customer_address_index>
+
+          <cms_index_noroute>
+               <reference name="root">
+              <action method="setTemplate">
+              <template>page/1column.phtml</template>
+              </action>
+              <action method="setIsHandle">
+              <applied>1</applied>
+              </action>
+                </reference>
+          </cms_index_noroute>
+
+           <catalogsearch_result_index>
+                          <reference name="root">
+            <action method="setTemplate">
+            <template>page/1column.phtml</template>
+            </action>
+            <action method="setIsHandle">
+            <applied>1</applied>
+            </action>
+              </reference>
+
+           </catalogsearch_result_index>
+
+</layout>
+
+
